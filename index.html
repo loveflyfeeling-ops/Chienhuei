@@ -284,6 +284,7 @@ dialog#pDlg .pd{padding:14px 16px}
 .colp.collapsed>h2:first-child::after,.colp.collapsed>.yd>h2:first-child::after{content:"展開 ▼";color:var(--lacquer);border-color:var(--lacquer)}
 .colp.collapsed>h2:first-child~*,.colp.collapsed>.yd>h2:first-child~*,.colp.collapsed>.yd~*{display:none!important}
 .colp.collapsed>h2:first-child,.colp.collapsed>.yd>h2:first-child{margin-bottom:0}
+.plan .pl{margin:4px 0 2px;padding:6px 10px;border-left:3px solid var(--brass);background:color-mix(in srgb,var(--brass) 7%,transparent);border-radius:6px}.plan .pl p{margin:3px 0}
 .zjp .zjc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;font-size:.9rem}
 .zjp .zjc select{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:3px 6px}
 .zjp .zjl{list-style:none;padding:0;margin:8px 0;display:flex;flex-direction:column;gap:8px}
@@ -399,10 +400,11 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
     <div class="panel zh bu colp" id="bu" hidden></div>
     <div class="panel zh zjp colp" id="zjp" hidden></div>
     <div class="panel colp" id="rankp">
-      <h2>今日時辰吉方</h2>
+      <h2>日盤擇吉方</h2>
       <label class="toggle"><input type="checkbox" id="dayOnly"> 前三吉只從日間（07:00–21:00）挑選</label>
       <div class="ranklegend"><span><i style="background:var(--brass)"></i>第一吉</span><span><i style="background:var(--jade)"></i>第二吉</span><span><i style="background:var(--lacquer)"></i>第三吉</span></div>
       <ol class="toprank" id="rank"></ol>
+      <div id="rdoor"></div>
     </div>
     <div class="panel zh colp" id="mjp" hidden></div>
     <div class="panel fs colp" id="fs"></div>
@@ -667,7 +669,7 @@ function pillars(Y,M,D,h,n){ // 輸入為台灣當地時間；23:00 換日；年
   const el=((h*60+n)-(hb*2-1)*60+2880)%1440,k=Math.floor(el/10)%12,ki=gi((hs%5*2+k)%10,k);
   return {ms,y,m,d,YY,yi,mi,di,hb,hi,k,ki}}
 const KIND={時:'時盤',刻:'刻盤',年:'年盤',月:'月盤',日:'日盤'};
-function plate(kind,Y,M,D,h,n,fix){
+function plate(kind,Y,M,D,h,n,fix,md){
   const q=pillars(Y,M,D,h,n);let ov=null;
   if(kind==='刻'){const lu=lunarOf(dnum(q.y,q.m,q.d)),yg=yangAt(q.ms);if(!lu||yg===null)return null;
     ov={hi:q.ki,prev:q.hi,P:[q.mi,q.di,q.hi,q.ki],yang:yg,ju:(q.yi%12+1+lu.m+lu.d+q.hb+1+q.k+1)%9||9}} // 年支＋農曆月日＋時支＋刻支
@@ -678,7 +680,7 @@ function plate(kind,Y,M,D,h,n,fix){
     const b0=yg?B[0]:B[1];ov={hi:q.di,prev:q.mi,P:[q.yi,q.yi,q.mi,q.di],yang:yg,ju:yg?(b0-1+q.di)%9+1:((b0-1-q.di)%9+9)%9+1}} // 日家：依三元，冬至後順、夏至後逆
   if(fix){ov=ov||{};ov.ju=fix.ju;ov.yang=fix.yang}
   if(ov)ov.kind=kind;
-  const c=chart(q.y,q.m,q.d,q.hb,'yin',q.ms,ov);if(!c)return null;c.kind=kind;c.q=q;c.fixed=!!fix;c.wall={Y,M,D,h,n};return c}
+  const c=chart(q.y,q.m,q.d,q.hb,md||'yin',q.ms,ov);if(!c)return null;c.kind=kind;c.q=q;c.fixed=!!fix;c.wall={Y,M,D,h,n};return c}
 const MUP={4:'辛',2:'癸',6:'乙丙戊',8:'丁己'}; // 巽：辛　坤：癸、直符　乾：乙丙戊　艮：丁己（依講義：庚在艮、壬在巽不論入墓，只論擊刑）
 function muOf(c,x){const o=[],m=MUP[x.p]||'';for(const g of x.t)if(m.includes(g))o.push('天盤'+g);for(const g of x.d)if(m.includes(g))o.push('地盤'+g);
   const xy=c.xun.slice(-1);if(x.p===2&&(x.t.includes(xy)||x.d.includes(xy)||x.god==='值符'))o.push('直符（'+xy+'）');
@@ -1405,6 +1407,20 @@ function buPlan(c,goal){const G=BUG[goal];let best=null;
   for(let i=1;i<=30*12&&times.length<6;i++){const t=new Date(t0.getTime()+i*2*3600000);const hh=t.getHours();if(hh<5)continue;const pc=QM.plate('時',t.getFullYear(),t.getMonth()+1,t.getDate(),hh,t.getMinutes());if(!pc||pc.wbu)continue;
     const fp=QM.focusOf(pc),x=pc.pals.find(q=>q.p===fp),F=QM.pflags(pc,fp);if(x&&'開休生'.includes(x.door[0])&&!F.kong&&!F.mu.length&&!F.xi.length&&!F.po)times.push(`${t.getMonth()+1}/${t.getDate()} ${hrTxt(Math.floor((hh+1)/2)%12)}（${pc.dayGZ}日${pc.hourGZ}時）`)}
   return {best,base,pct,times}}
+// ===== 佈局方案整理：先處理 → 主吉祥物（複方）→ 搭配 → 位置 → 符 =====
+function planOf(rc,x,p){const it=itemsFor(x),dr=x.door[0],F=QM.pflags(rc,p),SH=DB.SIHAI[p],h4=F.kong||F.mu.length||F.xi.length||F.po,bad=['白虎','玄武'].includes(x.god);
+  const fix=[],adds=[],fu=[],addF=f=>{if(f&&f!=='不需用符'&&!fu.includes(f))fu.push(f+(/丁奇/.test(f)&&(p===2||p===6)?'（坤、乾宮須化燒）':''))};
+  if(h4&&SH){fix.push([`此宮有${[F.kong?'空亡':'',F.mu.length?'入墓':'',F.xi.length?'擊刑':'',F.po?'門迫':''].filter(Boolean).join('、')}：先移走${SH.items}`,`移走${SH.items}`]);if(DB.FU[p])addF(`${x.gua}宮解四害符（${DB.FU[p].c.join(' ')}）`)}
+  if(bad){fix.push([`${x.god}不用佈：把${YM.GOD[x.god][2]}移走或收好`,`收好${YM.GOD[x.god][2]}`]);addF(DB.ITEM.god[x.god].f)}
+  const dv=DB.ITEM.po[dr];if(!'開休生'.includes(dr)&&dv){fix.push([`${x.door}換門為${dv.c}：擺${dv.i}擺件`,`擺${dv.i}擺件（換門）`]);addF(dv.f)}
+  const pr=pairItems(x)[0],g0=it.find(v=>/^天盤/.test(v[0])),se=STEL[x.star.replace(/[天（）]/g,'')[0]]||'土',ge=GEL5[x.t[0]],cols=[...new Set([LYCOL[se],LYCOL[ge]])].join('、');
+  const mainItem=pr?pr[1]:g0?g0[1]:'吉祥物';const mainShort=mainItem.split(/或|、/)[0];
+  const main=`${mainItem}（取天${x.t}地${x.d}的象意${pr&&pr[2]?'，可搭配'+pr[2]:''}），顏色選${cols}色（${x.star.replace(/（.*$/,'')}屬${se}、天盤${x.t[0]}屬${ge}）`;
+  if(g0&&pr)addF(g0[2]);
+  if('開休生'.includes(dr)&&BITEM[x.door])adds.push(`${x.door}：${BITEM[x.door]}`);
+  it.forEach(([k,i,f])=>{if(i==='不用佈')return;if(/^天盤/.test(k)&&!pr&&k===g0[0]){addF(f);return}if(bad&&k===x.god)return;adds.push(`${k}：${i}`);addF(f)});
+  const pos=x.god==='九天'?'放在櫃子或房間的最高處（九天）':x.god==='九地'?'放在低處、櫃子最下層（九地）':x.door==='杜門'?'放在櫃子內（杜門）':x.god==='太陰'?'放在櫃內或較隱密處（太陰）':x.god==='值符'?'放在顯眼的正中位置（值符）':x.god==='六合'?'成對擺放（六合）':x.door==='景門'?'放在明亮處（景門）':'放在該方位穩固、乾淨的地方';
+  return {fix,main,mainShort,cols,adds,pos:`家中${x.dir}方，${pos}`,fu}}
 function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;
   const goals=Object.keys(BUG);let out='<p class="empty">選擇想催旺的事項，程式會用移星換斗找出最佳轉宮、列出佈局宮位與物品，並挑出接下來 30 天適合佈局的時辰。</p>';
   if(S.bu){const G=BUG[S.bu];let c=cur();
@@ -1412,14 +1428,15 @@ function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}e
     if(S.bu==='撤局')out=`<p class="ds">撤局：把先前佈下的物品收回、清潔擺放處，並在吉時（用神宮得開、休、生門的時辰）進行，收回後默念感謝，讓氣場歸位。</p>`;
     else if(c&&(!G.life||S.birth)){const r=buPlan(c,S.bu),b=r.best,rc=b.rc;
       out=`<p class="ds"><b>${b.k?'移星換斗：順轉'+b.k+'宮':'原盤即為最佳'}</b>（${G.w}評分 ${r.pct} 分）${G.life?'・依終身命盤':''}　<button class="lk" data-burot="${b.k}">在盤上檢視</button></p>
-      <ol class="bul">${b.pals.map((p,i)=>{const x=rc.pals.find(q=>q.p===p),why=[];if(p===b.fp)why.push('用神宮（日干）');b.where.filter(w=>w[1]===p).forEach(w=>why.push(w[0]));
-        const it=itemsFor(x).filter(v=>v[1]!=='不用佈'),items=it.map(([k,i,f])=>`【${k}】${i}${f&&f!=='不需用符'?'・符：'+f+(/丁奇/.test(f)&&(p===2||p===6)?'（坤、乾宮不能貼，須化燒）':''):''}`);
-        const dv=DB.ITEM.po[x.door[0]];if(!'開休生'.includes(x.door[0])&&dv)items.unshift(`【${x.door}】換門為${dv.c}，可佈${dv.i}擺件・符：${dv.f}`);else if(BITEM[x.door])items.unshift(`【${x.door}】${BITEM[x.door]}`);
-        pairItems(x).forEach(([k,i,b])=>items.push(`【天${k[0]}地${k[1]}】${i}${b?'（可搭配'+b+'）':''}`));
-        if(['白虎','玄武'].includes(x.god))items.push(`【${x.god}】不用佈，可貼${DB.ITEM.god[x.god].f}`);
+      <ol class="bul plan">${b.pals.map((p,i)=>{const x=rc.pals.find(q=>q.p===p),why=[];if(p===b.fp)why.push('用神宮（日干）');b.where.filter(w=>w[1]===p).forEach(w=>why.push(w[0]));
         const w=starStat(rc,x);if(G.w==='財'&&(w.m||w.p))why.push(w.m&&w.p?'財星得令得地':w.m?'財星得令':'財星得地');
-        const SH=DB.SIHAI[p],F=QM.pflags(rc,p),h4=F.kong||F.mu.length||F.xi.length||F.po;
-        return `<li><b>佈局${x.gua}宮（${x.dir}方）</b>　符合：${why.join('、')}<br>建議物品：${items.join('；')}${h4&&SH?`<br><span class="j-1">此宮有四害：先移走 ${SH.items}，可貼${x.gua}宮解四害符（${DB.FU[p]?DB.FU[p].c.join(' '):''}）</span>`:''}</li>`}).join('')}</ol>
+        const P=planOf(rc,x,p);return `<li><b>佈局${x.gua}宮（${x.dir}方）</b>　<small>目的：${why.join('、')}</small>
+          <div class="pl"><p><b>① 先處理</b>　${P.fix.length?P.fix.map(f=>f[0]).join('；'):'此宮健康，不需先拆'}</p>
+          <p><b>② 主吉祥物（一件到位）</b>　${P.main}</p>
+          <p><b>③ 搭配擺件</b>　${P.adds.length?P.adds.join('；'):'—'}</p>
+          <p><b>④ 擺放位置</b>　${P.pos}</p>
+          ${P.fu.length?`<p><b>⑤ 符令</b>　${P.fu.join('、')}</p>`:''}</div></li>`}).join('')}</ol>
+      <div class="msum"><p><b>完整方案</b>　選一個建議時辰，在同一個時辰內依序完成（先拆後補）：</p><ol>${b.pals.map(p=>{const x=rc.pals.find(q=>q.p===p),P=planOf(rc,x,p);return `<li><b>${x.dir}方</b>：${P.fix.length?P.fix.map(f=>f[1]).join('、')+' → ':''}擺上${P.mainShort}（${P.cols}色）→ ${P.pos.replace(/^家中.+?方，/,'')}</li>`}).join('')}</ol></div>
       ${(()=>{const fp=b.fp,fe=PEL5[fp],raw=rc.YC.P[2][0];if(!fe)return '';
         const HG={甲:'己',己:'甲',乙:'庚',庚:'乙',丙:'辛',辛:'丙',丁:'壬',壬:'丁',戊:'癸',癸:'戊'},de=GEL5[raw],yy=g=>'甲丙戊庚壬'.includes(g),zc=[...'甲乙丙丁戊己庚辛壬癸'].filter(g=>KEE[de]===GEL5[g]);
         const T=G.w==='財'?[['戊',QM.palOfT(rc,'戊')],['生門',(rc.pals.find(x=>x.door==='生門')||{}).p],...zc.map(g=>[(yy(g)!==yy(raw)?'正財':'偏財')+g,QM.palOfT(rc,g)]).map(([n,p])=>[n.endsWith('戊')?n+'（同上）':n,p]).filter(([n])=>!n.endsWith('（同上）'))]:G.w==='官'?[['值符',(rc.pals.find(x=>x.god==='值符')||{}).p]]:/婚姻|桃花|感情/.test(G.w)?[['合干'+HG[raw],QM.palOfT(rc,HG[raw])]]:[];
@@ -1479,22 +1496,45 @@ function zjSearch(goal,days,dayOnly){const G=BUG[goal],now=new Date(),res=[],cac
 const fmtT=t=>`${t.getMonth()+1}/${t.getDate()}（${WKD[t.getDay()]}）${pad(t.getHours())}:${pad(t.getMinutes())}`;
 // ===== 月盤擇吉方：未來 12 個月的吉方 =====
 const MJG={一般出行:{d:'出遊、旅遊、拜訪',f:x=>(x.door==='休門'?2:0)+(x.god==='九天'?1:0)},求財:{d:'求財、談生意',f:x=>(x.door==='生門'?3:0)+(x.t.includes('戊')?2:0)},事業:{d:'工作、升遷、開業',f:x=>(x.door==='開門'?3:0)+(x.god==='值符'?2:0)},感情人緣:{d:'約會、人緣、合作',f:x=>(x.god==='六合'?3:0)+(/[乙庚]/.test(x.t)?1:0)+(x.door==='休門'?1:0)},修繕動土:{d:'短期工程、修繕',f:x=>(x.door==='生門'||x.door==='開門'?1:0)+(/[戊己]/.test(x.t)?2:0)}};
-const MJ={goal:'一般出行',res:null};
+const MJ={goal:'一般出行',res:null,door:null};
 function mjStart(t){const g=x=>{const c=QM.plate('月',x.getFullYear(),x.getMonth()+1,x.getDate(),12,0);return c?c.YC.P[3]:null},g0=g(t),d=new Date(t);let i=0;while(i<40){const p=new Date(d);p.setDate(p.getDate()-1);if(g(p)!==g0)break;d.setDate(d.getDate()-1);i++}return d}
-function mjCalc(goal){const out=[],now=new Date();now.setHours(12,0,0,0);let t=mjStart(now);
-  for(let k=0;k<12;k++){const c=QM.plate('月',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0);if(!c)break;
-    const list=c.pals.filter(x=>'開休生'.includes(x.door[0])&&no4(c,x.p)&&!['白虎','玄武','螣蛇'].includes(x.god)).map(x=>{const w=starStat(c,x),q=/[乙丙丁]/.test(x.t);
+function mjCalc(goal,md){const out=[],now=new Date();now.setHours(12,0,0,0);let t=mjStart(now);
+  for(let k=0;k<12;k++){const c0=QM.plate('月',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0);if(!c0)break;
+    if(md==='yang'){const c=QM.plate('月',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0,null,'yang');const list=c?c.pals.filter(x=>x.zj).map(x=>({p:x.p,x,sc:x.ss/10+MJG[goal].f(x)*2,q:/[乙丙丁]/.test(x.t),ji:true})).sort((a,b)=>b.sc-a.sc):[];
+      out.push({t:new Date(t),gz:c0.YC.P[3],ju:c?c.ju:'',list,fu:c&&(c.fuFan.星伏吟||c.fuFan.門伏吟)})}else{const c=c0;
+    const list=c0.pals.filter(x=>'開休生'.includes(x.door[0])&&no4(c,x.p)&&!['白虎','玄武','螣蛇'].includes(x.god)).map(x=>{const w=starStat(c,x),q=/[乙丙丁]/.test(x.t);
       const sc=3+(q?2:0)+(['值符','太陰','六合','九地','九天'].includes(x.god)?1:0)+(w.m?1:0)+MJG[goal].f(x);return {p:x.p,x,sc,q}}).sort((a,b)=>b.sc-a.sc);
-    out.push({t:new Date(t),gz:c.YC.P[3],ju:c.ju,list,fu:c.fuFan.星伏吟||c.fuFan.門伏吟});
+    out.push({t:new Date(t),gz:c.YC.P[3],ju:c.ju,list,fu:c.fuFan.星伏吟||c.fuFan.門伏吟})}
     const n=new Date(t);n.setDate(n.getDate()+20);t=mjStart(new Date(n.getTime()+15*86400000));const g=x=>QM.plate('月',x.getFullYear(),x.getMonth()+1,x.getDate(),12,0).YC.P[3];if(g(t)===out[out.length-1].gz){t.setDate(t.getDate()+31);t=mjStart(t)}}
   return out}
-function renderMJ(){const el=$('#mjp');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;
-  if(!MJ.res||MJ.res.goal!==MJ.goal)MJ.res={goal:MJ.goal,rows:mjCalc(MJ.goal)};const R=MJ.res.rows,best=Math.max(...R.map(r=>r.list[0]?r.list[0].sc:0));
-  el.innerHTML=`<h2>月盤擇吉方</h2><p class="ds">月盤看一整個月的吉方，適合旅遊、休閒、短期修繕；出門時先往吉方走一段，再前往目的地。條件：得開、休、生門，沒有奇門四害，不臨白虎、玄武、螣蛇。</p>
-    <div class="tp" role="group" aria-label="用途">${Object.keys(MJG).map(k=>`<button data-mjg="${k}" aria-pressed="${k===MJ.goal}" title="${MJG[k].d}">${k}</button>`).join('')}</div>
-    <ol class="lvl">${R.map(r=>{const top=r.list.slice(0,2);return `<li class="${top[0]&&top[0].sc===best?'top':''}"><b>${r.t.getFullYear()}/${r.t.getMonth()+1}/${r.t.getDate()} 起・${r.gz}月</b>${r.fu?'<small>（伏吟，進度慢）</small>':''}　<button class="lk" data-mjgo="${r.t.getTime()}">看盤</button><br>
-      ${top.length?top.map(o=>`<span class="${o.sc===best?'j1':''}">${o.sc===best?'★ ':''}${o.x.dir}方（${o.x.gua}宮）：${o.x.door}・${o.x.god}・天盤${o.x.t}${o.q?'・得奇':''}</span>`).join('<br>'):'<span class="j-1">沒有理想的吉方，這個月宜守不宜遠行</span>'}</li>`}).join('')}</ol>
+function mjDoorList(yg){const md=yg?'yang':'yin',rows=[];let t=mjStart((()=>{const n=new Date();n.setHours(12,0,0,0);return n})());
+  for(let k=0;k<12;k++){const c0=QM.plate('月',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0);if(!c0)break;const c=yg?QM.plate('月',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0,null,'yang'):c0;
+    const x=c&&c.pals.find(q=>q.door===MJ.door);if(x){const k2=doorChk(c,x,md);rows.push({t:new Date(t),gz:c0.YC.P[3],x,ok:k2.ok,why:k2.why})}
+    const g=y=>QM.plate('月',y.getFullYear(),y.getMonth()+1,y.getDate(),12,0).YC.P[3],n=new Date(t);n.setDate(n.getDate()+35);t=mjStart(n);if(g(t)===c0.YC.P[3]){t.setDate(t.getDate()+31);t=mjStart(t)}}
+  const ok=rows.filter(r=>r.ok);
+  return `<p class="ds">${MJ.door}每個月落在哪個方位；✓ 表示這個月${MJ.door}的方位可以使用（共 ${ok.length} 個月）。</p><ol class="lvl">${rows.map(r=>`<li class="${r.ok?'top':''}"><b>${r.t.getFullYear()}/${r.t.getMonth()+1}/${r.t.getDate()} 起・${r.gz}月</b>${yg?'':`　<button class="lk" data-mjgo="${r.t.getTime()}">看盤</button>`}<br><span class="${r.ok?'j1':'j-1'}">${r.ok?'✓ ':'✗ '}${r.x.dir}方（${r.x.gua}宮）・${r.x.god}・天盤${r.x.t}${r.ok?'':'：'+r.why.join('、')}</span></li>`).join('')}</ol>`}
+function renderMJ(){const el=$('#mjp');el.hidden=false;const yg=S.mode!=='yin';
+  if(!MJ.res||MJ.res.goal!==MJ.goal||MJ.res.md!==S.mode)MJ.res={goal:MJ.goal,md:S.mode,rows:mjCalc(MJ.goal,yg?'yang':'yin')};const R=MJ.res.rows,best=Math.max(...R.map(r=>r.list[0]?r.list[0].sc:0));
+  el.innerHTML=`<h2>月盤擇吉方</h2><p class="ds">月盤看一整個月的吉方，適合旅遊、休閒、短期修繕；出門時先往吉方走一段，再前往目的地。${yg?'陽盤月家奇門（陰遁定局、轉盤）：依陽盤最吉方條件──得休、生、開、景門，且無門伏吟、門反吟、擊刑、白虎、空亡、門迫、門制、五不遇；有吉格者優先。':'條件：得開、休、生門，沒有奇門四害，不臨白虎、玄武、螣蛇。'}</p>
+    <div class="tp" role="group" aria-label="用途">${Object.keys(MJG).map(k=>`<button data-mjg="${k}" aria-pressed="${k===MJ.goal&&!MJ.door}" title="${MJG[k].d}">${k}</button>`).join('')}</div>
+    <div class="tp" role="group" aria-label="指定吉門"><small>指定吉門：</small>${JDOORS.map(d=>`<button data-mjd="${d}" aria-pressed="${MJ.door===d}">${d}</button>`).join('')}</div>
+    ${MJ.door?mjDoorList(yg):''}<ol class="lvl" ${MJ.door?'hidden':''}>${R.map(r=>{const top=r.list.slice(0,2);return `<li class="${top[0]&&top[0].sc===best?'top':''}"><b>${r.t.getFullYear()}/${r.t.getMonth()+1}/${r.t.getDate()} 起・${r.gz}月</b>${r.fu?'<small>（伏吟，進度慢）</small>':''}${yg?'':`　<button class="lk" data-mjgo="${r.t.getTime()}">看盤</button>`}<br>
+      ${top.length?top.map(o=>`<span class="${o.sc===best?'j1':''}">${o.sc===best?'★ ':''}${o.x.dir}方（${o.x.gua}宮）：${o.x.door}・${o.x.god}・天盤${o.x.t}${o.q?'・得奇':''}${yg&&o.x.ge&&o.x.ge.length?'・'+o.x.ge.slice(0,2).join('、'):''}</span>`).join('<br>'):'<span class="j-1">沒有理想的吉方，這個月宜守不宜遠行</span>'}</li>`}).join('')}</ol>
     <p class="empty">★ 為十二個月中條件最好的；評分依門、神、三奇、星旺衰與用途整理，僅供參考。</p>`}
+// ===== 依吉門找吉方（日盤／月盤共用）=====
+const JDOORS=['休門','生門','開門','景門'];
+function doorChk(c,x,md){if(md==='yang'){if(x.zj)return {ok:true,why:[]};const f=why(c,x),w=Object.keys(f).filter(k=>f[k]);if(c.wbu)w.push('五不遇');return {ok:false,why:w.length?w:['未達最吉方條件']}}
+  const F=QM.pflags(c,x.p),ww=[];if(F.kong)ww.push('空亡');F.mu.forEach(g=>ww.push(g+'入墓'));F.xi.forEach(g=>ww.push(g+'擊刑'));if(F.po)ww.push('門迫');if(['白虎','玄武','螣蛇'].includes(x.god))ww.push('臨'+x.god);return {ok:!ww.length,why:ww}}
+const RD={door:null,res:null};
+function rdCalc(door,md){const out=[],t=new Date();t.setHours(12,0,0,0);
+  for(let i=0;i<60&&out.length<15;i++){const d=new Date(t.getTime()+i*86400000),c=QM.plate('日',d.getFullYear(),d.getMonth()+1,d.getDate(),12,0,null,md==='yang'?'yang':undefined);if(!c)continue;
+    const x=c.pals.find(q=>q.door===door);if(!x)continue;const k=doorChk(c,x,md);if(k.ok)out.push({d,c,x,gz:c.dayGZ||(c.YC&&c.YC.P[3]),q:/[乙丙丁]/.test(x.t)})}
+  return out}
+function renderRD(){const el=$('#rdoor');if(!el)return;const md=S.mode==='yin'?'yin':'yang';
+  if(RD.door&&(!RD.res||RD.res.door!==RD.door||RD.res.md!==md))RD.res={door:RD.door,md,rows:rdCalc(RD.door,md)};
+  const R=RD.door?RD.res.rows:[],WK='日一二三四五六';
+  el.innerHTML=`<h3 class="mh">指定吉門找日子</h3><div class="tp" role="group" aria-label="指定吉門">${JDOORS.map(d=>`<button data-rdd="${d}" aria-pressed="${RD.door===d}">${d}</button>`).join('')}</div>
+    ${!RD.door?'<p class="ds">按一個門，找出未來 60 天日盤中，這個門所在的方位沒有四害、可以使用的日子。</p>':R.length?`<p class="ds">${RD.door}可用的日子（${md==='yin'?'無四害、不臨白虎玄武螣蛇':'符合陽盤最吉方條件'}）：</p><ol class="lvl">${R.map(r=>`<li><b>${r.d.getMonth()+1}/${r.d.getDate()}（週${WK[r.d.getDay()]}，${r.gz}日）</b>　${r.x.dir}方（${r.x.gua}宮）・${r.x.god}・天盤${r.x.t}${r.q?'・得奇':''}${md==='yin'?`　<button class="lk" data-rdgo="${r.d.getTime()}">看盤</button>`:''}</li>`).join('')}</ol>`:`<p class="empty">未來 60 天${RD.door}都沒有理想的日子。</p>`}`}
 function renderZJ(){const el=$('#zjp');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;const Z=S.zj;
   let out='';if(Z.busy)out='<p class="empty">擇吉計算中…</p>';
   else if(Z.res){const L=Z.res.list;out=L.length?`<p class="ds">共 ${Z.res.total} 個時辰通過檢查，列出分數最高的 ${L.length} 個（依時間排序，★ 為前三名）：</p><ol class="zjl">${L.map((r,i)=>{const x=r.hc.pals.find(q=>q.p===r.fp);
@@ -1804,7 +1844,7 @@ function plateTitle(c){const k=c.kind||'時',P=c.YC?c.YC.P:[];
   return `${P[3]}${UNIT[k]}　${QM.KIND[k]}`}
 function renderBoard(){
   renderQ();if(S.mode==='yin')yinPillars();
-  renderZhan();renderBu();renderZJ();renderMJ();renderMing();
+  renderZhan();renderBu();renderZJ();renderMJ();renderRD();renderMing();
   const c=cur(),byP={};c.pals.forEach(x=>byP[x.p]=x);
   const topZ=c.zuiji[0],yin=S.mode==='yin',plate=yin&&S.pc;
   if(S.p==null||!byP[S.p])S.p=(topZ||c.best).p;
@@ -2090,6 +2130,8 @@ $('#date').onchange=e=>{if(e.target.value)setDate(e.target.value)};
 $('#hours').onclick=e=>{const b=e.target.closest('.hb');if(!b)return;const was=S.pc;toTime();S.hb=+b.dataset.hb;S.p=null;if(was)render();else{renderHours();renderBoard()}};
 $('#board').onclick=e=>{const b=e.target.closest('.pal[data-p]');if(!b)return;S.p=+b.dataset.p;renderBoard()};
 const pick=li=>{const was=S.pc;toTime();S.hb=+li.dataset.hb;S.p=+li.dataset.p;if(was)render();else{renderHours();renderBoard()}if(window.innerWidth<880)$('.boardcard').scrollIntoView({behavior:'smooth'})};
+$('#rdoor').addEventListener('click',e=>{const d=e.target.closest('[data-rdd]');if(d){RD.door=RD.door===d.dataset.rdd?null:d.dataset.rdd;renderRD();return}
+  const go=e.target.closest('[data-rdgo]');if(go){S.fix=null;setWall('日',new Date(+go.dataset.rdgo));$('.boardcard').scrollIntoView({behavior:'smooth'})}});
 $('#rank').onclick=e=>{const li=e.target.closest('li[data-hb]');if(li)pick(li)};
 $('#rank').onkeydown=e=>{if(e.key==='Enter'){const li=e.target.closest('li[data-hb]');if(li)pick(li)}};
 const pad=n=>String(n).padStart(2,'0');
@@ -2182,7 +2224,8 @@ $('#ytop').addEventListener('click',e=>{const t=e.target;
   const tog=()=>{el.classList.toggle('collapsed');store.set(key,el.classList.contains('collapsed')?'1':'0');sync()};
   el.addEventListener('click',e=>{const h=e.target.closest('h2');if(h&&(h.parentElement===el||h.parentElement.parentElement===el)&&h===el.querySelector(':scope>h2, :scope>.yd>h2')){e.stopPropagation();tog()}},true);
   el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('h2[role=button]')){e.preventDefault();tog()}});sync()});
-$('#mjp').addEventListener('click',e=>{const g=e.target.closest('[data-mjg]');if(g){MJ.goal=g.dataset.mjg;renderMJ();return}
+$('#mjp').addEventListener('click',e=>{const g=e.target.closest('[data-mjg]');if(g){MJ.goal=g.dataset.mjg;MJ.door=null;renderMJ();return}
+  const dd=e.target.closest('[data-mjd]');if(dd){MJ.door=MJ.door===dd.dataset.mjd?null:dd.dataset.mjd;renderMJ();return}
   const go=e.target.closest('[data-mjgo]');if(go){S.fix=null;setWall('月',new Date(+go.dataset.mjgo+5*86400000));$('.boardcard').scrollIntoView({behavior:'smooth'})}});
 $('#zjp').addEventListener('click',e=>{const t=e.target,Z=S.zj;
   const g=t.closest('[data-zjg]');if(g){Z.goal=g.dataset.zjg;Z.res=null;renderZJ();return}
