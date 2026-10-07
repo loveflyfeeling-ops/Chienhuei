@@ -404,6 +404,7 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       <div class="ranklegend"><span><i style="background:var(--brass)"></i>第一吉</span><span><i style="background:var(--jade)"></i>第二吉</span><span><i style="background:var(--lacquer)"></i>第三吉</span></div>
       <ol class="toprank" id="rank"></ol>
     </div>
+    <div class="panel zh colp" id="mjp" hidden></div>
     <div class="panel fs colp" id="fs"></div>
     <div class="go" id="go">
       <h2>前往吉方</h2>
@@ -707,7 +708,7 @@ function rotate(c,k){if(!k)return c;const R=[1,8,3,4,9,2,7,6],ri=p=>R.indexOf(p)
 function solarOf(ly,lm,ld,leap){const i=ly-1899;if(i<0||i>=LYT.length)return null;const [f,lp,bits,cnt]=LYT[i];let off=0;
   for(let k=0;k<cnt;k++){let mo=k+1,isL=false;if(lp){if(k===lp){mo=lp;isL=true}else if(k>lp)mo=k}const len=(bits>>k)&1?30:29;
     if(mo===lm&&isL===!!leap){if(ld>len)return null;return f+off+ld-1}off+=len}return null}
-return {chart,plate,bar,pflags,focusOf,relOf,palOfT,palOfD,rotate,DIG,DRIFT,muOf,MUP,DMU,SMU,cs,pillars,lunarOf,solarOf,dnum,dIdx,KIND,DIR,GAN,ZHI,GEDESC,GEY};
+return {termAfter,chart,plate,bar,pflags,focusOf,relOf,palOfT,palOfD,rotate,DIG,DRIFT,muOf,MUP,DMU,SMU,cs,pillars,lunarOf,solarOf,dnum,dIdx,KIND,DIR,GAN,ZHI,GEDESC,GEY};
 })();
 
 // ===== 事項占斷（依福山堂〈奇門占卜〉，輔以奇門講義）=====
@@ -760,7 +761,7 @@ const T={
   // 二、客戶洽談能否成交
   L.push(['【客戶洽談能否成交】',0]);
   if(a&&k){const r=h.rel(k,a);if(r==='生')L.push(['客戶的宮生你的宮：客戶有意願、對你有好感，成交機會高',1]);else if(r==='同宮'||r==='比和')L.push(['客戶與你同宮或比和：雙方談得來，條件合理就能成交',1]);
-    else if(r==='被生')L.push(['你的宮生客戶的宮：你付出較多，要讓客戶感受到價值，避免一味讓利',0]);else if(r==='剋')L.push(['客戶的宮剋你的宮：客戶強勢、壓價或挑剔，談判要守住底線',-1]);else if(r==='被剋')L.push(['你的宮剋客戶的宮：你較能掌握主導權，但別逼太緊，以免客戶退縮',0]);
+    else if(r==='被生')L.push([QM.pflags(h.c,k).kong||QM.pflags(h.c,k).mu.length||QM.pflags(h.c,k).xi.length||QM.pflags(h.c,k).po?'你的宮生客戶的宮，但客戶宮有四害：付出會被消耗拖累，容易做白工':'你的宮生客戶的宮、客戶宮格局佳：努力付出仍有利可圖，只是比較辛苦',QM.pflags(h.c,k).kong?-1:0]);else if(r==='剋')L.push(['客戶的宮剋你的宮（時干剋日干）：財離我而去，客戶強勢壓價，硬推容易失敗',-1]);else if(r==='被剋')L.push(['你的宮剋客戶的宮（日干剋時干，我剋為財）：你能掌握主導權，可得財',1]);
     const d=KD[by[k].door[0]];if(d)L.push([`客戶落${by[k].door}：${d[0]}`,d[1]]);const gg=KG[by[k].god];if(gg)L.push([`客戶臨${by[k].god}：${gg[0]}`,gg[1]]);
     if(h.kong(k))L.push(['客戶落空亡：客戶目前沒有真正的需求，或預算未到位',-1]);if(h.c.horseP===k)L.push(['客戶臨馬星：客戶近期會主動聯繫或很快做決定',1])}
   if(m){const s=sh(m);if(!s.length&&'開休生'.includes(by[m].door[0]))L.push([`六合（簽約）得${by[m].door}：簽約過程順利`,1]);else if(s.length)L.push([`六合（簽約）逢${s.join('、')}：簽約有變數，合約細節要再三確認`,-1])}
@@ -824,32 +825,90 @@ const T={
   if(h.mu('庚',b)&&h.xg(b))L.push(['庚入墓又乘凶格，強成恐刑夫',-1]);if(h.mu('乙',a)&&h.xg(a))L.push(['乙入墓又乘凶格，強成恐刑妻',-1]);
   if(h.xg(a))L.push([`女方宮有${h.by[a].yx.join('、')}`,-1]);if(h.xg(b))L.push([`男方宮有${h.by[b].yx.join('、')}`,-1]);
   return {Y,L}}},
-求財:{d:'甲子戊為財神（資本），生門為財方',f(h){const a=h.tP('戊'),b=h.doorP('生'),L=[];const Y=[['財神（戊）',a],['財方（生門）',b]];
-  const ia=h.inner(a),ib=h.inner(b);
-  if(ia&&ib)L.push(['二宮俱在內盤，財近而速',1]);else if(ia||ib)L.push(['一內一外，得財較遲',0]);else L.push(['二宮俱在外盤，須求遠方之財',0]);
-  const qa=h.qm(a)||h.qm(b),ja=h.jg(a)||h.jg(b),qi=h.by[a].qi||h.by[b].qi,men='開休生'.includes(h.c.door[b][0])||'開休生'.includes(h.c.door[a][0]);
-  if(qa&&ja)L.push(['得奇門又有吉格，得財必多',1]);else if(qi&&men)L.push(['奇門相合，可得財',1]);else if(qi||men)L.push(['得門不得奇或得奇不得門，得財不多',0]);else L.push(['奇門俱不得，得財必少',-1]);
-  if((h.kong(a)||h.kong(b))&&(h.xg(a)||h.xg(b)))L.push(['落空亡又逢凶格，不但不得財，反遭是非',-1]);else if(h.kong(a)||h.kong(b))L.push(['財神或財方落空亡，所求易落空',-1]);
-  if(h.c.fuFan.門反吟)L.push(['八門反吟，財來財去反覆',-1]);
+求財:{d:'依《道家陰盤奇門遁甲理論與實務》求財論斷：日干為第一用神（問測者／企業本身，約占七成訊息），時干為第二用神（財、所問之事、市場顧客、員工、交易對象），戊（本金）與生門（利潤）為第三用神；開門為公司、店面、工廠，月干為競爭者，並依日干宮看適合的經營方向',f(h){
+  const mode=(typeof S!=='undefined'&&S.caiMode)||'投資',c=h.c,by=h.by,L=[];
+  const a=h.tP(c.YC.dE),t=h.tP(c.YC.hE),w=h.tP('戊'),g=h.doorP('生'),o=h.doorP('開'),m=h.godP('六合'),mo=h.tP(c.YC.mE),yr=h.tP(c.YC.yE);
+  const sh=p=>{if(!p)return [];const f=QM.pflags(c,p),o=[];if(f.kong)o.push('空亡');if(f.mu.length)o.push('入墓');if(f.xi.length)o.push('擊刑');if(f.po)o.push('門迫');return o};
+  const ok=p=>p&&!sh(p).length&&!h.xg(p),pl=h.pl;
+  const Y=[['日干（自己）',a],['時干（財／所問之事）',t],['戊（本金）',w],['生門（利潤）',g]];
+  if(mode==='已開店')Y.push(['開門（店鋪／工作）',o],['月干（競爭者）',mo],['年干（時運）',yr]);if(mode==='合夥')Y.push(['六合（合夥人、仲介）',m]);
+  // 一、日干
+  L.push(['【一、日干：先看自己（第一用神，約占七成）】',0]);
+  if(a){const s=sh(a);L.push([h.strong(a)?`日干落${pl(a)}，${h.st(a)}（旺相有氣）：自身運勢有力`:`日干落${pl(a)}，${h.st(a)}（休囚）：自身運勢偏弱`,h.strong(a)?1:-1]);
+    if('開休生'.includes(by[a].door[0]))L.push([`日干得${by[a].door}：做事順手`,1]);else if('死驚傷杜'.includes(by[a].door[0]))L.push([`日干臨${by[a].door}：做事阻力多`,-1]);
+    if(s.length)L.push([`日干逢${s.join('、')}：日干落宮不佳，基礎不好，就算賺錢也多是短暫現象`,-1]);
+    if(by[a].t.includes('戊')||by[a].d.includes('戊')){if(h.kong(a))L.push(['日干宮有戊但逢空亡：代表缺資金',-1]);if(QM.pflags(c,a).xi.length)L.push(['日干宮有戊但逢擊刑：代表虧錢',-1])}}
+  // 二、日干與時干
+  L.push(['【二、日干與時干：求財總綱】',0]);
+  if(a&&t){const r=h.rel(a,t),tg=ok(t)&&h.strong(t);
+    if(r==='同宮')L.push(['日干與時干同宮：財就在身邊，事情與自己緊密相關',tg?1:0]);
+    else if(r==='剋')L.push(['日干剋時干（我剋為財）：可得財',1]);
+    else if(r==='被剋')L.push(['時干剋日干（我被剋）：財離我而去、得財困難；若強行投資，容易虧損或失敗',-1]);
+    else if(r==='被生')L.push([tg?'時干宮旺又來生日干：求財有利':'時干來生日干：有利，但時干力量不足，獲利有限',tg?1:0]);
+    else if(r==='比和')L.push([tg?'時干宮旺又與日干比和：求財有利':'時干與日干比和：平穩，獲利普通',tg?1:0]);
+    else if(r==='生'){const bad=sh(t).length>0;L.push([bad?'日干生時干，但時干宮有奇門四害：會消耗拖累日干而虧錢':'日干生時干、時干宮格局佳：犧牲奉獻、努力付出，投資也會賺錢，但比較辛苦',bad?-1:0])}
+    if(sh(t).length)L.push([`時干宮逢${sh(t).join('、')}：所求之事本身有問題，要先查清楚`,-1])}
+  // 三、本金與利潤
+  L.push(['【三、戊（本金）與生門（利潤）】',0]);
+  if(w&&g){const r=h.rel(g,w);
+    if(r==='同宮'||r==='比和')L.push(['生門與戊同宮或比和：本金與利潤平穩',0]);
+    else if(r==='生')L.push(['生門生戊：利潤生本金，利息利潤讓本金變多 → 賺錢',1]);
+    else if(r==='剋')L.push(['生門剋戊：利潤沒有增加反而虧本金 → 賠錢',-1]);
+    else if(r==='被生')L.push([mode==='投資'?'戊生生門：增加投資，本金越大賺越多 → 做對了（拿本金投資最希望看到這個關係）':'戊生生門：投入越多回收越多',1]);
+    else if(r==='被剋')L.push(['戊剋生門：利潤沒了，代表生門跑了 → 選錯投資標的',-1]);
+    if(mode==='仲介'){const rt=h.rel(t,w);if(rt==='生')L.push(['時干生戊（沒拿本金）：賺錢入我口袋，最好',1]);if(h.mu('戊',w))L.push(['戊入墓：沒拿本金的情況下不賺錢',-1]);
+      const rd=h.rel(t,a);L.push([rd==='生'?'時干生日干：這筆交易能成功，可以做（保險、傳銷、仲介最好的關係）':rd==='剋'?'時干剋日干：這筆交易難成功':'時干與日干未成相生：交易成敗要看後續努力',rd==='生'?1:rd==='剋'?-1:0])}
+    if(QM.pflags(c,g).po)L.push([`生門落${pl(g)}門迫：力量減半，財數打五折`,-1]);
+    if(QM.pflags(c,g).xi.length)L.push([`生門落宮逢${QM.pflags(c,g).xi.join('')}擊刑：彆扭不順，得財力量減半`,-1]);
+    if([a,t].includes(w)||[a,t].includes(g))L.push(['戊或生門與日干、時干同宮：第三用神落在總綱上，效果更加顯著',0]);
+    if(h.kong(w))L.push(['戊落空亡：資金不到位',-1]);if(h.kong(g))L.push(['生門落空亡：利潤落空或延遲',-1]);
+    const fs=[...new Set([w,g])].map(p=>{const x=by[p],st=starStat(c,x);return `${x.star.replace('（禽）','')}在${pl(p)}${st.m||st.p?'（'+(st.m&&st.p?'得令又得地':st.m?'得令':'得地')+'）':'（失令失地）'}`});
+    L.push([`財星（生門、戊所臨之星）：${fs.join('；')}`,fs.some(x=>/得令|得地/.test(x))?1:0])}
+  // 四、方向
+  L.push(['【四、求財方向】',0]);
+  if(a){const dirs=[w,g].filter(p=>p&&['生','比和','同宮'].includes(h.rel(p,a)));if(dirs.length)L.push([`戊、生門落宮來生日干：往${[...new Set(dirs)].map(p=>pl(p)).join('、')}方向求財最有利`,1]);else L.push([`戊在${pl(w)}、生門在${pl(g)}，但都沒有來生日干：求財方向效果有限，宜另擇時機`,0])}
+  // 模式
+  if(mode==='已開店'){L.push(['【五、已開店：開門為用神】',0]);
+    if(o){const s=sh(o);L.push([h.strong(o)&&!s.length?`開門（店鋪、工作）落${pl(o)}旺相無害：生意有起色`:`開門落${pl(o)}${h.strong(o)?'':'休囚'}${s.length?'，逢'+s.join('、'):''}：店務有阻力`,h.strong(o)&&!s.length?1:-1]);
+      if(t){const r=h.rel(t,o);L.push([r==='生'||r==='比和'||r==='同宮'?'時干（員工、平台）生扶開門：員工得力、平台有幫助':r==='剋'?'時干剋開門：員工或平台拖累店務':'時干與開門關係平平',r==='生'||r==='比和'||r==='同宮'?1:r==='剋'?-1:0])}
+      if(mo&&a){const r=h.rel(mo,a);if(r==='剋')L.push(['月干（競爭者）剋日干：同業競爭壓力大',-1]);else if(r==='被剋')L.push(['日干剋月干：能壓過競爭對手',1])}
+      if(yr)L.push([ok(yr)&&h.strong(yr)?'年干（時運、流年）旺相無害：長期趨勢看好':'年干（時運、流年）不佳：長期要保守經營',ok(yr)&&h.strong(yr)?1:-1])}}
+  if(mode==='合夥'){L.push(['【五、合夥／朋友找我合作】',0]);
+    if(t){const gd=by[t].god;if(gd==='螣蛇')L.push(['時干宮有螣蛇（虛詐不實）：不要合作',-1]);else if(gd==='玄武')L.push(['時干宮有玄武（陰險狡詐）：不要合作',-1]);else L.push([`時干（合夥人）臨${gd}：沒有螣蛇、玄武，可以進一步評估`,0])}
+    if(m)L.push([ok(m)?'六合（合夥人、中間人）無四害：中間人可信':'六合（合夥人、中間人）有凶：中間人或仲介要小心',ok(m)?1:-1])}
+  {const ex=T.經營.f(h),secs=[];let cur=null;ex.L.forEach(([t,j])=>{if(/^【/.test(t)){cur={h:t,L:[]};secs.push(cur)}else if(cur)cur.L.push([t,j])});
+    secs.filter(x=>/開門|經營方向/.test(x.h)||(/競爭者/.test(x.h)&&mode!=='已開店')).forEach(x=>{L.push([x.h.replace(/【[一二三四五六]、/,'【').replace('【','【經營・'),0]);x.L.forEach(v=>L.push(v))});
+    ex.Y.forEach(([n,p])=>{if(!Y.some(([n2])=>n2===n)&&/開門/.test(n))Y.push([n,p])})}
   return {Y,L}}},
-貿易投資:{d:'甲子戊為資本，生門為利息',f(h){const a=h.tP('戊'),b=h.doorP('生'),r=h.rel(b,a),L=[];const Y=[['資本（戊）',a],['利息（生門）',b]];
-  if(r==='生'&&(h.qm(b)||h.jg(b)))L.push(['生門宮得奇門吉格來生資本宮，必獲倍利',1]);else if(r==='生')L.push(['生門宮生資本宮，有利',1]);
-  if(r==='比和'||r==='同宮')L.push(['二宮比和，可得中利',1]);
-  if(r==='剋')L.push([h.xg(b)?'生門剋資本又乘凶格，必虧本':'生門剋資本，獲利不易',-1]);
-  if(r==='被生')L.push(['資本宮生生門宮，須追加資本，仍可得利',0]);
-  const ds=h.doorSt('生');if(['絕','死'].includes(ds)&&h.xg(b))L.push([`生門逢${ds}又有凶格，恐耗盡資本`,-1]);else L.push([`生門此時為「${ds}」`,['旺','休','廢'].includes(ds)?0:-1]);
-  return {Y,L}}},
+貿易投資:{d:'依第五章：有拿本金去投資，日干為自己、時干為投資標的；戊為本金、生門為利潤，最希望「戊生生門」',f(h){const sv=S.caiMode;S.caiMode='投資';try{return T.求財.f(h)}finally{S.caiMode=sv}}},
 買貨:{d:'日干為買主，時干為貨物',f(h){const a=h.tP(h.c.YC.dE),b=h.tP(h.c.YC.hE),L=[];const Y=[['買主（日干）',a],['貨物（時干）',b]];
   if(h.strong(b)&&h.good(b))L.push(['貨物宮旺相又得奇門吉格，為上等好貨',1]);else if(!h.strong(b)&&!h.good(b))L.push(['貨物宮休囚，不得奇門吉格，為次貨',-1]);
   const r=h.rel(b,a);if(r==='生'||r==='同宮')L.push(['貨物宮生買主宮，不論好壞皆有利',1]);
   if(r==='剋'||h.kong(b)||h.by[b].yx.includes('時干入墓'))L.push(['貨物宮剋買主，或落空亡入墓，無利不必買',-1]);
   if(h.by[b].god==='玄武'&&!h.strong(b))L.push(['貨物休囚又乘玄武，提防假貨或變質',-1]);
   return {Y,L}}},
-賣貨:{d:'日干為貨主，時干為貨物，甲子戊為資本，生門為利息',f(h){const a=h.tP(h.c.YC.dE),b=h.tP(h.c.YC.hE),L=[];const Y=[['貨主（日干）',a],['貨物（時干）',b],['資本（戊）',h.tP('戊')],['利息（生門）',h.doorP('生')]];
-  const r=h.rel(a,b);if(r==='生')L.push(['日干宮生時干宮，人戀貨，不肯脫手',0]);if(r==='被生')L.push(['時干宮生日干宮，貨戀人，一時難脫',0]);
-  if(r==='剋')L.push(['日干剋時干，雖想急脫，成交遲緩',0]);if(r==='被剋')L.push(['時干剋日干，貨售得快',1]);
-  const r2=h.rel(b,h.tP('戊')),r3=h.rel(b,h.doorP('生'));if(r2==='生'||r3==='生')L.push(['貨物宮生資本或利息宮，可獲利',1]);else L.push(['貨物宮不生資本、利息，利薄',-1]);
-  if(h.xg(b)&&r==='被剋')L.push(['貨物宮乘凶格沖剋貨主，主折耗',-1]);
+賣貨:{d:'依第五章：日干為人，時干為貨物，戊和生門為財；先看這貨能否賣出，再看賣出去能否賺錢',f(h){const c=h.c,by=h.by,L=[];
+  const a=h.tP(c.YC.dE),t=h.tP(c.YC.hE),w=h.tP('戊'),g=h.doorP('生');const Y=[['貨主（日干）',a],['貨物（時干）',t],['本金（戊）',w],['利潤（生門）',g]];
+  const sh=p=>{if(!p)return [];const f=QM.pflags(c,p),o=[];if(f.kong)o.push('空亡');if(f.mu.length)o.push('入墓');if(f.xi.length)o.push('擊刑');if(f.po)o.push('門迫');return o};
+  const good=p=>p&&!sh(p).length&&!h.xg(p);
+  L.push(['【一、這貨能否賣出去】',0]);
+  if(a&&t){const r=h.rel(a,t),tg=good(t);
+    if(r==='同宮')L.push(['日干與時干同宮：貨就在手邊，容易處理',tg?1:0]);
+    else if(r==='剋')L.push(['日干剋時干（我剋為財）：貨賣得出去，可得財',1]);
+    else if(r==='被剋')L.push(['時干剋日干：貨不好賣、得財困難，硬要出清容易虧',-1]);
+    else if(r==='被生'||r==='比和')L.push([tg?'時干格局好，來生或比和日干：貨好賣，對求財有利':'時干來生或比和日干，但貨物宮格局普通：賣得掉，獲利有限',tg?1:0]);
+    else if(r==='生')L.push([tg?'日干生時干、時干格局好：要多花力氣推銷，但還是有利可圖':'日干生時干、時干格局不好：消耗日干，不利得財（容易降價求售）',tg?0:-1]);
+    if(sh(t).length)L.push([`貨物宮逢${sh(t).join('、')}：貨物本身有問題（品質、行情或時機），先處理再賣`,-1]);
+    if(h.strong(t))L.push(['貨物宮旺相：貨正當令，市場需求好',1]);else L.push(['貨物宮休囚：市場需求偏弱',-1]);
+    if(c.horseP===t)L.push(['貨物臨馬星：流動快，很快就有買家',1])}
+  L.push(['【二、貨賣出去能否賺錢】',0]);
+  if(w&&g){const r=h.rel(g,w);
+    if(r==='生')L.push(['生門生戊：利潤生本金 → 賺錢',1]);else if(r==='剋')L.push(['生門剋戊：利潤沒增加反而虧本金 → 賠錢',-1]);
+    else if(r==='被生')L.push(['戊生生門：投入越多賺越多 → 做對了',1]);else if(r==='被剋')L.push(['戊剋生門：利潤沒了 → 貨選錯或價格定錯',-1]);else L.push(['生門與戊同宮或比和：本利平穩',0]);
+    if(a&&[w,g].some(p=>['生','比和','同宮'].includes(h.rel(p,a))))L.push(['戊或生門來生日干：錢會落入自己口袋',1]);
+    if([a,t].includes(w)||[a,t].includes(g))L.push(['戊或生門與日干、時干同宮：效果更加顯著',0]);
+    if(h.mu('戊',w))L.push(['戊入墓：不賺錢',-1]);if(h.kong(g))L.push(['生門落空亡：利潤落空或收款延遲',-1])}
+  if(a){const dirs=[w,g].filter(p=>p&&['生','比和','同宮'].includes(h.rel(p,a)));if(dirs.length)L.push([`往${[...new Set(dirs)].map(p=>h.pl(p)).join('、')}方向找買家最有利`,1])}
   return {Y,L}}},
 交易:{d:'日干為我（買方），時干為他（賣方），六合為經紀',f(h){const a=h.tP(h.c.YC.dE),b=h.tP(h.c.YC.hE),m=h.godP('六合'),L=[];const Y=[['我方（日干）',a],['對方（時干）',b],['經紀（六合）',m]];
   const r=h.rel(a,b);
@@ -867,6 +926,105 @@ const T={
   if(r==='比和'||r==='同宮')L.push(['二宮比和，合夥公平，無猜忌',1]);
   if(r==='剋')L.push([h.xg(b)?'夥伴宮乘凶格來剋我，不利':'夥伴宮剋我宮，對我不利',-1]);
   const rg=h.rel(g,a);if(rg==='生'||rg==='同宮')L.push(['生門生我宮，財利歸我',1]);if(rg==='剋')L.push(['生門剋我宮，財利難得',-1]);
+  return {Y,L}}},
+股票:{d:'日干為買股者，時干為大盤或個股，年干為政府與股市管理機構；戊為投資本金，生門為利潤，值符為行情走勢，值使門為漲跌幅度與操作方向；有年命時再比對長短線',f(h){
+  const c=h.c,by=h.by,P=c.YC.P,pt=g=>QM.palOfT(c,g),a=pt(c.YC.dE),t=pt(c.YC.hE),y=pt(P[0][0]),w=pt('戊'),g=h.doorP('生'),zf=h.godP('值符'),zs=h.doorP(c.zhiShi[0]),L=[];
+  const yg=typeof birthYearStem==='function'?birthYearStem():null,ym=yg?pt(yg):null;
+  const sh=p=>{if(!p)return [];const f=QM.pflags(c,p),o=[];if(f.kong)o.push('空亡');if(f.mu.length)o.push('入墓');if(f.xi.length)o.push('擊刑');if(f.po)o.push('門迫');return o};
+  const ok=p=>p&&!sh(p).length&&(h.strong(p)||'開休生'.includes(by[p].door[0]));
+  const Y=[['買股者（日干）',a],['大盤／個股（時干）',t],['政府與股市管理機構（年干）',y],['投資本金（戊）',w],['利潤（生門）',g],['行情走勢（值符）',zf],['漲跌方向（值使'+c.zhiShi+'）',zs]];if(ym)Y.push([`年命（${yg}）`,ym]);
+  L.push(['【一、適不適合操作】',0]);
+  if(a&&t){const r=h.rel(t,a);if(r==='生')L.push(['時干（大盤／個股）生日干：行情幫你，適合操作',1]);else if(r==='同宮'||r==='比和')L.push(['時干與日干同宮或比和：行情平穩，可小量操作',0]);else if(r==='被剋')L.push(['時干剋日干：行情對你不利，不宜進場',-1]);else if(r==='剋')L.push(['日干剋時干：你能掌握這檔股票，但要花心力盯盤',0]);else L.push(['日干生時干：付出多、回收慢，獲利有限',-1])}
+  if(ym&&t&&h.rel(t,ym)==='生')L.push(['時干生年命：這檔股票跟你有緣，適合操作',1]);
+  if(g&&a){const r=h.rel(g,a);if(['生','同宮','比和'].includes(r))L.push([`生門（利潤）${r==='生'?'生':'比和'}日干：可以獲利`,1]);else if(r==='剋')L.push(['生門剋日干：利潤難拿，容易賠錢',-1]);if(ym&&h.rel(g,ym)==='生')L.push(['生門生年命：也有獲利的機會',1]);if(sh(g).length)L.push([`生門逢${sh(g).join('、')}：利潤受損`,-1])}
+  if(w){if(by[w].god==='玄武')L.push(['戊（本金）臨玄武：資金安全有風險，容易被套牢',-1]);const f=QM.pflags(c,w);if(f.xi.length)L.push(['戊逢擊刑：利潤減少一半',-1]);if(f.mu.length)L.push(['戊入墓：資金被套或虧損',-1]);if(f.kong)L.push(['戊逢空亡：資金不到位，或投入後落空',-1])}
+  L.push(['【二、大盤行情與消息】',0]);
+  if(t)L.push([`能否超過前期高點：前期看時干宮地盤（${by[t].d}）與值符地盤（${zf?by[zf].d:'—'}），值使門看方向與漲跌幅度`,0]);
+  if(zf)L.push([ok(zf)?`值符（行情）落${h.pl(zf)}，得${by[zf].door}、無四害：整體行情偏多`:`值符（行情）落${h.pl(zf)}${sh(zf).length?'，逢'+sh(zf).join('、'):''}：整體行情偏弱`,ok(zf)?1:-1]);
+  if(t&&by[t].god==='螣蛇')L.push(['時干臨螣蛇：大盤顯示的資訊虛假、不可靠',-1]);if(t&&by[t].god==='白虎')L.push(['時干臨白虎：大盤要跌',-1]);
+  if(zs){if(by[zs].god==='螣蛇')L.push([`值使${c.zhiShi}臨螣蛇：資訊虛假、不可靠`,-1]);if(by[zs].god==='九地')L.push([`值使${c.zhiShi}臨九地：宜囤積、宜買進`,1]);if(by[zs].god==='白虎')L.push([`值使${c.zhiShi}臨白虎：大盤要跌`,-1]);else L.push([`值使${c.zhiShi}落${h.pl(zs)}・${by[zs].god}：${ok(zs)?'漲勢較有力':'漲跌幅度有限，方向不明'}`,ok(zs)?1:0])}
+  const j=h.doorP('景');if(j){if(by[j].god==='九天'&&h.strong(j))L.push(['九天臨景門且旺：政府有利多資訊釋出',1]);if(by[j].god==='值符')L.push(['值符臨景門：有銀行、金融機構方面的資訊',0])}
+  if(y&&sh(y).length)L.push([`年干（政府、管理機構）宮逢${sh(y).join('、')}：政策面有變數`,-1]);
+  L.push(['【三、長線或短線】',0]);
+  if(!ym)L.push(['請在上方選擇有出生資料的問測者，就能比對年命，判斷適合長線或短線',0]);
+  else{const dg=ok(a),yg2=ok(ym);L.push([dg&&yg2?'日干與年命都好：很適合炒股':dg?'日干好、年命不好：適合短線操作':yg2?'日干不好、年命好：適合長線操作':'日干與年命都不好：先觀望',dg||yg2?1:-1])}
+  L.push(['【四、操作風格（日干所臨八神）】',0]);
+  const GS={白虎:['日干臨白虎：殺傷力強，進出要果斷、控管風險',0],螣蛇:['日干臨螣蛇：消息虛假不可靠，不要聽明牌',-1],玄武:['日干臨玄武：適合投機、炒短線',0],九地:['日干臨九地：適合囤積、做長線',0],九天:['日干臨九天：衝高上升快，但下落也快，要及時出貨',0]};
+  if(a&&GS[by[a].god])L.push(GS[by[a].god]);else if(a)L.push([`日干臨${by[a].god}：照一般原則操作即可`,0]);
+  return {Y,L}}},
+經營:{d:'日干為經營者，開門為公司、店面、工廠，生門為利潤與生意興隆度，戊為本金與資本',f(h){
+  const c=h.c,by=h.by,pt=g=>QM.palOfT(c,g),a=pt(c.YC.dE),k=h.doorP('開'),g=h.doorP('生'),w=pt('戊'),L=[];
+  const sh=p=>{if(!p)return [];const f=QM.pflags(c,p),o=[];if(f.kong)o.push('空亡');if(f.mu.length)o.push('入墓');if(f.xi.length)o.push('擊刑');if(f.po)o.push('門迫');return o};
+  const Y=[['經營者（日干）',a],['公司／店面／工廠（開門）',k],['利潤（生門）',g],['本金（戊）',w]];
+  L.push(['【一、經營者】',0]);
+  if(a){L.push([`日干落${h.pl(a)}，地盤${by[a].d}・${by[a].door}・${by[a].god}`,0]);L.push(sh(a).length?[`日干宮逢${sh(a).join('、')}：經營者本身狀況不佳，先處理自己的問題`,-1]:['日干宮無四害：經營者狀態穩定',1])}
+  L.push(['【二、公司與店面（開門）】',0]);
+  if(k){const f=QM.pflags(c,k);if(f.kong||f.mu.length)L.push([`開門逢${[f.kong?'空亡':'',f.mu.length?'入墓':''].filter(Boolean).join('、')}：還沒開的開不成，已經開的恐停產關門`,-1]);
+    const KG={值符:['開門臨值符：必得上級領導或貴人幫助',1],螣蛇:['開門臨螣蛇：時好時壞、反覆不穩，煩事纏身、管理混亂',-1],太陰:['開門臨太陰：密謀策劃、管理細緻',1],六合:['開門臨六合：適合股份制、合夥經營，團結合作',1],白虎:['開門臨白虎：阻力大、經營困難，有危險、易出意外',-1],玄武:['開門臨玄武：產品品質有問題、內部管理混亂或有人搞鬼',-1],九地:['開門臨九地：平穩起落不大，但發展慢、保守',0],九天:['開門臨九天：前景廣闊、聲名遠揚，但要防好高騖遠',1]};if(KG[by[k].god])L.push(KG[by[k].god]);
+    if(f.xi.length||f.po)L.push([`開門宮逢${[f.xi.length?'擊刑':'',f.po?'門迫':''].filter(Boolean).join('、')}：經營力量減半`,-1])}
+  L.push(['【三、利潤（生門）】',0]);
+  if(g&&a){const r=h.rel(g,a);L.push(r==='生'?['生門生日干：生意興隆，利潤進得來',1]:r==='同宮'||r==='比和'?['生門與日干同宮或比和：利潤平穩',1]:r==='剋'?['生門剋日干：利潤壓力大，容易做白工',-1]:r==='被剋'?['日干剋生門：能掌控利潤，但要花力氣經營',0]:['日干生生門：投入多、回收慢',-1]);if(sh(g).length)L.push([`生門逢${sh(g).join('、')}：利潤受損`,-1])}
+  {const P=c.YC.P,mp=pt(P[1][0]),tp=pt(P[3][0]),yp=pt(P[0][0]);L.push(['【競爭者、員工市場、大環境】',0]);
+    if(mp)L.push([`月干（競爭者）落${h.pl(mp)}${a?'，'+({'生':'競爭者反而對你有利','剋':'競爭者壓制你','被剋':'你壓得過競爭者','被生':'你在幫競爭者','比和':'旗鼓相當','同宮':'與競爭者正面交鋒'}[h.rel(mp,a)]||''):''}`,h.rel(mp,a)==='剋'?-1:0]);
+    if(tp)L.push([`時干（員工、市場）落${h.pl(tp)}${sh(tp).length?'，逢'+sh(tp).join('、')+'：員工或市場有問題':'：員工、市場狀況穩定'}`,sh(tp).length?-1:1]);
+    if(yp)L.push([`年干（大趨勢、直屬長官、政府）落${h.pl(yp)}${sh(yp).length?'，逢'+sh(yp).join('、')+'：大環境不利':''}`,sh(yp).length?-1:0])}
+  L.push(['【四、本金（戊）】',0]);
+  if(w){const f=QM.pflags(c,w);if(f.xi.length)L.push(['戊逢擊刑：利潤減少一半',-1]);if(f.mu.length)L.push(['戊入墓：資金被套或虧損',-1]);if(f.kong)L.push(['戊逢空亡：資金不足或周轉不到位',-1]);if(!f.xi.length&&!f.mu.length&&!f.kong)L.push(['戊無四害：資本穩健',1])}
+  if(a){const x=by[a],sk=x.star.replace(/[天（）]/g,'')[0];L.push(['【五、適合的經營方向】',0]);
+    [...new Set(x.t)].forEach(g=>BIZ.gan[g]&&L.push([`天盤${g}：${BIZ.gan[g]}`,0]));L.push([`${x.star.replace(/（.*$/,'')}星：${BIZ.star[sk]||'—'}`,0]);L.push([`${x.door}：${BIZ.door[x.door[0]]}`,0]);L.push([`${x.god}：${BIZ.god[x.god]}`,0])}
+  return {Y,L}}},
+陰宅:{d:'到現場起局。日干為墳墓本體，克日干之七殺（陽克陽、陰克陰）看墳內往生者狀況；找不到好穴時取值符落宮點穴',f(h){
+  const c=h.c,by=h.by,pt=g=>QM.palOfT(c,g),dg=c.YC.dE,a=pt(dg),SK={甲:'庚',乙:'辛',丙:'壬',丁:'癸',戊:'甲',己:'乙',庚:'丙',辛:'丁',壬:'戊',癸:'己'},sk=SK[dg],q=pt(sk),zf=h.godP('值符'),m=pt(c.YC.P[1][0]),L=[];
+  const sh=p=>{if(!p)return [];const f=QM.pflags(c,p),o=[];if(f.kong)o.push('空亡');if(f.mu.length)o.push('入墓');if(f.xi.length)o.push('擊刑');if(f.po)o.push('門迫');return o};
+  const Y=[['墳墓本體（日干）',a],[`往生者（七殺${sk}）`,q],['點穴（值符）',zf],['離場方位（月干）',m]];
+  L.push(['【一、墳墓本體】',0]);
+  if(a){const x=by[a],all=x.t+x.d;L.push(sh(a).length?[`日干宮逢${sh(a).join('、')}：墳墓本身有問題，要細看內外局`,-1]:[`日干宮無四害、${x.door}・${x.god}：墳墓本體大致安穩`,1]);
+    if(/[壬癸]/.test(all))L.push(['日干宮見壬、癸：墳地見水',-1]);if(all.includes('辛')&&all.includes('壬'))L.push(['辛＋壬同宮：骨頭被水泡住',-1]);
+    if(/[丙丁]/.test(all))L.push(sh(a).length?['見丙、丁：骨頭呈紅色，但宮有四害，仍要處理',0]:['見丙、丁：骨頭呈紅色，無四害主吉',1])}
+  L.push(['【二、墳內往生者（七殺宮）】',0]);
+  if(q){const x=by[q];L.push(sh(q).length||['白虎','玄武','螣蛇'].includes(x.god)?[`七殺${sk}落${h.pl(q)}，${[...sh(q),['白虎','玄武','螣蛇'].includes(x.god)?x.god:''].filter(Boolean).join('、')}：往生者狀況不佳，會影響後代`,-1]:[`七殺${sk}落${h.pl(q)}，無四害：往生者安穩，對後代影響小`,1])}
+  if(a){const RK={4:'1、4、7',9:'3、6、9',2:'2、5、8',3:'3、6、9',7:'1、4、7',8:'2、5、8',1:'1、4、7',6:'3、6、9'};L.push([`往生者在家排行：日干落${h.pl(a)}，約為老${RK[a]}`,0])}
+  L.push(['影響後代的力量順序：母親墳＞父親墳＞奶奶墳＞爺爺墳＞太奶奶墳＞太爺爺墳',0]);
+  L.push(['【三、點穴】',0]);
+  if(zf)L.push([`全局不好或找不到好穴時，直接取值符落宮的${h.pl(zf)}方位點穴（值符代表好氣場、五色土）`,1]);
+  L.push(['【四、堪輿師自我保護】',0]);
+  L.push(['處理陰宅前佩戴水晶串（置換庚、辛、白虎煞）',0]);
+  if(m)L.push([`離開現場時，向月干（${c.YC.P[1][0]}）所在的${h.pl(m)}方向扔 ${m} 枚硬幣，帶走穢氣`,0]);
+  return {Y,L}}},
+卡陰沖煞:{d:'日干（遠測用月干）為問測者，時干為所問之事；依講義符號象意：玄武為無形之煞、白虎為有形之煞、螣蛇主怪異虛驚與夢擾，癸為靈魂、己為墳墓、死門為陰宅、天芮為病與宗教，隱干看起因',f(h){
+  const c=h.c,by=h.by,pt=g=>QM.palOfT(c,g),a=pt(c.YC.dE),t=pt(c.YC.hE),L=[];
+  const sh=p=>{if(!p)return [];const f=QM.pflags(c,p),o=[];if(f.kong)o.push('空亡');if(f.mu.length)o.push('入墓');if(f.xi.length)o.push('擊刑');if(f.po)o.push('門迫');return o};
+  const hu=h.godP('白虎'),xw=h.godP('玄武'),ts=h.godP('螣蛇'),zf=h.godP('值符'),op=a?{1:9,9:1,8:2,2:8,3:7,7:3,4:6,6:4}[a]:null;
+  const Y=[['問測者（日干）',a],['所問之事（時干）',t],['無形之煞（玄武）',xw],['有形之煞（白虎）',hu],['怪異虛驚（螣蛇）',ts],['化解貴人（值符）',zf]];
+  if(!a)return {Y,L:[['盤上找不到日干落宮',0]]};
+  const x=by[a],all=x.t+x.d+(c.an[a]||''),yin=[],chong=[],sha=[];
+  // 一、卡陰（無形眾生）
+  if(x.god==='玄武')yin.push('日干臨玄武（無形之煞）');if(x.god==='螣蛇')yin.push('日干臨螣蛇（怪異、虛驚、夢多）');if(x.god==='太陰'||x.god==='九地')yin.push(`日干臨${x.god}（陰氣重）`);
+  if(x.t.includes('癸')||x.d.includes('癸'))yin.push('宮內見癸（靈魂、陰暗之物）');if(x.t.includes('己')||x.d.includes('己'))yin.push('宮內見己（墳墓、坑穴、陰私）');
+  if(x.door==='死門')yin.push('日干臨死門（陰宅、喪事場所）');if(x.star.includes('芮'))yin.push('日干臨天芮星（病氣、宗教、喪葬）');
+  if(/[癸己]/.test(c.an[a]||''))yin.push(`隱干${c.an[a]}：起因與陰靈、墳地或不潔之地有關`);
+  if(t&&['玄武','螣蛇'].includes(by[t].god))yin.push(`時干臨${by[t].god}：所問之事帶有無形干擾`);
+  // 二、沖犯（犯到方位、場所、動土）
+  if(op){const o=by[op],of=sh(op);if(o.god==='白虎'||o.t.includes('庚')||of.includes('擊刑'))chong.push(`對宮${h.pl(op)}有${[o.god==='白虎'?'白虎':'',o.t.includes('庚')?'庚':'',of.includes('擊刑')?'擊刑':''].filter(Boolean).join('、')}來沖日干宮：可能沖犯到${QM.DIR[op]}方的人事物或場所`)}
+  const fa=sh(a);if(fa.includes('擊刑'))chong.push('日干宮擊刑：容易犯沖、意外傷災');if(fa.includes('門迫'))chong.push('日干宮門迫：環境壓迫、氣場不順');
+  if(/[戊己]/.test(x.t+x.d)&&x.door==='傷門')chong.push('戊己逢傷門：可能動土、修造犯沖');if(c.horseP===a)chong.push('日干臨馬星：近期外出、遷移時沖犯');
+  // 三、沖煞（有形之煞）
+  if(x.god==='白虎')sha.push('日干臨白虎（有形之煞，留意血光意外）');if(x.t.includes('庚'))sha.push('天盤見庚（煞氣、阻隔）');
+  if(hu&&hu!==a&&h.rel(hu,a)==='剋')sha.push(`白虎宮${h.pl(hu)}剋日干宮：煞從${QM.DIR[hu]}方來`);
+  if(xw&&xw!==a&&h.rel(xw,a)==='剋')yin.push(`玄武宮${h.pl(xw)}剋日干宮：無形干擾從${QM.DIR[xw]}方來`);
+  const n=yin.length+chong.length+sha.length,weak=fa.length>0;
+  L.push(['【一、問測者本身】',0]);L.push(weak?[`日干宮逢${fa.join('、')}：本身磁場較弱，比較容易受到干擾`,-1]:['日干宮沒有奇門四害：本身磁場穩，不容易卡到',1]);
+  L.push(['【二、卡陰（無形眾生）】',0]);yin.length?yin.forEach(s=>L.push([s,-1])):L.push(['沒有明顯卡陰的跡象',1]);
+  L.push(['【三、沖犯】',0]);chong.length?chong.forEach(s=>L.push([s,-1])):L.push(['沒有明顯沖犯的跡象',1]);
+  L.push(['【四、沖煞（有形之煞）】',0]);sha.length?sha.forEach(s=>L.push([s,-1])):L.push(['沒有明顯沖煞的跡象',1]);
+  L.push(['【五、綜合判斷】',0]);L.push([n>=4&&weak?'跡象偏多、本身又弱：建議盡快處理':n>=2?'有部分跡象：建議做基本淨化與調理，並觀察身心狀況':'跡象不明顯：多半是身心疲累或環境因素，先調整作息',n>=2?-1:1]);
+  L.push(['【六、化解建議】',0]);
+  if(hu)L.push([`白虎在${h.pl(hu)}：該方位先移走刀剪尖銳金屬；白虎是庚，可擺蛇（巳申合）或葫蘆（乙庚合）把它合掉`,0]);
+  if(xw)L.push([`玄武在${h.pl(xw)}：清理該方位的暗櫃、雜物，保持明亮通風`,0]);
+  if(weak)L.push([`日干宮有四害：可在${QM.DIR[a]}方貼解四害符，或用移星換斗把用神轉到沒有四害的宮位`,0]);
+  if(zf)L.push([`值符在${h.pl(zf)}（貴人、神明方）：可往${QM.DIR[zf]}方的廟宇祈福，或在家中${QM.DIR[zf]}方安奉、上香`,1]);
+  L.push(['隨身佩戴水晶串（可置換庚辛白虎煞）；出入喪事、醫院、墓地後，可喝一杯水再如廁（納壬去癸）',0]);
+  L.push(['若有身體或情緒不適，請先就醫；本項僅為奇門象意參考',0]);
   return {Y,L}}},
 開店:{d:'開門為店舖，日干為店主',f(h){const k=h.doorP('開'),a=h.tP(h.c.YC.dE),L=[];const Y=[['店舖（開門）',k],['店主（日干）',a]];
   const r=h.rel(k,a);
@@ -1031,7 +1189,7 @@ function run(c,k,present=true){const h=H(c),t=T[k];
   const fx=x=>present?x:x.replace(/日干/g,'月干');
   const L=o.L.map(([a,j])=>[fx(a),j]),sc=L.reduce((a,[,j])=>a+j,0);
   return {d:fx(t.d),Y:o.Y.map(([n,p])=>({n:fx(n),p,where:h.pl(p),st:p?h.st(p):''})),L,v:sc>0?1:sc<0?-1:0}}
-return {T,run,keys:Object.keys(T),H};
+return {T,run,keys:Object.keys(T).filter(k=>k!=='經營'),H};
 })();
 
 // ===== 終身命局（依張志春〈奇門遁甲人生命運預測古文詳解〉）=====
@@ -1153,7 +1311,7 @@ const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${Str
 const hrTxt=hb=>hb===0?'23–01':`${String(hb*2-1).padStart(2,'0')}–${String(hb*2+1).padStart(2,'0')}`;
 const DAYH=new Set([4,5,6,7,8,9,10]);
 function nowSlot(){const n=new Date();let d=new Date(n);let hb=Math.floor(((n.getHours()+1)%24)/2);if(n.getHours()===23)d.setDate(d.getDate()+1);return {date:iso(d),hb}}
-const S={qi:(()=>{try{return Object.assign({present:true,ask:'男',reader:'男',who:''},JSON.parse(store.get('qm_qi')||'{}'))}catch(e){return {present:true,ask:'男',reader:'男',who:''}}})(),people:(()=>{try{return JSON.parse(store.get('qm_people')||'[]')}catch(e){return []}})(),at:null,birth:(()=>{try{return JSON.parse(store.get('qm_birth')||'null')}catch(e){return null}})(),mtab:'本人',topic:store.get('qm_topic')||'婚姻',date:null,hb:null,p:null,dayOnly:store.get('qm_dayOnly')==='1',charts:[],mode:store.get('qm_mode')==='yin'?'yin':'yang',kind:'時',wall:null,fix:null,pc:null,rel:null,cs:store.get('qm_cs2')||'',focus:null,focusG:null,rot:0,dtab:'意涵說明',saves:(()=>{try{return JSON.parse(store.get('qm_saves')||'[]')}catch(e){return []}})(),sortC:false};
+const S={qi:(()=>{try{return Object.assign({present:true,ask:'男',reader:'男',who:''},JSON.parse(store.get('qm_qi')||'{}'))}catch(e){return {present:true,ask:'男',reader:'男',who:''}}})(),people:(()=>{try{return JSON.parse(store.get('qm_people')||'[]')}catch(e){return []}})(),at:null,birth:(()=>{try{return JSON.parse(store.get('qm_birth')||'null')}catch(e){return null}})(),mtab:'本人',topic:store.get('qm_topic')||'婚姻',date:null,hb:null,p:null,dayOnly:store.get('qm_dayOnly')==='1',charts:[],mode:store.get('qm_mode')==='yin'?'yin':'yang',kind:'時',wall:null,fix:null,pc:null,rel:null,cs:store.get('qm_cs2')||'',caiMode:store.get('qm_caimode')||'投資',focus:null,focusG:null,rot:0,dtab:'意涵說明',saves:(()=>{try{return JSON.parse(store.get('qm_saves')||'[]')}catch(e){return []}})(),sortC:false};
 const FOOT={yang:'',yin:'陰盤奇門：時盤以年支數＋農曆月＋農曆日＋時支數除九取餘起局；刻盤（每十分鐘一刻，刻干依時干五鼠遁）再加刻支數；年盤逐年退一局、月盤自丙寅月起每十個月退一局、日盤依三元甲子起局（年、月盤恆陰遁）；冬至後陽遁、夏至後陰遁，23:00 換日，閏月依本月計。各盤種已對照吉祥陰盤實測校驗；入墓依宮位判斷：巽宮辛、坤宮癸與直符、乾宮乙丙戊、艮宮丁己（庚在艮、壬在巽只論擊刑）；八門、九星依五行墓（金入艮、水土入巽、木入坤、火入乾），盤上以紫色底線與「墓」標示；狀態列「入墓」看日干天盤宮、時干地盤宮是否入墓。轉星、移門、八神與暗干規則已對照吉祥陰盤校驗。吉方取法依奇門講義：避五不遇時，須得開、休、生吉門且不犯擊刑、入墓、門迫、庚格、伏反吟等凶格；奇門相合或有吉格為吉方，否則尚屬可用。格局與克應依講義整理，內容為傳統術數參考。'};
 const XINGP={戊:3,己:2,庚:8,辛:9,壬:4,癸:4};
 const mk=(str,p)=>[...str].map(ch=>{const x=XINGP[ch]===p,m=S.mode==='yin'&&(QM.MUP[p]||'').includes(ch);return x||m?`<span class="${x?'xing':''} ${m?'mu':''}" title="${[x?'擊刑':'',m?'入墓':''].filter(Boolean).join('、')}">${ch}</span>`:ch}).join('');
@@ -1196,7 +1354,7 @@ function renderHours(){markRank();
   const ns=nowSlot();
   $('#hours').innerHTML=S.charts.map((c,hb)=>`<button class="hb ${c.zuiji.length?'has':''} ${ns.date===S.date&&ns.hb===hb?'now':''}" data-hb="${hb}" aria-pressed="${hb===S.hb}" aria-label="${c.hourGZ}時 ${hrTxt(hb)}${c.zuiji.length?'，有最吉方':''}"><div class="z">${QM.ZHI[hb]}</div><div class="t">${hrTxt(hb)}</div><div class="s">${Math.round(c.best.ss)}</div></button>`).join('');
 }
-const ST5={無:'無',戀愛發展:'戀愛發展',婚姻感情:'婚姻',升遷調動:'升遷',行業選擇:'就職',業務績效:'業務績效',健康疾病:'疾病',買賣吉凶:'交易',學業考試:'考試',合夥吉凶:'合夥',官司訴訟:'官司'};
+const ST5={無:'無',戀愛發展:'戀愛發展',婚姻感情:'婚姻',升遷調動:'升遷',行業選擇:'就職',求財:'求財',業務績效:'業務績效',股票投資:'股票',健康疾病:'疾病',買賣吉凶:'交易',學業考試:'考試',合夥吉凶:'合夥',官司訴訟:'官司',卡陰沖煞:'卡陰沖煞'};
 // ===== 佈局（移星換斗找最佳轉宮＋擇時；用神取法依傳統，評分為本程式自訂）=====
 const BUG={催財:{y:['生門','戊','天心'],w:'財'},催官:{y:['開門','值符','天心'],w:'官'},文昌:{y:['天輔','丁','景門'],w:'文昌'},考試:{y:['天輔','丁','景門','開門'],w:'考運'},
  桃花:{y:['六合','乙','丙'],w:'人緣桃花'},結婚:{y:['六合','乙','庚'],w:'婚姻'},業務績效:{y:['開門','生門','六合','時干'],w:'業務'},感情和合:{y:['六合','乙','庚','休門'],w:'感情和合',hehe:1},討債:{y:['戊','生門','傷門','九天'],w:'收款'},官司:{y:['開門','丁','值符'],w:'官司'},
@@ -1212,8 +1370,36 @@ function buScore(c,y,cut){const fp=QM.focusOf(c),pals=new Set([fp]);const where=
   let sc=0;for(const p of pals){const x=c.pals.find(q=>q.p===p),F=QM.pflags(c,p);let v=('開休生'.includes(x.door[0])?3:x.door[0]==='景'?1:-2)+(['值符','太陰','六合','九地','九天'].includes(x.god)?1:-1)+(x.qi?1:0)+(x.lv==='ji'?2:0)-2*((F.kong?1:0)+(F.mu.length?1:0)+(F.xi.length?1:0)+(F.po?1:0));sc+=p===fp?v*1.5:v}
   for(const p of pals){const x=c.pals.find(q=>q.p===p),w=starStat(c,x);if(y.includes('天心')||y.includes('生門'))sc+=(w.m==='◎'?1.5:w.m==='○'?.8:0)+(w.p==='◎'?1.5:w.p==='○'?.8:0)}
   if(cut)sc=-sc;return {sc,fp,pals:[...pals],where}}
+// ===== 流年／催財佈局條件（依第五章第十節）與終身財局（第十一節）=====
+const ZPAL=[1,8,8,3,4,4,9,2,2,7,6,6],PEL5={1:'水',8:'土',3:'木',4:'木',9:'火',2:'土',7:'金',6:'金'},GEL5={甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水'},SHE={水:'木',木:'火',火:'土',土:'金',金:'水'},KEE={水:'火',火:'金',金:'木',木:'土',土:'水'};
+const CRYS={蓬:'黑水晶或藍水晶',任:'黃水晶球',沖:'黃水晶柱',輔:'黃水晶球',英:'白水晶柱',芮:'黃水晶球',柱:'白水晶柱',心:'白水晶球',禽:'黃水晶球'};
+function lsPal(g){const B=[...Array(12).keys()],zs=B.find(b=>QM.cs(g,b)==='長生'),lu=B.find(b=>QM.cs(g,b)==='臨官');return {zs,lu,pz:ZPAL[zs],pl:ZPAL[lu]}}
+const no4=(c,p)=>{if(!p)return false;const F=QM.pflags(c,p);return !F.kong&&!F.mu.length&&!F.xi.length&&!F.po};
+const shengBi=(a,b)=>a===b||SHE[a]===b; // a 生或比和 b（五行）
+function caiCheck(c){const raw=c.YC.P[2][0],dp=QM.focusOf(c),tp=QM.palOfT(c,c.YC.P[3][0]),L=lsPal(raw),g=(c.pals.find(x=>x.door==='生門')||{}).p,w=QM.palOfT(c,'戊');
+  const okD=no4(c,dp),okT=no4(c,tp);
+  const A=okD&&(dp===L.pz||dp===L.pl),Bp=[L.pz,L.pl].filter(p=>p&&no4(c,p)&&shengBi(PEL5[p],PEL5[dp])),B=okD&&Bp.length>0;
+  const C=[g,w].filter(p=>p&&no4(c,p)&&shengBi(PEL5[p],PEL5[dp])&&(!tp||shengBi(PEL5[p],PEL5[tp])));
+  return {raw,dp,tp,L,okD,okT,A,B,Bp,C,g,w,sc:(A?6:B?4:0)+C.length*2+(okD?1:0)+(okT?1:0)}}
+function caiBox(c){const k=caiCheck(c),D=QM.DIR,Z=QM.ZHI,it=[];
+  it.push([`日干（${k.raw}）在${D[k.dp]}方、時干在${k.tp?D[k.tp]+'方':'—'}：${k.okD&&k.okT?'兩宮都健康，財運相對好':'有宮位帶奇門四害，財運相對受限'}`,k.okD&&k.okT]);
+  it.push([`${k.raw}的長生在${Z[k.L.zs]}（${D[k.L.pz]}方）、臨官（祿位）在${Z[k.L.lu]}（${D[k.L.pl]}方）`,null]);
+  it.push([k.A?'用神宮已在長生或祿位，且無四害：運勢就好':k.B?`長生／祿位（${k.Bp.map(p=>D[p]+'方').join('、')}）能生或比旺用神宮，兩宮皆無四害`:'用神宮未在長生、祿位，長生祿位也未能生旺用神宮（可用移星換斗調整）',k.A||k.B]);
+  it.push([k.C.length?`生門／戊落宮（${k.C.map(p=>D[p]+'方').join('、')}）能生旺日干宮與時干宮，且無四害`:'生門、戊的落宮未能同時生旺日干宮與時干宮（有四害要先解四害）',k.C.length>0]);
+  return `<div class="msum"><p><b>催財條件檢核（流年財運佈局）</b></p><ul>${it.map(([t,o])=>`<li class="${o===true?'j1':o===false?'j-1':''}">${o===true?'✓ ':o===false?'✗ ':''}${t}</li>`).join('')}</ul></div>`}
+function lifeBox(c){const raw=c.YC.P[2][0],de=GEL5[raw],D=QM.DIR,Z=QM.ZHI,L=lsPal(raw),by={};c.pals.forEach(x=>by[x.p]=x);
+  const zc=[...'甲乙丙丁戊己庚辛壬癸'].filter(g=>KEE[de]===GEL5[g]),yy=g=>'甲丙戊庚壬'.includes(g),zheng=zc.find(g=>yy(g)!==yy(raw)),pian=zc.find(g=>yy(g)===yy(raw));
+  const g=(c.pals.find(x=>x.door==='生門')||{}).p,w=QM.palOfT(c,'戊'),zp=zheng?QM.palOfT(c,zheng):null,pp=pian?QM.palOfT(c,pian):null;
+  const cand=[['生門',g],['戊',w],['長生（'+Z[L.zs]+'）',L.pz],['祿位（'+Z[L.lu]+'）',L.pl],['正財（'+zheng+'）',zp],['偏財（'+pian+'）',pp]].filter(([,p])=>p);
+  const rows=cand.map(([n,p])=>{const x=by[p],st=starStat(c,x),fit=shengBi(PEL5[p],de),ok4=no4(c,p),stn=st.stn||'禽';const tm=st.m?'得時':'',dm=st.p?'得地':'';
+    const good=fit&&ok4&&(st.m||st.p);return {n,p,x,stn,tm,dm,fit,ok4,good}});
+  const fu=c.fuFan.星伏吟||c.fuFan.門伏吟;
+  return `<div class="msum"><p><b>終身財局佈局（六大條件）</b>　依本命日干「${raw}」（${de}）${fu?'；命盤遇伏吟，佈局力量加倍':''}</p>
+   <ul>${rows.map(r=>`<li class="${r.good?'j1':''}">${r.good?'★ ':''}${r.n}在${D[r.p]}方${r.x.gua}宮（${PEL5[r.p]}）・財星天${r.stn}星${r.tm||r.dm?'（'+[r.tm,r.dm].filter(Boolean).join('、')+'）':'（失時失地）'}${r.fit?'・宮位生比日干':'・宮位未生比日干'}${r.ok4?'':'・<span class="j-1">有四害</span>'}${r.good?`<br>建議佈：${CRYS[r.stn]}`:''}</li>`).join('')}</ul>
+   <p class="ds">佈局順序：生門 → 戊 → 財星須得地或得時（兩者皆得最好，得其一也可用）；佈局宮位最後要生比本命日干。★ 為符合條件、可優先佈局的宮位。</p>
+   <p class="empty">書中提醒：終身局屬終身盤，不建議替客戶佈終身局。</p></div>`}
 function buPlan(c,goal){const G=BUG[goal];let best=null;
-  for(let k=0;k<8;k++){const rc=QM.rotate(c,k),r=buScore(rc,G.y,G.cut);if(!best||r.sc>best.sc)best=Object.assign(r,{k,rc})}
+  for(let k=0;k<(G.life?1:8);k++){const rc=QM.rotate(c,k),r=buScore(rc,G.y,G.cut);if(G.w==='財'&&!G.life)r.sc+=caiCheck(rc).sc;if(!best||r.sc>best.sc)best=Object.assign(r,{k,rc})}
   const base=buScore(c,G.y,G.cut).sc,pct=Math.max(0,Math.min(100,Math.round(50+best.sc*3)));
   const times=[];const w=S.wall||wallOf(),t0=new Date(w.Y,w.M-1,w.D,w.h,w.n);
   for(let i=1;i<=30*12&&times.length<6;i++){const t=new Date(t0.getTime()+i*2*3600000);const hh=t.getHours();if(hh<5)continue;const pc=QM.plate('時',t.getFullYear(),t.getMonth()+1,t.getDate(),hh,t.getMinutes());if(!pc||pc.wbu)continue;
@@ -1234,9 +1420,31 @@ function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}e
         const w=starStat(rc,x);if(G.w==='財'&&(w.m||w.p))why.push(w.m&&w.p?'財星得令得地':w.m?'財星得令':'財星得地');
         const SH=DB.SIHAI[p],F=QM.pflags(rc,p),h4=F.kong||F.mu.length||F.xi.length||F.po;
         return `<li><b>佈局${x.gua}宮（${x.dir}方）</b>　符合：${why.join('、')}<br>建議物品：${items.join('；')}${h4&&SH?`<br><span class="j-1">此宮有四害：先移走 ${SH.items}，可貼${x.gua}宮解四害符（${DB.FU[p]?DB.FU[p].c.join(' '):''}）</span>`:''}</li>`}).join('')}</ol>
-      ${G.hehe?heheNotes(rc):''}
+      ${(()=>{const fp=b.fp,fe=PEL5[fp],raw=rc.YC.P[2][0];if(!fe)return '';
+        const HG={甲:'己',己:'甲',乙:'庚',庚:'乙',丙:'辛',辛:'丙',丁:'壬',壬:'丁',戊:'癸',癸:'戊'},de=GEL5[raw],yy=g=>'甲丙戊庚壬'.includes(g),zc=[...'甲乙丙丁戊己庚辛壬癸'].filter(g=>KEE[de]===GEL5[g]);
+        const T=G.w==='財'?[['戊',QM.palOfT(rc,'戊')],['生門',(rc.pals.find(x=>x.door==='生門')||{}).p],...zc.map(g=>[(yy(g)!==yy(raw)?'正財':'偏財')+g,QM.palOfT(rc,g)]).map(([n,p])=>[n.endsWith('戊')?n+'（同上）':n,p]).filter(([n])=>!n.endsWith('（同上）'))]:G.w==='官'?[['值符',(rc.pals.find(x=>x.god==='值符')||{}).p]]:/婚姻|桃花|感情/.test(G.w)?[['合干'+HG[raw],QM.palOfT(rc,HG[raw])]]:[];
+        if(!T.length)return '';const rows=T.filter(([,p])=>p).map(([n,p])=>{const x=rc.pals.find(q=>q.p===p),g=p===fp||SHE[PEL5[p]]===fe||PEL5[p]===fe,ok=no4(rc,p);return `<li class="${g&&ok?'j1':'j-1'}">${n}在${x.gua}宮（${x.dir}方，${PEL5[p]}）：${p===fp?'與用神同宮':g?'生比用神宮':'未生用神宮'}${ok?'、無四害':'、有四害'}${g&&ok?' ✓ 可佈':''}</li>`}).join('');
+        return `<div class="msum"><p><b>催${G.w==='財'?'財':G.w==='官'?'官':'婚姻桃花'}目標宮（講義）</b>　${G.w==='財'?'催財找戊、正財、偏財、生門':G.w==='官'?'催官找值符':'催婚姻桃花找日干的天干合干'}的宮位來生用神宮；兩宮都要沒有四害，時間走到目標宮或用神宮的地支就會應驗。</p><ul>${rows}</ul>${rows.includes('✓')?'':'<p class="ds">目前目標宮還沒生到用神宮或有四害，可按上方「在盤上檢視」試其他轉宮，或用移星換斗讓目標宮轉到能生用神的位置。</p>'}</div>`})()}
+      ${(()=>{const fp=b.fp,fe=PEL5[fp];if(!fe)return '';const cand=[1,8,3,4,9,2,7,6].filter(p=>p!==fp&&SHE[PEL5[p]]===fe&&no4(rc,p));if(!cand.length)return `<p class="ds">講義：移星換斗要同時佈「用神宮」與「生用神的宮位」，目前沒有無四害又能生用神宮（${fe}）的宮位，先佈用神宮即可。</p>`;
+        const dq=p=>{const y=rc.pals.find(q=>q.p===p);return ('開休生'.includes(y.door[0])?3:0)+(['值符','太陰','六合','九地','九天'].includes(y.god)?1:0)+(y.qi?1:0)};const tp=cand.sort((a,b2)=>dq(b2)-dq(a))[0],tx=rc.pals.find(q=>q.p===tp);return `<div class="msum"><p><b>雙宮佈局（講義）</b>　用神宮${rc.pals.find(q=>q.p===fp).gua}宮（${fe}）＋生用神宮<b>${tx.gua}宮（${tx.dir}方，${PEL5[tp]}生${fe}）</b>同時佈局。</p><p class="ds">吉祥物採「複方」：一件物品同時帶有宮內天干、八門、九星的象意。${tx.gua}宮可取：天盤${tx.t}、${tx.door}、${tx.star.replace(/（.*$/,'')}星，例如${[...tx.t].map(g=>LYSTUFF[g]).filter(Boolean)[0]||'吉祥物'}。</p></div>`})()}
+      ${G.w==='財'&&!G.life?caiBox(rc):''}${G.life&&G.w==='財'?lifeBox(rc):''}${G.hehe?heheNotes(rc):''}
       ${G.house?`<div class="msum"><p><b>房屋符號判讀</b></p><ul>${houseNotes(rc).map(t=>`<li>${t}</li>`).join('')}</ul></div>`:''}
       ${r.times.length?`<p class="ds">建議佈局時間（日干宮得吉門、無四害）：${r.times.join(' 或 ')}</p>`:''}
+      <details class="more"><summary>佈局須知（講義）</summary><ul>
+        <li>效果：拆、補約兩成，移星換斗約八成；移一定要在現場（家裡或辦公室）起盤。</li>
+        <li>移星換斗至少佈兩個宮位：用神宮，加上一個能生用神、想要催旺的宮位；不要九宮都佈，磁場會亂。</li>
+        <li>一次最多三個宮位（日干宮、時干宮、通關宮），以用神宮或時干宮的時辰為主，同一個時辰內佈完，先拆後補。</li>
+        <li>吉祥物：活的效果最大，立體大於平面；用「複方」──一件物品同時帶有宮內天干、八門、九星的象意（取形、音、義）。家裡已有的物品也可以用。</li>
+        <li>拆：在相應的時間、最好由本人來拆，九天內處理；移到離原宮位至少 45 度的地方，窗外對應的景物也要處理。</li>
+        <li>物品至少擺 100 天，提前達成可提前收；財局最好一年一佈，不替客戶佈終身局。</li>
+        <li>願望多時，一次只調兩到三個宮位，三個月後磁場穩定再調其他事。</li>
+        <li>開盤後九天內要佈局，超過九天效果很差（八字盤不受影響）；盤很差無法拆補移時，九天後再開盤「尋時借運」。</li>
+        <li>拆、補、移不要混搭（拆補後又移宮、或移宮後又拆補，氣場會亂）；最多移三個宮位。移就是「催」：催官、催財、催婚姻。</li>
+        <li>伏吟盤佈兩個吉祥物、一套就好，佈在常活動的空間（客廳、房間或辦公室）；在哪裡起盤就在哪裡佈。</li>
+        <li>小人來剋你，就把它轉到生你、或你剋它的宮位；只把自己轉好，不要把別人轉成入墓或空亡。</li>
+        <li>預測師（月干）不要移到有四害的宮位；同住的主要家人也不要移到四害宮。</li>
+        <li>預測師宮位有四害，事前可畫一張解四害的 28 星宿符帶在身上；要向客戶收紅包（壓驚錢），代表彼此是生意關係。</li>
+        <li>到客戶家先喝一杯水、離開前上廁所（納壬去癸）；離開時向月干方位丟銅板，帶走穢氣。</li></ul></details>
       <p class="empty">佈局評分與物品建議為本程式依傳統用神取法自行整理，僅供參考。</p>`}}
   el.innerHTML=`<h2>佈局</h2><div class="tp" role="group" aria-label="佈局事項">${goals.map(g=>`<button data-bu="${g}" aria-pressed="${g===S.bu}">${g==='撤局'?'撤局':g.endsWith('調理')||g.startsWith('終身')?g:g+'佈局'}</button>`).join('')}</div>${out}`}
 // ===== 擇吉日吉時佈局：年、月、日、時、刻盤逐一檢查，挑無凶格、無四害的時間 =====
@@ -1269,6 +1477,24 @@ function zjSearch(goal,days,dayOnly){const G=BUG[goal],now=new Date(),res=[],cac
     r.ke=best;if(best)r.sc+=3}
   top.sort((a,b)=>b.sc-a.sc);top.forEach((r,i)=>r.rank=i+1);top.sort((a,b)=>a.t-b.t);return {list:top,total:res.length}}
 const fmtT=t=>`${t.getMonth()+1}/${t.getDate()}（${WKD[t.getDay()]}）${pad(t.getHours())}:${pad(t.getMinutes())}`;
+// ===== 月盤擇吉方：未來 12 個月的吉方 =====
+const MJG={一般出行:{d:'出遊、旅遊、拜訪',f:x=>(x.door==='休門'?2:0)+(x.god==='九天'?1:0)},求財:{d:'求財、談生意',f:x=>(x.door==='生門'?3:0)+(x.t.includes('戊')?2:0)},事業:{d:'工作、升遷、開業',f:x=>(x.door==='開門'?3:0)+(x.god==='值符'?2:0)},感情人緣:{d:'約會、人緣、合作',f:x=>(x.god==='六合'?3:0)+(/[乙庚]/.test(x.t)?1:0)+(x.door==='休門'?1:0)},修繕動土:{d:'短期工程、修繕',f:x=>(x.door==='生門'||x.door==='開門'?1:0)+(/[戊己]/.test(x.t)?2:0)}};
+const MJ={goal:'一般出行',res:null};
+function mjStart(t){const g=x=>{const c=QM.plate('月',x.getFullYear(),x.getMonth()+1,x.getDate(),12,0);return c?c.YC.P[3]:null},g0=g(t),d=new Date(t);let i=0;while(i<40){const p=new Date(d);p.setDate(p.getDate()-1);if(g(p)!==g0)break;d.setDate(d.getDate()-1);i++}return d}
+function mjCalc(goal){const out=[],now=new Date();now.setHours(12,0,0,0);let t=mjStart(now);
+  for(let k=0;k<12;k++){const c=QM.plate('月',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0);if(!c)break;
+    const list=c.pals.filter(x=>'開休生'.includes(x.door[0])&&no4(c,x.p)&&!['白虎','玄武','螣蛇'].includes(x.god)).map(x=>{const w=starStat(c,x),q=/[乙丙丁]/.test(x.t);
+      const sc=3+(q?2:0)+(['值符','太陰','六合','九地','九天'].includes(x.god)?1:0)+(w.m?1:0)+MJG[goal].f(x);return {p:x.p,x,sc,q}}).sort((a,b)=>b.sc-a.sc);
+    out.push({t:new Date(t),gz:c.YC.P[3],ju:c.ju,list,fu:c.fuFan.星伏吟||c.fuFan.門伏吟});
+    const n=new Date(t);n.setDate(n.getDate()+20);t=mjStart(new Date(n.getTime()+15*86400000));const g=x=>QM.plate('月',x.getFullYear(),x.getMonth()+1,x.getDate(),12,0).YC.P[3];if(g(t)===out[out.length-1].gz){t.setDate(t.getDate()+31);t=mjStart(t)}}
+  return out}
+function renderMJ(){const el=$('#mjp');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;
+  if(!MJ.res||MJ.res.goal!==MJ.goal)MJ.res={goal:MJ.goal,rows:mjCalc(MJ.goal)};const R=MJ.res.rows,best=Math.max(...R.map(r=>r.list[0]?r.list[0].sc:0));
+  el.innerHTML=`<h2>月盤擇吉方</h2><p class="ds">月盤看一整個月的吉方，適合旅遊、休閒、短期修繕；出門時先往吉方走一段，再前往目的地。條件：得開、休、生門，沒有奇門四害，不臨白虎、玄武、螣蛇。</p>
+    <div class="tp" role="group" aria-label="用途">${Object.keys(MJG).map(k=>`<button data-mjg="${k}" aria-pressed="${k===MJ.goal}" title="${MJG[k].d}">${k}</button>`).join('')}</div>
+    <ol class="lvl">${R.map(r=>{const top=r.list.slice(0,2);return `<li class="${top[0]&&top[0].sc===best?'top':''}"><b>${r.t.getFullYear()}/${r.t.getMonth()+1}/${r.t.getDate()} 起・${r.gz}月</b>${r.fu?'<small>（伏吟，進度慢）</small>':''}　<button class="lk" data-mjgo="${r.t.getTime()}">看盤</button><br>
+      ${top.length?top.map(o=>`<span class="${o.sc===best?'j1':''}">${o.sc===best?'★ ':''}${o.x.dir}方（${o.x.gua}宮）：${o.x.door}・${o.x.god}・天盤${o.x.t}${o.q?'・得奇':''}</span>`).join('<br>'):'<span class="j-1">沒有理想的吉方，這個月宜守不宜遠行</span>'}</li>`}).join('')}</ol>
+    <p class="empty">★ 為十二個月中條件最好的；評分依門、神、三奇、星旺衰與用途整理，僅供參考。</p>`}
 function renderZJ(){const el=$('#zjp');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;const Z=S.zj;
   let out='';if(Z.busy)out='<p class="empty">擇吉計算中…</p>';
   else if(Z.res){const L=Z.res.list;out=L.length?`<p class="ds">共 ${Z.res.total} 個時辰通過檢查，列出分數最高的 ${L.length} 個（依時間排序，★ 為前三名）：</p><ol class="zjl">${L.map((r,i)=>{const x=r.hc.pals.find(q=>q.p===r.fp);
@@ -1305,7 +1531,108 @@ function loveData(){const male=S.qi.ask!=='女',pb=personBranch(),th=pb?TAOHUA(p
   for(let i=1;i<=90;i++){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);const c=QM.plate('日',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0);if(!c)continue;const r=lv(c);const dz=c.q.di%12;if(th!=null&&dz===th){r.v+=2;r.why.push('桃花日')}days.push({t,gz:c.YC.P[3],...r})}
   return {months,days,pb,th}}
 const WK='一二三四五六日';
+// ===== 流年盤解析與佈局（依《道家陰盤奇門遁甲理論與實務》案例十一整理，文字為本程式改寫）=====
+const LYM={
+ gan:{甲:'領導、開創、帶頭',乙:'機會、柔軟變通、藝術與美的事物',丙:'熱情、權威、光明顯達',丁:'最直接的好機會、貴人與靈感',戊:'錢財、資本，與土地相關的行業都適合',己:'代表自己；能柔軟應變、事情順利少敵人，也代表地產、規劃預測',庚:'剛強、硬功夫、權勢（也可能是阻力）',辛:'創新、革新、新機會（也提醒有錯要修正）',壬:'流動、變動、外出奔波',癸:'人脈網絡、暗中進行的事、儲蓄'},
+ god:{值符:'貴人提攜、居主導地位',螣蛇:'變化多、想得多，留意虛驚',太陰:'暗中有助力，適合低調規劃',六合:'合作、人緣、婚姻與中間人',白虎:'壓力大但有魄力，留意衝突與傷災',玄武:'有智謀，留意小人、失物與口舌',九地:'穩紮穩打、累積守成',九天:'各項事業能展翅高飛、大有進展'},
+ star:{蓬:'膽大敢衝，留意冒險過頭',任:'任勞任怨、穩健，凡事不要急',沖:'行動快、執行力強',輔:'文書、學習、教化',英:'正向、光明、亮麗、有名聲',芮:'學習受教，也提醒調理身體',柱:'口才表達，留意口舌破損',心:'謀略、管理、醫藥',禽:'中正穩定'},
+ door:{開:'開創新局、事業開張',休:'休養生息、人和得利',生:'生財、利潤、生意興旺',傷:'競爭有衝勁，留意受傷與爭執',杜:'專業知識與能力；不適合在外張揚露臉，適合幕後與網路行銷',景:'名聲、文書、宣傳表現',死:'停滯固守，適合處理不動產',驚:'一鳴驚人，也留意驚恐口舌'}};
+const LYOBJ={甲:'老虎擺件（甲祿在寅）或綠色植物',乙:'兔子擺件（乙祿在卯）',丙:'紅色燈飾',丁:'小檯燈或馬擺件（丁祿在午）',戊:'胖撲滿或黃色聚寶盆',己:'陶土器或羊擺件',庚:'猴子擺件（庚祿在申）或金屬擺件',辛:'雞擺件（辛祿在酉）或白水晶',壬:'一杯水或豬擺件（壬祿在亥）',癸:'一杯清水或鼠擺件（癸祿在子）'};
+const LYSTUFF={甲:'木製擺件',乙:'綠色植物或木葫蘆',丙:'紅色燈飾',丁:'紅色檯燈（丁字型更好）',戊:'陶土吉祥物',己:'陶土器',庚:'金色金屬擺件',辛:'金色或白色飾品',壬:'旁邊放一杯水',癸:'放在水盤上加水'};
+const LYDOORHE={休:'牛（子丑合）',生:'豬（寅亥合）',傷:'狗（卯戌合）',杜:'猴（巳申合）',景:'羊（午未合）',死:'蛇（巳申合）',驚:'龍（辰酉合）',開:'老虎（寅亥合）'};
+const LYCOL={木:'綠',火:'紅',土:'黃',金:'金',水:'黑或藍'},LYMAT={木:'木製',火:'紅色',土:'陶土',金:'金屬',水:'水晶'},STEL={蓬:'水',任:'土',沖:'木',輔:'木',英:'火',芮:'土',柱:'金',心:'金',禽:'土'};
+const LYHE={甲:'己',己:'甲',乙:'庚',庚:'乙',丙:'辛',辛:'丙',丁:'壬',壬:'丁',戊:'癸',癸:'戊'},ZOD='鼠牛虎兔龍蛇馬羊猴雞狗豬',MSTART=['12/7','1/6','2/4','3/6','4/5','5/6','6/6','7/7','8/8','9/8','10/8','11/7'];
+const lyNo4=(c,p)=>{if(!p)return false;const F=QM.pflags(c,p);return (!F.kong||c.kong.includes(c.YC.P[0][1]))&&!F.mu.length&&!F.xi.length&&!F.po};
+function lyPalLines(c,p){const x=c.pals.find(q=>q.p===p),o=[];
+  [...x.t].forEach(g=>o.push(['天盤'+g,LYM.gan[g]]));[...x.d].forEach(g=>o.push(['地盤'+g,LYM.gan[g]]));
+  o.push([x.god,LYM.god[x.god]]);const sk=x.star.replace(/[天（）]/g,'')[0];o.push([x.star.replace(/（.*$/,'')+'星',LYM.star[sk]]);o.push([x.door,LYM.door[x.door[0]]]);
+  [...(c.an[p]||'')].forEach(g=>o.push(['引干'+g,LYM.gan[g]+'，代表外部帶來的機會']));return o}
+// 某宮四害與化解建議
+function lyFix(c,p){const x=c.pals.find(q=>q.p===p),F=QM.pflags(c,p),all=x.t+x.d,raw=c.YC.P[2][0],yz=c.YC.P[0][1],out=[];
+  const sol=s=>{const h=LYHE[s];if(all.includes(h))return `宮內有${h}，${h}${s}合已把它合掉`;if(raw===h)return `您本身日干${h}就能把${s}合掉，可擺${LYOBJ[h]}加強`;if(/[丁乙]/.test(all))return `宮內有${all.match(/[丁乙]/)[0]}，本身就能解四害`;return `擺放${LYOBJ[h]}（${h}${s}合）把它合掉`};
+  if(F.kong){const kz=[...c.kong].filter(z=>QM.ZHI.indexOf(z)>-1&&ZPAL[QM.ZHI.indexOf(z)]===p);out.push(c.kong.includes(yz)?{t:`空亡（${kz.join('')}）`,s:`今年${c.YC.P[0]}年，年支${yz}已把空亡填實，不必處理`,ok:1}:{t:`空亡（${kz.join('')}）`,s:`擺放${kz.map(z=>ZOD[QM.ZHI.indexOf(z)]).join('或')}的擺件填實`})}
+  F.mu.forEach(s=>out.push({t:s+'入墓',s:sol(s),ok:/合掉|解四害/.test(sol(s))&&!/擺放/.test(sol(s))}));
+  F.xi.forEach(s=>out.push({t:s+'擊刑',s:sol(s)+(XLH[s]?`；或用地支六合：擺${XLH[s][1]}（${XLH[s][2]}）`:''),ok:/合掉|解四害/.test(sol(s))&&!/擺放/.test(sol(s))}));
+  if(F.po)out.push({t:`${x.door}＝門迫`,s:`擺一隻${LYDOORHE[x.door[0]]}，用六合把門氣合住`});
+  return out}
+function lyItem(c,p,role,tgEl){const x=c.pals.find(q=>q.p===p),sk=x.star.replace(/[天（）]/g,'')[0],t0=x.t[0],e1=STEL[sk],e2=GEL5[t0];
+  const st=[...new Set([...x.t,...x.d])].map(g=>LYSTUFF[g]).filter(Boolean),wat=st.filter(v=>/水/.test(v)),oth=st.filter(v=>!/水/.test(v));let main,add;
+  if(role==='日'){main=`${[...new Set([LYCOL[e1],LYCOL[e2]])].join('、')}色、${LYMAT[e2]}材質的龍龜（顏色取${x.star.replace(/（.*$/,'')}屬${e1}、天盤${t0}屬${e2}）`;add=wat.concat(oth.filter(v=>/燈/.test(v)))}
+  else if(role==='時'&&tgEl){main=`${LYCOL[tgEl]}色的龍（取通關的${tgEl}，把本宮的力量轉去生助您）`;add=wat}
+  else if(role==='時'){main=`${[...new Set([LYCOL[e1],LYCOL[e2]])].join('、')}色的龍`;add=wat}
+  else{main=oth.find(v=>/燈/.test(v))||oth[0]||wat[0]||'吉祥物';add=st.filter(v=>v!==main&&(/水|燈/.test(v)))}
+  const pos=x.god==='九天'?'放在櫃子最高處（九天）':x.god==='九地'?'放在櫃子最下方（九地）':x.door==='杜門'?'放在櫃子內（杜門）':x.god==='太陰'?'放在櫃內或較隱密處（太陰）':x.god==='值符'?'放在顯眼的正中位置（值符）':x.god==='六合'?'成對擺放（六合）':x.door==='景門'?'放在明亮處（景門）':'穩妥擺放即可';
+  return `${main}${add.length?'；'+[...new Set(add)].join('、'):''}；${pos}`}
+function lyTimes(c){const raw=c.YC.P[2][0],out=[],t0=new Date();t0.setMinutes(0,0,0);
+  for(let i=1;i<=45*12&&out.length<4;i++){const t=new Date(t0.getTime()+i*2*3600000),hh=t.getHours();if(hh<7||hh>19)continue;const pc=QM.plate('時',t.getFullYear(),t.getMonth()+1,t.getDate(),hh,0);if(!pc||pc.wbu)continue;
+    const fp=QM.palOfT(pc,raw),x=fp&&pc.pals.find(q=>q.p===fp);if(x&&'開休生'.includes(x.door[0])&&no4(pc,fp)&&!['白虎','玄武','螣蛇'].includes(x.god))out.push(`${t.getMonth()+1}/${t.getDate()} ${hrTxt(Math.floor((hh+1)/2)%12)}（${pc.dayGZ}日${pc.hourGZ}時）`)}
+  return out}
+function lyBody(){const c=cur(),D=QM.DIR,P=c.YC.P,raw=P[2][0],hs=P[3][0],dp=QM.palOfT(c,raw),tp=QM.palOfT(c,hs),mp=QM.palOfT(c,P[1][0]);if(!dp)return '<p class="empty">此盤找不到日干落宮。</p>';
+  const gx=p=>{const x=c.pals.find(q=>q.p===p);return `${x.gua}宮（${D[p]}方）`};
+  const sec1=lyPalLines(c,dp),sec2=tp?lyPalLines(c,tp):[],f1=lyFix(c,dp),f2=tp?lyFix(c,tp):[];
+  const yz=P[0][1],w=S.wall||wallOf();
+  // 生剋與通關
+  let rel='',tg=null;if(tp&&tp!==dp){const a=PEL5[tp],b=PEL5[dp];
+    if(KEE[a]===b){const m=SHE[a],cand=[1,8,3,4,9,2,7,6].filter(p=>PEL5[p]===m&&p!==dp&&p!==tp);tg=cand.find(p=>lyNo4(c,p))||cand[0];rel=`<li class="j-1">唯一缺憾：時干${gx(tp)}屬${a}，來剋日干${gx(dp)}（${b}）。解法是在${m}的宮位佈局「通關」：${a}生${m}、${m}生${b}，建議佈${gx(tg)}，化阻力為助力。</li>`}
+    else if(SHE[a]===b)rel=`<li class="j1">時干${gx(tp)}屬${a}，生日干宮（${b}）：今年接觸的人事物會幫助您。</li>`;
+    else if(KEE[b]===a)rel=`<li>日干宮（${b}）剋時干宮（${a}）：您能主導接觸的人事物，但要多花心力經營。</li>`;
+    else if(SHE[b]===a)rel=`<li>日干宮（${b}）生時干宮（${a}）：付出較多、較辛苦，可加強日干宮佈局補氣。</li>`;
+    else rel=`<li class="j1">日干宮與時干宮同屬${a}，比和互助。</li>`}else if(tp===dp)rel='<li class="j1">時干與日干同宮：內外一致，凡事較能自己掌握。</li>';
+  // 逐月
+  const months=[2,3,4,5,6,7,8,9,10,11,0,1].map(z=>{const p=ZPAL[z],fx=lyFix(c,p),need=fx.filter(f=>!f.ok);return {z,p,fx,need}});
+  const fixHtml=fx=>fx.length?fx.map(f=>`<li class="${f.ok?'j1':'j-1'}">${f.t}：${f.s}</li>`).join(''):'<li class="j1">本宮沒有奇門四害</li>';
+  const li=a=>a.map(([k,v])=>`<li><b>${k}</b>：${v}</li>`).join('');
+  const notOpen=S.kind!=='時';
+  const times=lyTimes(c);
+  return `<p class="ds">流年盤用來看一整年與每個月的運勢。最好在<b>立春當天早上</b>或<b>農曆正月十五日前</b>開盤，當作今年第一次開的盤，效果最好。目前這張：${w.Y}/${w.M}/${w.D} ${String(w.h).padStart(2,'0')}:${String(w.n).padStart(2,'0')}　${S.kind}盤・${c.yang?'陽':'陰'}遁${c.ju}局・四柱 ${P.join(' ')}　<button class="lk" data-lyopen="1">改用今年立春早上開盤</button></p>
+   ${notOpen?'<p class="empty">提醒：流年盤以「時盤」開盤，請切到時盤再看。</p>':''}
+   <div class="msum"><p><b>一、日干（${raw}）代表自己，落${gx(dp)}</b>${mp===dp?`　月干${P[1][0]}也在同宮：月令當令、月日同宮，今年能量強`:''}</p><ul>${fixHtml(f1)}${li(sec1)}</ul></div>
+   ${tp?`<div class="msum"><p><b>二、時干（${hs}）落${gx(tp)}</b>：代表您今年接觸到的所有人、事、物</p><ul>${fixHtml(f2)}${li(sec2)}</ul></div>`:''}
+   ${(()=>{const yp=QM.palOfT(c,P[0][0]);if(!yp)return '';const yx=c.pals.find(q=>q.p===yp),fy=lyFix(c,yp);return `<div class="msum"><p><b>年干（${P[0][0]}）落${gx(yp)}</b>：代表今年的大趨勢、政府政策與流年大環境</p><ul>${fy.length?fy.map(f=>`<li class="${f.ok?'j1':'j-1'}">${f.t}：${f.ok?f.s:'大環境有變數，'+f.s}</li>`).join(''):'<li class="j1">本宮沒有奇門四害：大環境相對平穩</li>'}<li><b>${yx.god}</b>：${LYM.god[yx.god]}</li><li><b>${yx.door}</b>：${LYM.door[yx.door[0]]}</li></ul></div>`})()}
+   <div class="msum"><p><b>三、日干宮與時干宮的生剋</b></p><ul>${rel||'<li>—</li>'}</ul></div>
+   <h3 class="mh">四、逐月處理方式</h3><p class="ds">月份依月支對應的宮位看。某個月份有奇門四害，就要在<b>前一個月</b>先解掉；月份已過一半就不必處理。</p>
+   <ol class="lvl">${months.map(m=>`<li><b>${QM.ZHI[m.z]}月（約${MSTART[m.z]}起）・${gx(m.p)}</b>　${m.need.length?'<span class="j-1">需處理</span>':'<span class="j1">不必處理</span>'}<ul>${fixHtml(m.fx)}</ul></li>`).join('')}</ol>
+   <p class="ds">不放心時，也可在該宮貼丁奇符（坤、乾兩宮不貼，改化燒），擇吉日貼符。</p>
+   <h3 class="mh">五、全年佈局（${tg?'通關局，佈三個宮位':'佈日干宮與時干宮'}）</h3>
+   <ol class="bul"><li><b>先佈日干${gx(dp)}</b>：把整個流年盤印出來貼在這一宮；擺放 ${lyItem(c,dp,'日')}</li>
+    ${tp&&tp!==dp?`<li><b>次佈時干${gx(tp)}</b>：擺放 ${lyItem(c,tp,'時',tg?PEL5[tg]:null)}</li>`:''}
+    ${tg?`<li><b>再佈通關${gx(tg)}</b>：擺放 ${lyItem(c,tg,'通')}</li>`:''}</ol>
+   <p class="ds">三宮要依序相生（${tg?`${PEL5[tp]}生${PEL5[tg]}、${PEL5[tg]}生${PEL5[dp]}`:'時干宮、日干宮'}），而且都要沒有奇門四害；有四害的宮位，要先解四害再佈局。${[dp,tp,tg].filter(Boolean).filter(p=>!lyNo4(c,p)).length?`<span class="j-1">目前${[...new Set([dp,tp,tg].filter(Boolean).filter(p=>!lyNo4(c,p)))].map(gx).join('、')}有四害，請先處理。</span>`:''}</p>
+   <p class="ds">放吉祥物的程序：先把該宮盤面上的文字唸四遍或七遍，再唸崑崙咒，然後把吉祥物放上去。每一宮都照這個程序。</p>
+   <div class="msum"><p><b>六、擇日</b>　${times.length?'接下來適合佈局的時辰：'+times.join('、'):'近期找不到日干宮得吉門又無四害的時辰，可到「擇吉日吉時佈局」再挑。'}</p></div>
+   <div class="msum"><p><b>七、佈局後</b>：畫四張催動磁場的符（事先畫好），用盤子裝水，把四張符燒化在水中，就完成今年流年盤的佈局。</p></div>
+   <p class="empty">解說文字依書中案例的方法整理，物品與化解建議由程式依盤面組合，僅供參考。</p>`}
+// ===== 流年運勢／流月運勢（年盤、月盤總覽）=====
+function ysBody(){const yr=S.zx==='流年運勢',need=yr?'年':'月',c=cur(),D=QM.DIR,P=c.YC.P;
+  if(S.kind!==need)return `<p class="empty">${S.zx}要看${need}盤。<button class="lk" data-ysgo="${need}">切換到本${yr?'年':'月'}${need}盤</button></p>`;
+  const gx=p=>{const x=c.pals.find(q=>q.p===p);return `${x.gua}宮（${D[p]}方）`},by={};c.pals.forEach(x=>by[x.p]=x);
+  const bad=p=>{const F=QM.pflags(c,p),o=[];if(F.kong)o.push('空亡');F.mu.forEach(g=>o.push(g+'入墓'));F.xi.forEach(g=>o.push(g+'擊刑'));if(F.po)o.push('門迫');return o};
+  const yg=birthYearStem(),who=S.people.find(p=>p.id===S.qi.who),me=yg?QM.palOfT(c,yg):null;
+  const per=yg?`${who&&who.name?who.name+'的':''}年命（${yg}）`:'';
+  const line=(lab,p,good,badTxt)=>{if(!p)return `<li>${lab}：盤上未見</li>`;const b=bad(p),x=by[p],ok=!b.length&&'開休生'.includes(x.door[0])&&!['白虎','玄武','螣蛇'].includes(x.god);
+    return `<li class="${ok?'j1':b.length?'j-1':''}"><b>${lab}</b>落${gx(p)}・${x.door}・${x.god}：${ok?good:b.length?`逢${b.join('、')}，${badTxt}`:'平穩，按部就班即可'}</li>`};
+  const fu=[];if(c.fuFan.星伏吟||c.fuFan.門伏吟)fu.push(`伏吟盤：${yr?'今年':'這個月'}變化不大、進度慢，宜守不宜攻`);if(c.fuFan.星反吟||c.fuFan.門反吟)fu.push(`反吟盤：${yr?'今年':'這個月'}變動快、事情容易反覆`);
+  const zf=by[c.pals.find(x=>x.god==='值符').p],zsP=(c.pals.find(x=>x.door===c.zhiShi)||{}).p;
+  const ji=c.pals.filter(x=>!bad(x.p).length&&'開休生'.includes(x.door[0])&&!['白虎','玄武','螣蛇'].includes(x.god)).map(x=>x.p),
+        xi=c.pals.filter(x=>bad(x.p).length>=2||(x.god==='白虎'&&bad(x.p).length)).map(x=>x.p);
+  const xr=c.pals.find(x=>x.star.includes('芮')).p;
+  return `<p class="ds">${P[3]}${yr?'年':'月'}・${c.yang?'陽':'陰'}遁${c.ju}局　${yr?'年盤看一整年的大方向，適合知運、造運、改運與居家風水調理；不適合用來解決馬上要見效的事。':'月盤看這一個月的運勢，適合休閒旅遊、短期工程修繕；也能用旺相吉氣提升一年的運勢。'}　<button class="lk" data-ysnav="-1">上一${yr?'年':'個月'}</button> <button class="lk" data-ysnav="1">下一${yr?'年':'個月'}</button></p>
+   <div class="msum"><p><b>一、大環境</b></p><ul>${fu.map(t=>`<li>${t}</li>`).join('')}
+     <li>值符（${c.zhiFu}）落${gx(zf.p)}：${bad(zf.p).length?`逢${bad(zf.p).join('、')}，大環境的貴人與主導力量受阻`:'大環境的主導力量穩定'}</li>
+     ${zsP?`<li>值使（${c.zhiShi}）落${gx(zsP)}：${bad(zsP).length?`逢${bad(zsP).join('、')}，做事的過程不順`:'做事的過程大致順利'}</li>`:''}</ul></div>
+   <div class="msum"><p><b>二、${yg?per:'個人'}</b></p>${me?`<ul>${(()=>{const b=bad(me),x=by[me];return `<li class="${b.length?'j-1':'j1'}">落${gx(me)}・${x.door}・${x.god}・天${x.star.replace(/[天（）禽]/g,'')[0]||'禽'}星：${b.length?`逢${b.join('、')}，${yr?'今年':'這個月'}要先解四害再求發展`:`無四害，${'開休生'.includes(x.door[0])?'又得吉門，運勢順':'運勢平穩'}`}</li>${lyPalLines(c,me).slice(0,6).map(([k,v])=>`<li><b>${k}</b>：${v}</li>`).join('')}`})()}</ul>`:`<p class="ds">在上方選擇有出生資料的問測者，就能用年命看個人的${yr?'年':'月'}運。</p>`}</div>
+   <div class="msum"><p><b>三、各方面</b></p><ul>
+     ${line('財運（生門）',(c.pals.find(x=>x.door==='生門')||{}).p,'財運順，可積極求財','財運受阻，投資要保守')}
+     ${line('本金（戊）',QM.palOfT(c,'戊'),'資金穩健','資金有壓力')}
+     ${line('事業（開門）',(c.pals.find(x=>x.door==='開門')||{}).p,'事業有發展','事業推展卡關')}
+     ${line('感情人緣（六合）',(c.pals.find(x=>x.god==='六合')||{}).p,'人緣好、有合作機會','人際與合作要多溝通')}
+     ${line('健康（天芮）',xr,'身體狀況平穩','要多注意保養')}</ul></div>
+   <div class="msum"><p><b>四、方位</b></p><ul><li class="j1">吉方：${ji.length?ji.map(gx).join('、'):'沒有明顯的吉方'}</li><li class="j-1">宜避開：${xi.length?xi.map(gx).join('、'):'沒有明顯的凶方'}</li></ul>
+     <p class="ds">${yr?'想催財可按「流年財位」；想做全年佈局，可用「流年盤解析」以立春時盤佈局。':'月份有四害時，要在前一個月先解掉。'}</p></div>
+   <p class="empty">評斷依盤面四害、門、神整理，僅供參考。</p>`}
 function zxBody(){
+  if(S.zx==='流年盤解析')return lyBody();
+  if(S.zx==='流年運勢'||S.zx==='流月運勢')return ysBody();
   if(S.zx==='本週運勢'){const W=weekData();if(!W.length)return '<p class="empty">此週超出可排盤範圍。</p>';const best=W.reduce((a,b)=>b.all>a.all?b:a),worst=W.reduce((a,b)=>b.all<a.all?b:a),avg=W.reduce((a,b)=>a+b.all,0)/W.length;
     const mx=k=>W.reduce((a,b)=>b[k]>a[k]?b:a);
     return `<p class="ds">以每日日盤的日干宮為主，看門、神、旺衰、奇儀與四害；財運看生門與戊、事業看開門、感情看六合與${S.qi.ask==='女'?'庚':'乙奇'}。週次依目前選擇的日期（${S.date}）所在週。</p>
@@ -1323,15 +1650,28 @@ function zxBody(){
     <p class="ds">建議：在這些日子多參加聚會、主動認識新朋友；也可用「擇吉日吉時佈局」的桃花局挑時辰佈局。</p><p class="empty">評分為本程式依傳統用神整理，僅供參考。</p>`}
 function renderZhan(){
   const el=$('#zhan');if(S.mode!=='yin'){el.hidden=true;S.zy=null;return}
-  el.hidden=false;const c=cur();if(S.topic==='感情')S.topic='戀愛發展';if(!ZH.T[S.topic]&&S.topic!=='無')S.topic='婚姻';const none=S.topic==='無'&&!S.zx,r=none?{Y:[],L:[],d:'',v:0}:ZH.run(c,S.zx?'婚姻':S.topic,S.qi.present);
+  el.hidden=false;const c=cur();if(S.topic==='感情')S.topic='戀愛發展';if(S.topic==='經營')S.topic='求財';if(!ZH.T[S.topic]&&S.topic!=='無')S.topic='婚姻';const none=S.topic==='無'&&!S.zx,r=none?{Y:[],L:[],d:'',v:0}:ZH.run(c,S.zx?'婚姻':S.topic,S.qi.present);
   S.zy={};if(!S.zx)r.Y.forEach(y=>{if(y.p){(S.zy[y.p]=S.zy[y.p]||[]).push(y.n.replace(/（.*$/,''))}});
-  el.innerHTML=`<h2>事項占斷</h2><div class="tp st5" role="group" aria-label="常用事項">${Object.entries(ST5).map(([n,k])=>`<button data-s5="${n}" aria-pressed="${!S.zx&&k===S.topic}">${n}</button>`).join('')}${['本週運勢','感情緣分'].map(n=>`<button data-s5="${n}" aria-pressed="${S.zx===n}">${n}</button>`).join('')}${['流月運勢','流年運勢','流年財位','終身財位'].map(n=>`<button data-s5="${n}">${n}</button>`).join('')}</div>
+  el.innerHTML=`<h2>事項占斷</h2><div class="tp st5" role="group" aria-label="常用事項">${Object.entries(ST5).map(([n,k])=>`<button data-s5="${n}" aria-pressed="${!S.zx&&k===S.topic}">${n}</button>`).join('')}${['本週運勢','感情緣分','流年盤解析'].map(n=>`<button data-s5="${n}" aria-pressed="${S.zx===n}">${n}</button>`).join('')}${['流月運勢','流年運勢','流年財位','終身財位'].map(n=>`<button data-s5="${n}" aria-pressed="${S.zx===n}">${n}</button>`).join('')}</div>
     <details class="more"><summary>更多事項</summary><div class="tp" role="group" aria-label="選擇事項">${ZH.keys.map(k=>`<button data-k="${k}" aria-pressed="${k===S.topic}">${k}</button>`).join('')}</div></details>
-    ${none?'<p class="empty">目前未選擇事項，盤面不標示用神。需要時再點選上方事項即可。</p>':S.zx?zxBody():`<p class="ds">${c.hourGZ}時・求測者${S.qi.present?'在現場，以日干為用神':'不在現場（遠測），以月干為用神'}・${S.qi.ask}問</p><p class="ds">${r.d}</p>
+    ${none?'<p class="empty">目前未選擇事項，盤面不標示用神。需要時再點選上方事項即可。</p>':S.zx?zxBody():`<p class="ds">${c.hourGZ}時・求測者${S.qi.present?'在現場，以日干為用神':'不在現場（遠測），以月干為用神'}・${S.qi.ask}問</p>${(()=>{const a=QM.palOfT(c,c.YC.P[S.qi.present?2:1][0]),t=QM.palOfT(c,c.YC.P[3][0]);return a&&a===t?`<p class="ds">第一用神（${S.qi.present?'日干':'月干'}）與第二用神（時干）同宮：若問的是第二件事或第二個物件，要用「翻下宮」看下一階段的演變。</p>`:''})()}<p class="ds">${r.d}</p>
+    ${S.topic==='求財'?`<div class="tp cm" role="group" aria-label="求財類型">${[['投資','投資（拿本金）'],['仲介','仲介（不出本金：保險、房仲、傳銷、股票）'],['已開店','已開店'],['合夥','合夥／合作']].map(([k,n])=>`<button data-cm="${k}" aria-pressed="${(S.caiMode||'投資')===k}">${n}</button>`).join('')}</div>
+      <details class="more"><summary>求財符號對照</summary><p class="ds">開門：開公司、工廠、店鋪（還沒開店看時干）；戊：本金；生門：利潤，也代表一般房地產；死門：地皮、不動產；景門：影視、旅遊；天英星：表演事業；六合：事業合夥人、中間人、仲介人；生門與戊所臨之星為財星，所落宮位為求財方向。</p></details>`:''}
     ${r.Y.length?`<table>${r.Y.map(y=>`<tr ${y.p?`data-p="${y.p}"`:''}><td>${y.n}</td><td>${y.where}</td><td class="st">${y.st}</td></tr>`).join('')}</table>`:''}
     <ul>${r.L.map(([t,j])=>/^【/.test(t)?`<li class="zhh">${t}</li>`:`<li class="j${j}">${t}</li>`).join('')}</ul>
-    <p class="sum j${r.v}">${r.v>0?'整體偏吉':r.v<0?'整體偏凶':'吉凶參半，須審時度勢'}</p>`}`;
+    <p class="sum j${r.v}">${r.v>0?'整體偏吉':r.v<0?'整體偏凶':'吉凶參半，須審時度勢'}</p>
+    ${(()=>{const a=QM.palOfT(c,c.YC.P[S.qi.present?2:1][0]),t=QM.palOfT(c,c.YC.P[3][0]),dir=p=>`${QM.DIR[p]}方`;
+      const MS=['12月上旬','1月上旬','2月上旬','3月上旬','4月上旬','5月上旬','6月上旬','7月上旬','8月上旬','9月上旬','10月上旬','11月上旬'];
+      const zt=z=>{const i=QM.ZHI.indexOf(z),h0=(i*2+23)%24;return `${z}月（約${MS[i]}起）、${z}日或${z}時（${String(h0).padStart(2,'0')}–${String((h0+2)%24).padStart(2,'0')}點）`};
+      const when=(p,who)=>{const op=OPPP[p],oF=QM.pflags(c,op),weak=oF.kong||oF.mu.length||oF.xi.length||oF.po,cz=PZB[op],fz=PZB[p];
+        return `<li><b>${who}</b>：最可能在${[...cz,...fz].map(z=>`「${z}」`).join('或')}的時間有結果，例如${[...new Set([...cz,...fz])].map(zt).join('；')}。${weak?`（${cz.join('、')}的力量較弱）`:''}${c.kongP.includes(p)?'目前落空亡，時間會比預期晚一點。':''}</li>`};
+      const kp=[...new Set(c.kongP)];
+      return `<details class="more"><summary>什麼時候會有結果？（應期）</summary><ul>${a?when(a,'你的事'):''}${t&&t!==a?when(t,'所問的事'):''}
+        <li><b>容易變卦</b>：${kp.map(dir).join('、')}相關的人事物，現在先不要太期待，等時間到再看。</li>
+        <li><b>會有動靜</b>：${c.horseP?dir(c.horseP):'—'}，近期可能有外出、異動或對方主動聯絡。</li></ul>
+        <p class="ds">看法：時間走到上面的地支（月、日或時）就容易應驗；年份也可以用同一個地支看。</p></details>`})()}`}`;
 }
+function birthYearStem(){const w=S.people.find(p=>p.id===S.qi.who),b=w&&w.date?w:S.birth;if(!b||!b.date)return null;const [y,m,d]=b.date.split('-').map(Number),[hh,mi]=(b.time||'12:00').split(':').map(Number);const q=QM.pillars(y,m,d,hh,mi||0);return QM.GAN[q.yi%10]}
 function birthSlot(b){const [y,m,d]=b.date.split('-').map(Number),[hh,mi]=b.time.split(':').map(Number);const t=new Date(y,m-1,d);let hb=Math.floor((hh+1)/2)%12;if(hh>=23)t.setDate(t.getDate()+1);return {date:iso(t),hb,ms:Date.UTC(y,m-1,d,hh,mi||0)-8*3600000,label:`${b.date} ${b.time}`}}
 // ===== 終身命局：白話解說層 =====
 const MX={
@@ -1464,7 +1804,7 @@ function plateTitle(c){const k=c.kind||'時',P=c.YC?c.YC.P:[];
   return `${P[3]}${UNIT[k]}　${QM.KIND[k]}`}
 function renderBoard(){
   renderQ();if(S.mode==='yin')yinPillars();
-  renderZhan();renderBu();renderZJ();renderMing();
+  renderZhan();renderBu();renderZJ();renderMJ();renderMing();
   const c=cur(),byP={};c.pals.forEach(x=>byP[x.p]=x);
   const topZ=c.zuiji[0],yin=S.mode==='yin',plate=yin&&S.pc;
   if(S.p==null||!byP[S.p])S.p=(topZ||c.best).p;
@@ -1596,10 +1936,55 @@ GAN:{乙:['花草盆栽、布料、繩、藥草','花園、草地、藥房'],丙
 FU:{星伏吟:'九星伏吟：大的方向、政策沒有改變。',干伏吟:'天地伏吟：自己沒有太大的變化，宜守不宜攻。',門伏吟:'八門伏吟：人事停滯，事情原地打轉。',星反吟:'九星反吟：大環境反覆，情勢可能翻轉。',干反吟:'天地反吟：自身反覆不定，事情來回變卦。',門反吟:'八門反吟：人事已在改變，變動快。'},
 SH:{空亡:['時空點還沒到，或此事將落空、白忙一場；也表示有被忽略的隱患要先處理。','在此方位補「實」：放有分量、裝滿的物品（滿水瓶、石頭、厚書），或等出旬後再動。'],
  入墓:['被收住、被埋沒，有力也發揮不出來，事情拖延或被隱藏。','打開此方位封閉的櫃子盒子、清掉堆積雜物，開燈、開窗通風；行動時可往對宮方向「沖墓」。'],
- 擊刑:['自刑相傷，容易有衝突、損傷或官非。','移走此方位尖銳金屬與刀剪，擺放柔性植物或一杯清水化解，行事避免硬碰硬。'],
- 門迫:['門受宮所迫，吉門的好處打折，凶門的壞處加重。','在此方位擺放「通關」五行的物品（見下方建議），讓門與宮之氣流通。']}};
+ 擊刑:['六儀落入與旬首地支相刑之宮（戊震、己坤、庚艮、辛離、壬巽、癸巽），彆扭、擰勁，力量減弱五成；也容易有衝突、損傷或官非。','移走此方位尖銳金屬與刀剪，擺放柔性植物或一杯清水化解，行事避免硬碰硬。'],
+ 門迫:['八門剋所落之宮，能量耗損，力量減弱五成；吉門的好處打折，凶門的壞處加重（求財遇門迫，財數打五折）。','在此方位擺放「通關」五行的物品（見下方建議），讓門與宮之氣流通。']}};
 const EL5={水:'木',木:'火',火:'土',土:'金',金:'水'},ELI={水:'黑色或藍色物、清水一杯',木:'綠色植物',火:'燈或紅色物',土:'陶瓷或黃色物',金:'金屬或白色物'};
 const PEL_={1:'水',8:'土',3:'木',4:'木',9:'火',2:'土',7:'金',6:'金'},DEL_={休:'水',生:'土',傷:'木',杜:'木',景:'火',死:'土',驚:'金',開:'金'},GUAN={1:'坎',8:'艮',3:'震',4:'巽',9:'離',2:'坤',7:'兌',6:'乾'};
+// ===== 講義補充：九星／八門／八神重點、天地盤干類象、四害合化法 =====
+const KJ={star:{蓬:'坎一宮・水：冒險、投機、膽大，也主破財或強奪',芮:'坤二宮・土：疾病、問題，也主學習、研究、宗教',沖:'震三宮・木：衝動、快速、雷厲風行、交通運輸',輔:'巽四宮・木：文化、教育、科技、輔助',禽:'中五宮：藏於中宮',心:'乾六宮・金：管理、謀略、醫藥、能屈能伸',柱:'兌七宮・金：獨撐局面、驚恐、口舌、說教',任:'艮八宮・土：勤奮、農產、房地產、固執',英:'離九宮・火：名聲、形象、電器、光明、急躁'},
+ door:{休:'坎一宮（子）：貴人、休閒、旅遊',生:'艮八宮（寅）：求財、生意、房地產、利潤',傷:'震三宮（卯）：車船汽車、討債、運動',杜:'巽四宮（巳）：技術、研發、保密、阻礙',景:'離九宮（午）：美容、電子、文化、廣告、行情',死:'坤二宮（申）：執著、專門技術、土地、喪葬',驚:'兌七宮（酉）：口舌、律師、教師、不安',開:'乾六宮（亥）：公司、開店、工廠、金屬'},
+ god:{值符:'名牌、高檔、貴人、領導、行情',螣蛇:'虛詐不實、機動靈活、變化多端',太陰:'密謀、暗地交易、細緻、少女',六合:'合作、合夥、中介、股份制',白虎:'壓力、阻力、大宗物品、兇險、血光',玄武:'投機、暗昧、小偷、欺瞞、虛假',九地:'平穩、保守、長久、土地',九天:'高遠、動中求財、名聲外露、前景廣闊'}};
+const LX={戊戊:'投資加倍、梯子、兼職、領雙薪；大象、豬、撲滿',戊己:'老闆有自己的想法',戊庚:'車載水泥或冰箱、紙箱、錢被偷',戊辛:'老闆愛花錢、發工資、長痘痘',戊壬:'水庫、領導調走、資金流失',戊癸:'領導愛喝酒、套房洗手間、金屋藏嬌、投資水產或飲品賺錢',戊丁:'老闆帶小三',戊丙:'得到男人的錢、資金交給執法人員',戊乙:'有錢想花、想找女生',
+ 己戊:'懷孕、想買房或賺錢',己己:'再三考慮',己庚:'垃圾車',己辛:'身體長痘痘',己壬:'想離開',己癸:'想找女人',己丁:'想找小姐、變壓器',己丙:'肚裡有火、想搞亂',己乙:'猶豫不決',
+ 庚戊:'錢被偷',庚己:'床下雜亂、有垃圾',庚庚:'兩車相撞、上下舖、二婚、婚姻不順',庚辛:'車壞、腿疾、犯罪',庚壬:'丈夫離開、錯過車、車陷坑中',庚癸:'丈夫是酒鬼',庚丁:'鑰匙丟失、路口有警察',庚丙:'紅色車子',庚乙:'想結婚',
+ 辛癸:'賣淫賺錢、性病、強姦犯',辛丁:'為女性犯罪、美女戴眼鏡',辛丙:'同謀犯罪',辛乙:'配偶犯錯',
+ 壬戊:'動中取財、外地打工、換老闆或換房',壬己:'擁擠人流、車道',壬庚:'客車、流動車輛',壬辛:'走錯路',壬壬:'洪水、大河、浴室',壬癸:'競走、加油站',壬丁:'在外有情人、熱水器',壬丙:'熱水、水晶球、太陽能熱水器',壬乙:'換配偶、拐彎大河、走彎路',
+ 癸戊:'子宮長瘤',癸庚:'車內睡覺、路上遇劫色',癸辛:'吸毒者',癸壬:'銷售水植類的人',癸癸:'翻車、多次性行為、因色入獄',癸丁:'近視、與小三關係',癸丙:'腳神經發炎、紅眼病',癸乙:'配偶性慾強',
+ 丁己:'過期學歷、提及過去輝煌、美容或手術',丁庚:'女性遇偷、路口不通或有車',丁辛:'女性出錯、找情人、愛花錢、陽痿',丁壬:'手術流血、花錢如流水',丁癸:'性關係、洗澡或上廁所、熱戀、鞋帽業',丁丁:'同性戀、二次手術、兩盞燈或兩支手機',丁丙:'眼睛紅腫、檯燈壞掉、紅色檯燈、骨頭發炎、開刀',丁乙:'神經系統發炎、手臂或腳長丁、手腳開刀',
+ 丙戊:'牆上有紅壁燈、路上有交警、被罰款或繳稅',丙己:'圓坑、紅磚、紅地',丙庚:'國道、公車、紅燈、電線桿、燈塔、槍戰',丙辛:'紅色花朵、茶館、花生米、紅豆',丙壬:'圓形水池、血流成河',丙癸:'紅酒、感情亂象、小王',丙丁:'灶、偷情、紅色檯燈',丙丙:'發燒、火警',丙乙:'手術流許多血',
+ 乙戊:'挖土、子宮增生、妻子有錢或管帳、買房、打麻將；配偶善於持家管錢、憨厚老實',乙庚:'苗條女性、有交往同居經驗、對象為公檢法或特殊人士；彎曲的路、女人在路上或躺在床上、床上有墊、路斷了、女人遇強盜、女人騎車、修汽車或修鎖、半路有收費站、住醫院',乙乙:'佩戴耳環或項鍊；親嘴、兩個老婆、談的不只一個、頭髮多、毛線球、牽手',乙丁:'配偶說話犀利帶刺、伶牙俐齒；女人抽菸、床下或桌下有菸、床頭燈、桌上有燈、檯燈、發訊息、修家電',乙丙:'配偶魄力強、不顧家、辦事易出亂子；女人有第三者、腸道或口腔發炎、舌頭破、妻子有小孩、頭髮染紅、修理電視',乙己:'主意多、善於策劃；撿破爛的女人、女人坐沙發、做陶瓷或掃垃圾的人、環保人士、搞策劃的人、樹死了、狗尾草',乙壬:'閒不住、任勞任怨、懷孕；到河裡游泳、女人走了、花草移走了、女澡堂、流動的醫生、釣魚、彎曲的大河',乙癸:'好色、性慾強；捕魚的、大眼女人、手拿酒瓶的酒客、腳受傷或扭到',乙辛:'配偶口無遮攔、一說就錯；拉肚子、理髮染髮、妻子犯錯或愛花錢、子宮增生、莊稼出問題',辛戊:'老闆犯錯',辛己:'臉上有顆粒、打掃垃圾',辛庚:'路上會被罰款、大路接小路、鎖壞了、車壞了',辛辛:'太愛花錢、有問題',辛壬:'小橋、流動資金、花錢如流水',癸己:'發酵、喘'};
+// 擊刑：六儀所遁旬首地支，以地支六合合住；門迫：八門所藏地支，以地支六合合住
+const XLH={戊:['子','牛','子丑合'],己:['戌','兔','卯戌合'],庚:['申','蛇','巳申合'],辛:['午','羊','午未合'],壬:['辰','雞','辰酉合'],癸:['寅','豬','寅亥合']};
+const DLH={休:['子','牛','子丑合'],生:['寅','豬','寅亥合'],傷:['卯','狗','卯戌合'],杜:['巳','猴','巳申合'],景:['午','羊','午未合'],死:['申','蛇','巳申合'],驚:['酉','龍','辰酉合'],開:['亥','虎','寅亥合']};
+const OPPP={1:9,9:1,8:2,2:8,3:7,7:3,4:6,6:4};
+// ===== 講義圖檔補充：十天干完整象意、用神思維模式、經營求財象意、四害能量、空亡轉宮、應期 =====
+const GANX={
+ 甲:{概念:'高貴、有名望、第一、首領',人物:'領導人、經理、董事長、將軍、名人',形態:'直、方、高；體形長方、國字臉、濃眉',性情:'威嚴、正直、獨斷、心高、浪費',人體:'頭、指甲、頭髮、大腦、肝膽、筋、眼',感覺:'酸脹',動物:'穿山甲、烏龜、龍蝦、螃蟹、貝殼類',植物:'大樹、帶殼果實、花生、核桃、松子',靜物:'金玉珠寶、古董文物、帽子',地理:'大柱子、房樑、高大建築、首都、機關、領導辦公室',方位:'東方',天時:'風、春天、早晨',色彩:'青、綠'},
+ 乙:{概念:'希望、轉機、藝術文化、柔弱、彎曲、依附',人物:'中醫、醫生、女人、妻子、藝人、畫師、作家',形態:'苗條、皮膚白嫩、瘦長臉',性情:'仁慈、柔順、依賴、敏感、憂鬱',人體:'肝膽、腸、頭髮、神經、淋巴、手肩頸臂腿、生殖管道',感覺:'酸脹',動物:'蛇、天鵝、龍、鳥類、蠶',植物:'中草藥、花草、小樹、藤蔓、水果',靜物:'藝術品、葫蘆、木雕、油畫、桌椅床、門窗、樓梯、管道',地理:'草地、花園、果林、美容院、藝術館',方位:'東方',天時:'風、月亮、春天、早晨',色彩:'碧、綠'},
+ 丙:{概念:'希望、光明、雄威、亂子、剛猛、急速、權威',人物:'情人、當權者、性急果斷之人、電廠化工工作者',形態:'體型豐滿、圓臉、皮膚白裡透紅',性情:'暴烈、強悍、虛榮、正義、性急',人體:'眼、血液、唇、心臟、小腸、發炎浮腫處',感覺:'熱、燙、癢',動物:'馬、牛、豬、驢',植物:'帶柄果實、梨、櫻桃、西瓜、蘋果',靜物:'燈、灶、發熱之物、變壓器、窗戶',地理:'廚房、化工廠、電廠、明亮場所',方位:'南方',天時:'太陽、晴朗、夏季、中午',色彩:'紅、紫'},
+ 丁:{概念:'希望、執著、尖銳、帶刺、頂尖、突出',人物:'情人、歌星、技術一流或表現突出之人、說話帶刺之人',形態:'秀麗清高、膚白、髮細長',性情:'柔順、有心計、體貼、洞察奸邪',人體:'眼、牙、心臟、血液、骨刺',感覺:'熱、燙、發燒',動物:'會叮咬或帶刺的動物、蜜蜂、刺蝟',植物:'帶刺植物、玫瑰、仙人掌、石榴、板栗',靜物:'燈、刀針、注射器、票據文章、證件、電子產品、打火機、首飾',地理:'路口、屋簷屋角、塔、高崗',方位:'南方',天時:'星星、晴天、夏天、中午',色彩:'紅、紫'},
+ 戊:{概念:'中正、包容、資本、錢財、金融、守信',人物:'會計、出納、銀行職員、地產商、仲介、農夫、德高望重之人',形態:'形體敦厚、四方臉、身體多肉',性情:'果敢豪爽、憨厚、行動遲緩',人體:'鼻、面、胸、乳房、臀部、脾胃、腹部',感覺:'沉重',動物:'牛、豬、駱駝、熊、熊貓',植物:'葉大厚實或土生多肉果實：芭蕉、南瓜、地瓜、馬鈴薯',靜物:'陶瓷器、磚瓦、水泥製品',地理:'庭院、客廳、牆壁、堤壩、墳地、土地、仲介所',方位:'中央（寄艮宮）',天時:'雲、陰天',色彩:'黃、棕'},
+ 己:{概念:'策劃、欲望、創意、主意多、節約、雜亂、心細',人物:'策劃人、廣告人、愛吃零食之人',形態:'身體單薄、圓臉、駝背',性情:'憂愁、靜多動少、溫順沉靜',人體:'嘴、乳頭、臍、肛門、小腿、脾、腸',感覺:'沉重',動物:'蝸牛、章魚、捲曲身體或休眠的動物',植物:'捲曲未展開的植物、花苞、包心菜、植物的芽',靜物:'土陶工藝品、繩索線團、食物、垃圾',地理:'坑、溝、廁所、下水道、濕地、墳地、田園、陽臺',方位:'中央（寄坤宮）',天時:'烏雲、陰天、四季',色彩:'黃、黃綠'},
+ 庚:{概念:'阻礙、阻隔、打鬥、魄力、剛健、技術過硬',人物:'軍警、武術者、本領高強或兇悍之人',形態:'瘦長、骨骼健壯、長臉白皮膚',性情:'剛健敏銳、堅忍、威嚴',人體:'頭骨、骨骼、肺、大腸、皮毛、肩背',感覺:'疼痛',動物:'老虎、狼、獅子、豹、毒蛇、病毒',植物:'植物的主幹、根、果殼',靜物:'石頭石製品、門窗、刀槍器械、汽車、金屬製品',地理:'道路、關卡、收費站、鋼鐵廠、礦山',方位:'西北（乾宮）',天時:'雷電、秋天、傍晚',色彩:'白、金'},
+ 辛:{概念:'革新、錯誤、問題、叛逆、創新、變革',人物:'犯錯者、改革者、宗教徒',形態:'修長方正、皮膚嫩白、臉長凹腮',性情:'忠誠、溫良秀氣、自尊虛榮、意志稍弱',人體:'牙、骨、肺、皮毛、疙瘩、瘤、骨刺、濕疹、粉刺、青春痘',感覺:'疼痛',動物:'寄生的病毒、極小的蟲類、動物的卵或胚胎',植物:'顆粒狀糧食（大豆、高粱、玉米）、小型花朵（茉莉、米蘭）',靜物:'小型金屬物與飾品：戒指、項鍊、手鐲、鑰匙、螺絲、佛珠、手錶、金銀珠寶、小刀、錢幣、印章、保險櫃、骨骸',地理:'門窗、道路、石塊、水泥、五金加工場、手錶廠、首飾廠、工藝品廠',方位:'西方',天時:'雷電、星星、秋天、傍晚',色彩:'白、金'},
+ 壬:{概念:'孕育、蘊藏、流動、遷移、變化、智慧、困境',人物:'孕婦、水產養殖者、旅遊航海者、風流之人',形態:'皮膚稍黑、大眼、長髮秀眉',性情:'多智、勇敢、熱情、任性',人體:'頭髮、眼、動脈、膀胱、小腿',感覺:'脹痛',動物:'魚、蝦、蟹、龜等水中動物',植物:'荷花、菱角、海帶等水生植物',靜物:'被子、窗簾、燈罩、水池、水管、消防用品',地理:'江河湖海、道路人流、娛樂場所、飯店、車站碼頭機場',方位:'北方',天時:'雨天、冬天',色彩:'黑、藍'},
+ 癸:{概念:'制約、艱難、跋涉、流動變化、性',人物:'瓜農、菜農、茶農、酒客、囚犯、被困或窮困之人',形態:'矮小、圓臉瘦肩、聲調不高',性情:'陰柔怕事、多愁善感',人體:'足、靜脈、腎臟、眼球、痣、體液',感覺:'麻涼',動物:'鴨鵝雁鶴等喜水動物',植物:'水稻、蔬菜、水果、水仙',靜物:'酒醋鹽茶、飲品、湯、液體、鞋',地理:'濕地、池塘、水塔、水溝、地下水',方位:'北方',天時:'雨天、深夜、冬天',色彩:'黑、暗色'}};
+const PSY={god:{值符:'有領導力、受人重視',螣蛇:'想法多變、瞻前顧後、拿不定主意',太陰:'思慮縝密、善於佈局策劃，也要提防背後小人',六合:'外交好、善於合作，利於與人合夥',白虎:'能力強，但壓力大、易受損失',玄武:'點子多、反應快，也要提防上當受騙',九地:'穩重保守、等待時機，也可能行動遲緩錯過機會',九天:'志向遠大、有謀略，但容易好高騖遠'},
+ star:{蓬:'敢說敢做、敢冒險、善投機、亂中取勝',任:'勤奮有韌性，但固執、開拓性不足',沖:'雷厲風行、有創意開拓性，但缺乏謀略',輔:'有文化修養、願意輔助別人',英:'重視形象名聲，但過於急躁',芮:'有問題待處理，也喜歡研究學習、發現問題',柱:'能獨撐局面、力挽狂瀾，也易驚恐是非',心:'有管理能力、能屈能伸、善於謀略',禽:'中正穩定'},
+ door:{休:'適合休閒、旅遊行業',生:'適合開店做生意、房地產',傷:'適合汽車、木材類生意',杜:'適合專門技術類行業',景:'適合電子器材、美容行業',死:'適合殯葬、土地開發行業',驚:'適合與口有關的行業：教師、律師',開:'適合開店、金屬開發行業'}};
+const BIZ={gan:{甲:'木製品、種植、中藥',乙:'木製品、種植、中藥',丙:'電子器材、菸酒、石油、化學品',丁:'電子器材、菸酒、石油、化學品',戊:'土建、地皮、房地產、陶瓷',己:'土建、地皮、房地產、陶瓷',庚:'金屬冶煉、礦山、橋樑道路',辛:'金銀首飾、金屬裝飾、小飾品',壬:'水產養殖、餐飲娛樂、物流運輸',癸:'水產養殖、餐飲娛樂、物流運輸'},
+ star:{蓬:'偏門、高風險生意',任:'農產、房地產、山林田地，較不敢放手大幹',沖:'竹木茶貨、交通運輸車船，成敗迅速',輔:'文教用品、設計規劃、科技',英:'電器、影音產品',芮:'醫療、學習、宗教用品',柱:'動口說教、娛樂業',心:'動腦、策劃管理、醫藥'},
+ door:{休:'有貴人扶持',生:'做生意、地產生財',傷:'車船、器械類生意',杜:'交易不順，或靠研發專門技術發財',景:'美容化妝、廣告、電子器材',死:'喪葬、地皮，或求財不成',驚:'內心不安，求財與口舌、說教有關',開:'開工廠、五金行業'},
+ god:{值符:'經營高檔名牌、貨真價實',螣蛇:'交易三心二意，提防假貨與受騙',太陰:'暗中交易、密謀策劃，細膩或女性商品',六合:'合夥、仲介、經紀，或經營多種生意',白虎:'大宗物品、金器，對手強硬、交易受阻',玄武:'提防上當受騙、貨物虛假',九地:'交易平穩、土地農作、合作長久',九天:'動中求財、宣傳名聲、到遠方求財'}};
+const PZB={1:['子'],8:['丑','寅'],3:['卯'],4:['辰','巳'],9:['午'],2:['未','申'],7:['酉'],6:['戌','亥']};
+const XTD={6:9,1:7,8:6,3:8,4:2,9:3,2:1,7:4}; // 空亡先天斷轉宮：乾看離、坎看兌、艮看乾、震看艮、巽看坤、離看震、坤看坎、兌看巽
+const SXS={丑:'丑宿符',亥:'亥宿符',戌:'戌宿符',申:'申宿符',未:'未宿符',巳:'巳宿符',辰:'辰宿符',寅:'寅宿符',卯:'卯宿符',午:'午宿符',酉:'酉宿符'};
+function palEnergy(c,p){const F=QM.pflags(c,p),o=[];let e=100;
+  if(F.mu.length){e*=Math.pow(.2,F.mu.length);o.push(F.mu.length>1?`${F.mu.length}個入墓（雙入墓沖開後能量可增 ${Math.pow(5,F.mu.length)} 倍）`:'入墓剩兩成')}if(F.xi.length){e*=.5;o.push('擊刑減半')}if(F.po){e*=.5;o.push('門迫減半')}
+  if(F.kong){const kz=PZB[p].filter(z=>c.kong.includes(z)),full=PZB[p].length>1&&kz.length===PZB[p].length;e*=full?.2:.6;o.push(full?'全空剩兩成（處理後可增四倍）':'半空剩六成')}
+  return {e:Math.round(e),o}}
+function yingqi(c,p){if(!p)return '';const op=OPPP[p],oF=QM.pflags(c,op),ob=oF.kong||oF.mu.length||oF.xi.length||oF.po;
+  return `沖：${PZB[op].join('、')}（對宮${QM.DIR[op]}方${ob?'有四害，沖力較弱':''}）；填實：${PZB[p].join('、')}`}
 function renderYinDetail(){
   const c=cur(),x=c.pals.find(q=>q.p===S.p),F=QM.pflags(c,x.p),st=x.star.replace(/[天（）禽]/g,'')[0]||'禽',dr=x.door[0];
   const sh=[];if(F.kong)sh.push('空亡');F.mu.forEach(g=>sh.push(g+'入墓'));F.xi.forEach(g=>sh.push(g+'擊刑'));if(F.po)sh.push(x.door+'門迫');
@@ -1613,22 +1998,28 @@ function renderYinDetail(){
   const tabs=['意涵說明','四害解局','佈局物品','行為風水'];if(!tabs.includes(S.dtab))S.dtab='意涵說明';
   const row=(k,m,j)=>`<p class="row j${j}"><b>${k}</b>　${m}</p>`;
   const sec=(t,b)=>`<h3>${t}</h3>${b}`;
-  const four=(n,a)=>`<p class="xy"><b>${n}</b>　象意：${a[0]}；風格：${a[1]}；物品：${a[2]}</p>`;
+  const four=(n,a,k)=>{const [h,m]=k?(k.includes('：')?k.split('：'):['',k]):['',''];return `<p class="xy"><b>${n}</b>${h?`<small>（原宮：${h}）</small>`:''}　象意：${a[0]}${m?'；'+m:''}；風格：${a[1]}；物品：${a[2]}</p>`};
   const lin=(g)=>{const [r,b,xg,y]=XY[g].split('｜');return `<b>${g}</b>：${xg}（人物：${r}；事業：${y}）`};
+  const gxd=g=>GANX[g]?`<details class="more"><summary>${g}的完整象意</summary><p class="ds">${Object.entries(GANX[g]).map(([k,v])=>`<b>${k}</b>：${v}`).join('；')}</p></details>`:'';
   const linMu=g=>F.mu.includes(g)?`<br><span class="j-1">${g}入墓：被收住、埋沒，難以發揮。</span>`:'';
   let body='';
   if(S.dtab==='意涵說明'){
     const fk=[];if(c.fuFan.星伏吟)fk.push('星伏吟','干伏吟');if(c.fuFan.門伏吟)fk.push('門伏吟');if(c.fuFan.星反吟)fk.push('星反吟','干反吟');if(c.fuFan.門反吟)fk.push('門反吟');
     const fu=fk.map(k=>{const [t,d]=YM.FU[k].split('：');return row(t,d,0)}).join('');
-    body=`<p class="ds">就用神宮的象意來解說所問之事、目前遇到的狀況。</p>${fu}${F.kong?row(x.gua+'宮空亡',YM.SH.空亡[0],-1):''}
+    const en=palEnergy(c,x.p),isF=x.p===QM.focusOf(c);
+    const psy=isF?sec('用神宮特質　<small>問測者本身的思維模式與適合方向</small>',row(x.god,PSY.god[x.god]||'',0)+row(x.star.replace(/（.*$/,'')+'星',PSY.star[st]||'',0)+row(x.door,PSY.door[dr]||'',0)+(F.mu.length?row('用神入墓','有力使不出',-1):'')+(F.kong?row('用神空亡','此人不在家或有變動',-1):'')+(F.xi.length?row('用神擊刑','留意疾病或意外傷災',-1):'')):'';
+    body=`<p class="ds">就用神宮的象意來解說所問之事、目前遇到的狀況。</p>${en.o.length?row('宮位能量',`約剩 ${en.e}%（${en.o.join('、')}）：要比平常多付出心力才能完成`,-1):''}${psy}${fu}${F.kong?row(x.gua+'宮空亡',YM.SH.空亡[0],-1):''}
     ${sec('八卦方位　<small>地利、所處的環境與空間</small>',row(x.gua,YM.GUA[x.gua],0))}
-    ${sec('八神涵義　<small>想法與思想活動</small>',four(x.god,YM.GOD[x.god]))}
-    ${sec('九星涵義　<small>天時、性格，也看財星</small>',four('天'+st+'星',YM.STAR[st])+(()=>{const w=starStat(c,x),t=v=>v==='◎'?'◎ 旺':v==='○'?'○ 相':'休囚';return `<p class="row ${w.m||w.p?'j1':'j0'}"><b>財星旺衰</b>　月令（${QM.ZHI[w.mz]}月）：${t(w.m)}；宮位（${x.gua}宮）：${t(w.p)}${w.m&&w.p?'——得令又得地，財星最有力量。':w.m?'——財星得令。':w.p?'——財星得地。':'——財星力量較弱。'}</p>`})())}
-    ${sec('八門涵義　<small>人和、心情與當下狀態</small>',four(x.door,YM.DOOR[dr]))}
-    ${sec('天盤干　<small>代表我、行為表現、已發生的事</small>',[...x.t].map(g=>`<p class="xy">${lin(g)}${linMu(g)}</p>`).join(''))}
-    ${sec('地盤干　<small>目前碰到的事、心裡的想法</small>',[...x.d].map(g=>`<p class="xy">${lin(g)}${linMu(g)}</p>`).join(''))}
+    ${sec('八神涵義　<small>想法與思想活動</small>',four(x.god,YM.GOD[x.god],KJ.god[x.god]))}
+    ${sec('九星涵義　<small>天時、性格，也看財星</small>',four('天'+st+'星',YM.STAR[st],KJ.star[st])+(()=>{const w=starStat(c,x),se=SEL_[w.stn],me=w.mz!=null?ZEL[w.mz]:'',pe=PEL5[x.p],nm='天'+w.stn+'星';
+      const one=(lab,el,v,ok)=>`<li class="${v?'j1':''}">${lab}，屬${el}）：${v==='◎'?`與${nm}同屬${se}，是「旺」，${ok} ✓`:v==='○'?`${nm}（${se}）生${el}，是「相」，也算${ok} ✓`:`${nm}（${se}）與${el}不是同五行、也不是${se}生${el}，屬「休囚」，沒有${ok}`}</li>`;
+      const sum=w.m&&w.p?'得令又得地，這顆星的力量最強；當它是財星（生門或戊所在宮的星）時，財運最有力，佈財局可優先選用。':w.m?'只有得令（時機對），宮位不幫忙，力量中等。':w.p?'只有得地（位置對），時機不幫忙，力量中等。':'既不得令也不得地，力量較弱，佈財局時不宜單靠這顆星。';
+      return `<div class="row ${w.m||w.p?'j1':'j0'}"><b>星的旺衰（看財星力量）</b>　${nm}屬${se}，分別看時機（月令）與位置（宮位）：<ul>${me?one(`月令（${QM.ZHI[w.mz]}月`,me,w.m,'得令'):''}${one(`宮位（${x.gua}宮`,pe,w.p,'得地')}</ul>結論：${sum}</div>`})())}
+    ${sec('八門涵義　<small>人和、心情與當下狀態</small>',four(x.door,YM.DOOR[dr],KJ.door[dr]))}
+    ${sec('天盤干　<small>代表我、行為表現、已發生的事</small>',[...x.t].map(g=>`<p class="xy">${lin(g)}${linMu(g)}</p>${gxd(g)}`).join(''))}
+    ${sec('地盤干　<small>目前碰到的事、心裡的想法（看盤先看地盤干，約佔七成訊息）</small>',[...x.d].map(g=>`<p class="xy">${lin(g)}${linMu(g)}</p>${gxd(g)}`).join(''))}
     ${sec('引干（暗干）　<small>可能引發事件的原因</small>',[...c.an[x.p]].map(g=>`<p class="xy">${lin(g)}</p>`).join(''))}
-    ${sec('天地盤干　<small>事情最後的演變結果</small>',x.ke.map(k=>row(`${k.a}${k.b}・${k.n}`,k.m,k.j)).join('')||'<p class="empty">無</p>')}
+    ${sec('天地盤干　<small>事情最後的演變結果</small>',x.ke.map(k=>row(`${k.a}${k.b}・${k.n}`,k.m,k.j)).join('')||'<p class="empty">無</p>')}${(()=>{const lx=[];for(const a of x.t)for(const b of x.d)if(LX[a+b])lx.push(row(`天${a}＋地${b}`,LX[a+b],0));return lx.length?sec('天地盤干類象　<small>組合代表的人事物與情境</small>',lx.join('')):''})()}
     ${sec('八門靜應',row(x.mm.k,x.mm.m,x.mm.j)+row(x.mg.k,x.mg.m,x.mg.j))}
     ${sec('吉格',x.yj.length?`<dl>${x.yj.map(g=>`<dt class="o">${g}</dt><dd>${QM.GEY[g]||''}</dd>`).join('')}</dl>`:'<p class="empty">無</p>')}
     ${sec('凶格',x.yx.length?`<dl>${x.yx.map(g=>`<dt class="x">${g}</dt><dd>${QM.GEY[g]||''}</dd>`).join('')}</dl>`:'<p class="empty">無</p>')}
@@ -1642,9 +2033,19 @@ function renderYinDetail(){
     const mf=[...new Set([...x.t,...x.d].map(g=>g===c.xun.slice(-1)&&x.p===2?'甲':g))].map(g=>[g,DB.ITEM.mu[g]]).filter(([g,v])=>v&&v.p===x.p&&F.mu.length);
     const fixes=mf.map(([g,v])=>`<p class="row j1"><b>入墓化解（${g}落${x.gua}）</b>　${v.n?v.n:`佈「${v.i}」${flP(v.f,x.p)}`}</p>`).join('')+(xf.length?xf.map(([k,i,f])=>`<p class="row j1"><b>擊刑化解（${k}）</b>　佈「${i}」${flP(f,x.p)}</p>`).join(''):'')+(pv?`<p class="row j1"><b>門迫化解（${x.door}）</b>　佈「${pv.i}」擺件，換門為${pv.c}${fl(pv.f)}</p>`:'')+
       (['白虎','玄武','螣蛇'].includes(x.god)&&DB.ITEM.god[x.god].f?`<p class="row j1"><b>${x.god}化解</b>　${DB.ITEM.god[x.god].i==='不用佈'?'不用佈物品，':'佈'+DB.ITEM.god[x.god].i+'，'}可貼${fl(DB.ITEM.god[x.god].f)}</p>`:'');
+    const hz=z=>({子:'丑',丑:'子',寅:'亥',亥:'寅',卯:'戌',戌:'卯',辰:'酉',酉:'辰',巳:'申',申:'巳',午:'未',未:'午'})[z];
+    const hx=F.xi.map(g=>XLH[g]?`<p class="row j1"><b>擊刑合化（${g}）</b>　${g}遁旬首地支${XLH[g][0]}，用${XLH[g][2]}，擺放${XLH[g][1]}形飾品合住${XLH[g][0]}；也可用天干${{戊:'戊癸合',己:'甲己合',庚:'乙庚合',辛:'丙辛合',壬:'丁壬合',癸:'戊癸合'}[g]}；或用28星宿${SXS[hz(XLH[g][0])]}來解</p>`:'').join('')+(F.po&&DLH[dr]?`<p class="row j1"><b>門迫合化（${x.door}）</b>　先拆掉宮內門迫的物品；或因${x.door}藏${DLH[dr][0]}，用${DLH[dr][2]}，擺放${DLH[dr][1]}形飾品合住${DLH[dr][0]}，或用28星宿${SXS[hz(DLH[dr][0])]}</p>`:'')+
+      (F.kong?`<p class="row j1"><b>空亡處理</b>　擇一使用：①填實──時間走到本宮地支（${PZB[x.p].join('、')}）或在本宮補物，物品用兩份（例：坤宮擺兩杯水）；②沖實──在對宮${QM.DIR[OPPP[x.p]]}方擺一份物品，用對宮的時間佈。兩種不要同時用。</p>${(()=>{const kz=PZB[x.p].filter(z=>c.kong.includes(z)),full=PZB[x.p].length>1&&kz.length===PZB[x.p].length,cz=kz.map(z=>QM.ZHI[(QM.ZHI.indexOf(z)+6)%12]),tp=S.qi.present?QM.DIG[x.p]:QM.DRIFT[x.p];
+        return `<p class="row"><b>${full?'全空':'半空'}（${kz.join('')}）</b>　${full?`只發揮兩成，處理後可增四倍；要${cz.join('、')}兩個字搭配（年月日時）才沖得開`:`能量只減四成、還保有六成；${cz.join('')}一個字就能沖空，${kz.join('')}一個字就能填實`}。</p>
+        <p class="row"><b>空亡轉宮（${S.qi.present?'人在現場用深挖':'人不在現場用飄移'}）</b>　空亡宮只是兩成表象，八成真正的訊息在${c.pals.find(q=>q.p===tp).gua}宮；把兩宮符號合起來綜合分析再斷。</p>
+        <p class="row"><b>空亡的意思</b>　曾經有過現在沒了；目前發揮不出來、有心無力；狀態正在轉變；未來可能會發生（沖空、填實後回復）。${x.door==='死門'?'<br><span class="j-1">死門宮逢空亡：家中少一人。</span>':''}</p>`})()}`:'')+
+      (x.p===2&&x.god==='值符'?'<p class="row j-1"><b>坤宮值符</b>　對宮必是白虎，不要用白虎沖值符；先拆掉或合掉白虎（擺蛇用巳申合，或擺葫蘆用乙庚合）再佈局。</p>':'')+
+      (F.mu.length+F.xi.length+(F.po?1:0)+(F.kong?1:0)>=3?'<p class="row j-1"><b>四害過多</b>　拆掉太多符號宮位就沒能量，補了也無力；拆補只有兩成效果，建議用移星換斗（約八成效果）。</p>':'');
+    const op=OPPP[x.p],ox=op&&c.pals.find(q=>q.p===op),oF=op&&QM.pflags(c,op),obad=ox?[ox.god==='白虎'?'白虎':'',oF.xi.length?'擊刑':'',oF.po?'門迫':''].filter(Boolean):[];
+    const mz=F.mu.length&&ox?`<p class="row ${obad.length?'j-1':'j1'}"><b>入墓沖墓（對宮${ox.gua}宮）</b>　${obad.length?`對宮有${obad.join('、')}，必須先在對宮合化解掉，否則沖墓會形成沖煞`:'可在對宮擺放風水物「對宮沖墓」，把墓打開'}</p>`:'';
     const ref=`<div class="shref"><p class="row"><b>${x.gua}宮四害對照</b>　${[SH.mu?`入墓：${SH.mu[0]}（${SH.mu[1]}）`:'',SH.xi?`擊刑：${SH.xi[0]}（${SH.xi[1]}）${x.p===4?'〔壬在巽不論入墓，只論擊刑〕':x.p===8?'〔庚在艮不論入墓，只論擊刑〕':''}`:'',SH.po?`門迫：${SH.po[0]}（${SH.po[1]}）`:''].filter(Boolean).join('；')}</p>
       <p class="row ${has4?'j-1':''}"><b>${has4?'此宮有四害，宜移走':'有四害時宜移走'}</b>　${SH.items||''}</p></div>`;
-    body=(L.length?L.map(([k,[m,fx]])=>`<div class="sh"><p class="row j-1"><b>${k}</b>　${m}</p><p class="row j1"><b>解法</b>　${fx}</p></div>`).join(''):'<p class="empty">此宮沒有空亡、入墓、擊刑、門迫等四害。</p>')+(fixes?`<div class="shref">${fixes}</div>`:'')+ref+
+    body=(L.length?L.map(([k,[m,fx]])=>`<div class="sh"><p class="row j-1"><b>${k}</b>　${m}</p><p class="row j1"><b>解法</b>　${fx}</p></div>`).join(''):'<p class="empty">此宮沒有空亡、入墓、擊刑、門迫等四害。</p>')+(fixes||hx||mz?`<div class="shref">${fixes}${hx}${mz}</div>`:'')+ref+
       `<h3>解四害文字符　<small>${has4?'此宮有四害，可貼此符化解':'此宮目前無四害，供參考'}</small></h3>${fuCard(x.p)}<p class="empty">中宮對應九天玄女印。括號內為講義所列的對應生肖。</p>`}
   else if(S.dtab==='佈局物品'){
     const chk=[['天盤─'+x.t,[...x.t].map(g=>YM.GAN[g]).filter(Boolean)],['地盤─'+x.d,[...x.d].map(g=>YM.GAN[g]).filter(Boolean)],['八門─'+x.door,[[YM.DOOR[dr][2],YM.DOOR[dr][3]]]],['九星─天'+st+'星',[[YM.STAR[st][2],YM.STAR[st][3]]]],['八神─'+x.god,[[YM.GOD[x.god][2],YM.GOD[x.god][3]]]]];
@@ -1774,23 +2175,28 @@ fillL();renderSaves();
 $('#ytop').addEventListener('click',e=>{const t=e.target;
   const r=t.closest('[data-rel]');if(r){const c=cur();if(S.rel===r.dataset.rel){S.rel=null;S.focus=null;S.focusG=null}else{S.rel=r.dataset.rel;const o=QM.relOf(c,S.rel);if(o&&o.p){S.focus=o.p;S.focusG=o.g;S.p=o.p}}renderBoard();return}});
 // ===== 事項占斷、宮位解盤可收合（狀態記在本機）=====
-['zhan','detail','ming','rankp','zjp','bu','fs'].forEach(id=>{const el=$('#'+id),key='qm_col_'+id;
+['zhan','detail','ming','rankp','zjp','mjp','bu','fs'].forEach(id=>{const el=$('#'+id),key='qm_col_'+id;
   const sync=()=>{const h=el.querySelector(':scope>h2, :scope>.yd>h2');if(!h)return;const c=el.classList.contains('collapsed');h.setAttribute('role','button');h.tabIndex=0;h.setAttribute('aria-expanded',String(!c));h.title=c?'點一下展開':'點一下收合'};
   if(store.get(key)==='1')el.classList.add('collapsed');
   new MutationObserver(sync).observe(el,{childList:true});
   const tog=()=>{el.classList.toggle('collapsed');store.set(key,el.classList.contains('collapsed')?'1':'0');sync()};
   el.addEventListener('click',e=>{const h=e.target.closest('h2');if(h&&(h.parentElement===el||h.parentElement.parentElement===el)&&h===el.querySelector(':scope>h2, :scope>.yd>h2')){e.stopPropagation();tog()}},true);
   el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('h2[role=button]')){e.preventDefault();tog()}});sync()});
+$('#mjp').addEventListener('click',e=>{const g=e.target.closest('[data-mjg]');if(g){MJ.goal=g.dataset.mjg;renderMJ();return}
+  const go=e.target.closest('[data-mjgo]');if(go){S.fix=null;setWall('月',new Date(+go.dataset.mjgo+5*86400000));$('.boardcard').scrollIntoView({behavior:'smooth'})}});
 $('#zjp').addEventListener('click',e=>{const t=e.target,Z=S.zj;
   const g=t.closest('[data-zjg]');if(g){Z.goal=g.dataset.zjg;Z.res=null;renderZJ();return}
   if(t.id==='zjGo'){Z.days=+$('#zjDays').value;Z.day=$('#zjDay').checked;Z.busy=true;Z.res=null;renderZJ();setTimeout(()=>{Z.res=zjSearch(Z.goal,Z.days,Z.day);Z.busy=false;renderZJ()},30);return}
   const go=t.closest('[data-zjgo]');if(go){const keep=Z.res;S.bu=Z.goal;S.fix=null;setWall('時',new Date(+go.dataset.zjgo));Z.res=keep;renderZJ();$('#bu').scrollIntoView({behavior:'smooth'})}});
 $('#bu').addEventListener('click',e=>{const b=e.target.closest('[data-bu]');if(b){S.bu=S.bu===b.dataset.bu?null:b.dataset.bu;renderBu();return}
   const r=e.target.closest('[data-burot]');if(r){S.rot=+r.dataset.burot;S.focus=null;S.focusG=null;S.p=null;renderBoard();$('.boardcard').scrollIntoView({behavior:'smooth'})}});
-$('#zhan').addEventListener('click',e=>{const b=e.target.closest('[data-s5]');if(!b)return;e.stopPropagation();const n=b.dataset.s5;
-  if(n==='本週運勢'||n==='感情緣分'){S.zx=S.zx===n?null:n;renderBoard();return}
+$('#zhan').addEventListener('click',e=>{const yg=e.target.closest('[data-ysgo]');if(yg){e.stopPropagation();S.fix=null;setWall(yg.dataset.ysgo,new Date());return}
+  const nv=e.target.closest('[data-ysnav]');if(nv){e.stopPropagation();const w=S.wall||wallOf(),dv=+nv.dataset.ysnav;let t=new Date(w.Y,w.M-1,w.D,12,0);if(S.kind==='年')t=new Date(w.Y+dv,5,15,12,0);else{const g=x=>QM.plate('月',x.getFullYear(),x.getMonth()+1,x.getDate(),12,0).YC.P[3],g0=g(t);let i=0;while(g(t)===g0&&i<40){t.setDate(t.getDate()+dv);i++}if(dv<0){const g1=g(t);while(g(t)===g1&&i<80){t.setDate(t.getDate()-1);i++}t.setDate(t.getDate()+1)}t.setDate(t.getDate()+10)}S.fix=null;setWall(S.kind,t);return}},true);
+$('#zhan').addEventListener('click',e=>{const lo=e.target.closest('[data-lyopen]');if(lo){e.stopPropagation();const Y=new Date().getFullYear(),tl=QM.termAfter(Date.UTC(Y,0,15)-8*3600000,21)+8*3600000,d=new Date(tl);let o=new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),6,30);if(d.getUTCHours()*60+d.getUTCMinutes()>390)o.setDate(o.getDate()+1);S.fix=null;S.kind='時';setWall('時',o);S.zx='流年盤解析';renderBoard();return}},true);
+$('#zhan').addEventListener('click',e=>{const cm=e.target.closest('[data-cm]');if(cm){S.caiMode=cm.dataset.cm;store.set('qm_caimode',S.caiMode);renderBoard();return}const b=e.target.closest('[data-s5]');if(!b)return;e.stopPropagation();const n=b.dataset.s5;
+  if(n==='本週運勢'||n==='感情緣分'||n==='流年盤解析'){S.zx=S.zx===n?null:n;renderBoard();return}
   if(ST5[n]){S.zx=null;S.topic=ST5[n];store.set('qm_topic',S.topic);renderBoard();return}
-  if(n==='流月運勢'){S.fix=null;setWall('月',new Date());return}if(n==='流年運勢'){S.fix=null;setWall('年',new Date());return}
+  if(n==='流月運勢'||n==='流年運勢'){if(S.zx===n){S.zx=null;renderBoard();return}S.zx=n;S.fix=null;setWall(n==='流年運勢'?'年':'月',new Date());$('#zhan').scrollIntoView({behavior:'smooth'});return}
   if(n==='流年財位'){S.fix=null;S.bu='催財';setWall('年',new Date());$('#bu').scrollIntoView({behavior:'smooth'});return}
   if(n==='終身財位'){S.bu='終身盤財位';renderBu();$('#bu').scrollIntoView({behavior:'smooth'})}},true);
 $('#detail').addEventListener('click',e=>{const b=e.target.closest('[data-dt]');if(!b)return;S.dtab=b.dataset.dt;renderYinDetail()});
