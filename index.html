@@ -746,6 +746,34 @@ function H(c){
 // 生剋描述：a 對 b
 const RT={生:'生',被生:'被生',剋:'剋',被剋:'被剋',比和:'比和',同宮:'同宮',無:'無從比較'};
 const T={
+業務績效:{d:'日干為自己（業務），時干為客戶；開門看業務推展，生門看利潤，六合看簽約，景門看報價與合約文書',f(h){
+  const a=h.tP(h.c.YC.dE),k=h.tP(h.c.YC.hE),o=h.doorP('開'),g=h.doorP('生'),m=h.godP('六合'),j=h.doorP('景'),by=h.by,L=[];
+  const Y=[['自己（日干）',a],['客戶（時干）',k],['業務推展（開門）',o],['利潤（生門）',g],['簽約（六合）',m],['報價合約（景門）',j]];
+  const F=p=>p?QM.pflags(h.c,p):{mu:[],xi:[]},sh=p=>{const f=F(p),o=[];if(f.kong)o.push('空亡');if(f.mu.length)o.push('入墓');if(f.xi.length)o.push('擊刑');if(f.po)o.push('門迫');return o};
+  const KD={開:['客戶態度開放，願意談',1],休:['客戶態度和緩，可慢慢培養',1],生:['客戶有購買意願，有利成交',1],景:['客戶重視包裝與面子，簡報要漂亮',0],杜:['客戶保留觀望、不輕易表態',-1],傷:['競爭激烈，容易陷入價格戰',-1],死:['客戶意願低，這筆機會不大',-1],驚:['客戶有疑慮或擔心風險，需要安撫說明',-1]};
+  const KG={值符:['客戶是有決定權的人，談得好就能拍板',1],螣蛇:['客戶反覆、想法多變，條件要白紙黑字',-1],太陰:['客戶私下在評估，有內線消息可多打聽',0],六合:['客戶好溝通，有合作意願',1],白虎:['客戶強勢、可能大幅壓價',-1],玄武:['客戶可能隱瞞實情或同時比價',-1],九地:['客戶決策慢，要有耐心跟進',0],九天:['客戶決策快，抓緊時機',1]};
+  // 一、業務推展
+  L.push(['【業務推展】',0]);
+  if(o){const s=sh(o);if(h.strong(o)&&(h.qm(o)||h.jg(o)))L.push([`開門落${h.pl(o)}旺相又得奇門吉格：推展順利，可以積極開發新客戶`,1]);else if(h.strong(o))L.push([`開門落${h.pl(o)}旺相：推展有力，按計畫進行即可`,1]);else L.push([`開門落${h.pl(o)}（${h.st(o)}）：推展力道偏弱，宜先鞏固老客戶`,-1]);
+    if(s.length)L.push([`開門逢${s.join('、')}：推展過程容易卡關或白忙，要先排除障礙`,-1])}
+  if(a){if(h.strong(a))L.push(['你自己（日干）旺相：狀態好、有說服力',1]);else L.push(['你自己（日干）休囚：體力或信心不足，先充電再出擊',-1]);const s=sh(a);if(s.length)L.push([`你自己的宮逢${s.join('、')}：容易有心無力或判斷失準，重要決定多確認`,-1])}
+  // 二、客戶洽談能否成交
+  L.push(['【客戶洽談能否成交】',0]);
+  if(a&&k){const r=h.rel(k,a);if(r==='生')L.push(['客戶的宮生你的宮：客戶有意願、對你有好感，成交機會高',1]);else if(r==='同宮'||r==='比和')L.push(['客戶與你同宮或比和：雙方談得來，條件合理就能成交',1]);
+    else if(r==='被生')L.push(['你的宮生客戶的宮：你付出較多，要讓客戶感受到價值，避免一味讓利',0]);else if(r==='剋')L.push(['客戶的宮剋你的宮：客戶強勢、壓價或挑剔，談判要守住底線',-1]);else if(r==='被剋')L.push(['你的宮剋客戶的宮：你較能掌握主導權，但別逼太緊，以免客戶退縮',0]);
+    const d=KD[by[k].door[0]];if(d)L.push([`客戶落${by[k].door}：${d[0]}`,d[1]]);const gg=KG[by[k].god];if(gg)L.push([`客戶臨${by[k].god}：${gg[0]}`,gg[1]]);
+    if(h.kong(k))L.push(['客戶落空亡：客戶目前沒有真正的需求，或預算未到位',-1]);if(h.c.horseP===k)L.push(['客戶臨馬星：客戶近期會主動聯繫或很快做決定',1])}
+  if(m){const s=sh(m);if(!s.length&&'開休生'.includes(by[m].door[0]))L.push([`六合（簽約）得${by[m].door}：簽約過程順利`,1]);else if(s.length)L.push([`六合（簽約）逢${s.join('、')}：簽約有變數，合約細節要再三確認`,-1])}
+  if(g&&a){const r=h.rel(g,a);if(r==='生'||r==='同宮'||r==='比和')L.push(['生門（利潤）生或比和你的宮：這筆生意有賺頭',1]);else if(r==='剋')L.push(['生門剋你的宮：利潤被壓縮，小心做白工',-1]);if(h.kong(g))L.push(['生門落空亡：利潤不如預期，或款項延遲',-1])}
+  if(j){const s=sh(j);if(s.length||h.xg(j))L.push(['景門（報價、合約文書）有凶象：報價單、合約條款、發票要仔細核對',-1])}
+  // 三、趨吉避凶
+  L.push(['【趨吉避凶建議】',0]);
+  const best=[o,g,m].filter(p=>p&&!sh(p).length&&'開休生'.includes(by[p].door[0])&&!['白虎','玄武','螣蛇'].includes(by[p].god));if(best.length)L.push([`拜訪客戶或約談地點，宜選在${[...new Set(best)].map(p=>h.pl(p)).join('、')}方向`,1]);else L.push(['此時盤上沒有理想的洽談方位，重要會談建議改挑時辰（見擇吉日吉時佈局）',0]);
+  const bad=[1,8,3,4,9,2,7,6].filter(p=>by[p]&&!best.includes(p)&&(by[p].god==='白虎'||sh(p).length>=2));if(bad.length)L.push([`避免在${bad.map(p=>h.pl(p)).join('、')}方向談重要的事`,0]);
+  if(h.kong(k)||h.kong(m)||h.kong(o))L.push(['有空亡：先不要急著逼單，等出旬（約十天後）再跟進成交',0]);
+  if(h.c.fuFan.門伏吟)L.push(['八門伏吟：進度慢、原地踏步，宜維持關係、耐心等待',0]);if(h.c.fuFan.門反吟)L.push(['八門反吟：客戶容易反悔或改條件，合約要盡快落實',-1]);
+  L.push(['可用「佈局」的業務績效佈局調理自身運勢，或用「擇吉日吉時佈局」挑選拜訪、簽約的好時辰',0]);
+  return {Y,L}}},
 戀愛發展:{d:'日干為自己；男問看乙奇、女問看庚為對方；六合為這段感情本身；男問以丁、女問以丙為第三者',f(h){
   const male=(typeof S!=='undefined'&&S.qi&&S.qi.ask==='女')?false:true,a=h.tP(h.c.YC.dE),b=h.tP(male?'乙':'庚'),m=h.godP('六合'),t=h.tP(male?'丁':'丙'),L=[];
   const Y=[['自己（日干）',a],[male?'對方（乙奇）':'對方（庚）',b],['感情本身（六合）',m],['第三者（'+(male?'丁':'丙')+'）',t]];
@@ -1168,10 +1196,10 @@ function renderHours(){markRank();
   const ns=nowSlot();
   $('#hours').innerHTML=S.charts.map((c,hb)=>`<button class="hb ${c.zuiji.length?'has':''} ${ns.date===S.date&&ns.hb===hb?'now':''}" data-hb="${hb}" aria-pressed="${hb===S.hb}" aria-label="${c.hourGZ}時 ${hrTxt(hb)}${c.zuiji.length?'，有最吉方':''}"><div class="z">${QM.ZHI[hb]}</div><div class="t">${hrTxt(hb)}</div><div class="s">${Math.round(c.best.ss)}</div></button>`).join('');
 }
-const ST5={戀愛發展:'戀愛發展',婚姻感情:'婚姻',升遷調動:'升遷',行業選擇:'就職',健康疾病:'疾病',買賣吉凶:'交易',學業考試:'考試',合夥吉凶:'合夥',官司訴訟:'官司'};
+const ST5={無:'無',戀愛發展:'戀愛發展',婚姻感情:'婚姻',升遷調動:'升遷',行業選擇:'就職',業務績效:'業務績效',健康疾病:'疾病',買賣吉凶:'交易',學業考試:'考試',合夥吉凶:'合夥',官司訴訟:'官司'};
 // ===== 佈局（移星換斗找最佳轉宮＋擇時；用神取法依傳統，評分為本程式自訂）=====
 const BUG={催財:{y:['生門','戊','天心'],w:'財'},催官:{y:['開門','值符','天心'],w:'官'},文昌:{y:['天輔','丁','景門'],w:'文昌'},考試:{y:['天輔','丁','景門','開門'],w:'考運'},
- 桃花:{y:['六合','乙','丙'],w:'人緣桃花'},結婚:{y:['六合','乙','庚'],w:'婚姻'},感情和合:{y:['六合','乙','庚','休門'],w:'感情和合',hehe:1},討債:{y:['戊','生門','傷門','九天'],w:'收款'},官司:{y:['開門','丁','值符'],w:'官司'},
+ 桃花:{y:['六合','乙','丙'],w:'人緣桃花'},結婚:{y:['六合','乙','庚'],w:'婚姻'},業務績效:{y:['開門','生門','六合','時干'],w:'業務'},感情和合:{y:['六合','乙','庚','休門'],w:'感情和合',hehe:1},討債:{y:['戊','生門','傷門','九天'],w:'收款'},官司:{y:['開門','丁','值符'],w:'官司'},
  催丁:{y:['生門','六合','丙'],w:'添丁'},賣房:{y:['生門','戊','值符','九天'],w:'賣房',house:1},租屋:{y:['生門','己','值符','六合'],w:'租屋',house:1},撤局:{y:[],w:'撤局'},身體健康:{y:['天心','乙','天芮'],w:'健康'},
  斬桃花:{y:['六合','乙','丙'],w:'斬桃花',cut:1},小孩聽話:{y:['時干','休門'],w:'親子'},找好員工:{y:['時干','六合','休門'],w:'用人'},賣車:{y:['傷門','九天'],w:'賣車'},買房:{y:['生門','戊','己','值符','九地'],w:'買房',house:1},
  終身盤財位:{y:['生門','戊','天心'],w:'財',life:1},終身盤文昌:{y:['天輔','丁','景門'],w:'文昌',life:1},終身盤健康調理:{y:['天心','乙','天芮'],w:'健康',life:1}};
@@ -1212,7 +1240,7 @@ function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}e
       <p class="empty">佈局評分與物品建議為本程式依傳統用神取法自行整理，僅供參考。</p>`}}
   el.innerHTML=`<h2>佈局</h2><div class="tp" role="group" aria-label="佈局事項">${goals.map(g=>`<button data-bu="${g}" aria-pressed="${g===S.bu}">${g==='撤局'?'撤局':g.endsWith('調理')||g.startsWith('終身')?g:g+'佈局'}</button>`).join('')}</div>${out}`}
 // ===== 擇吉日吉時佈局：年、月、日、時、刻盤逐一檢查，挑無凶格、無四害的時間 =====
-const ZJG=['催財','催官','文昌','考試','桃花','感情和合','結婚','官司','催丁','身體健康','討債','賣房','買房','租屋','賣車','小孩聽話','找好員工'];
+const ZJG=['催財','業務績效','催官','文昌','考試','桃花','感情和合','結婚','官司','催丁','身體健康','討債','賣房','買房','租屋','賣車','小孩聽話','找好員工'];
 S.zj=S.zj||{goal:'催財',days:60,day:true,res:null,busy:false};
 function goalPals(c,y){const out=[];for(const k of y){let p=null;if(k.endsWith('門'))p=(c.pals.find(x=>x.door===k)||{}).p;else if(k.startsWith('天'))p=(c.pals.find(x=>x.star.includes(k.slice(1)))||{}).p;else if(k==='時干')p=QM.palOfT(c,c.YC.P[3][0]);else if(k.length===2)p=(c.pals.find(x=>x.god===k)||{}).p;else p=QM.palOfT(c,k);if(p)out.push([k,p])}return out}
 const HARDX=/^(門伏吟|門反吟|星反吟)$/;
@@ -1295,11 +1323,11 @@ function zxBody(){
     <p class="ds">建議：在這些日子多參加聚會、主動認識新朋友；也可用「擇吉日吉時佈局」的桃花局挑時辰佈局。</p><p class="empty">評分為本程式依傳統用神整理，僅供參考。</p>`}
 function renderZhan(){
   const el=$('#zhan');if(S.mode!=='yin'){el.hidden=true;S.zy=null;return}
-  el.hidden=false;const c=cur();if(S.topic==='感情')S.topic='戀愛發展';if(!ZH.T[S.topic])S.topic='婚姻';const r=ZH.run(c,S.topic,S.qi.present);
+  el.hidden=false;const c=cur();if(S.topic==='感情')S.topic='戀愛發展';if(!ZH.T[S.topic]&&S.topic!=='無')S.topic='婚姻';const none=S.topic==='無'&&!S.zx,r=none?{Y:[],L:[],d:'',v:0}:ZH.run(c,S.zx?'婚姻':S.topic,S.qi.present);
   S.zy={};if(!S.zx)r.Y.forEach(y=>{if(y.p){(S.zy[y.p]=S.zy[y.p]||[]).push(y.n.replace(/（.*$/,''))}});
   el.innerHTML=`<h2>事項占斷</h2><div class="tp st5" role="group" aria-label="常用事項">${Object.entries(ST5).map(([n,k])=>`<button data-s5="${n}" aria-pressed="${!S.zx&&k===S.topic}">${n}</button>`).join('')}${['本週運勢','感情緣分'].map(n=>`<button data-s5="${n}" aria-pressed="${S.zx===n}">${n}</button>`).join('')}${['流月運勢','流年運勢','流年財位','終身財位'].map(n=>`<button data-s5="${n}">${n}</button>`).join('')}</div>
     <details class="more"><summary>更多事項</summary><div class="tp" role="group" aria-label="選擇事項">${ZH.keys.map(k=>`<button data-k="${k}" aria-pressed="${k===S.topic}">${k}</button>`).join('')}</div></details>
-    ${S.zx?zxBody():`<p class="ds">${c.hourGZ}時・求測者${S.qi.present?'在現場，以日干為用神':'不在現場（遠測），以月干為用神'}・${S.qi.ask}問</p><p class="ds">${r.d}</p>
+    ${none?'<p class="empty">目前未選擇事項，盤面不標示用神。需要時再點選上方事項即可。</p>':S.zx?zxBody():`<p class="ds">${c.hourGZ}時・求測者${S.qi.present?'在現場，以日干為用神':'不在現場（遠測），以月干為用神'}・${S.qi.ask}問</p><p class="ds">${r.d}</p>
     ${r.Y.length?`<table>${r.Y.map(y=>`<tr ${y.p?`data-p="${y.p}"`:''}><td>${y.n}</td><td>${y.where}</td><td class="st">${y.st}</td></tr>`).join('')}</table>`:''}
     <ul>${r.L.map(([t,j])=>/^【/.test(t)?`<li class="zhh">${t}</li>`:`<li class="j${j}">${t}</li>`).join('')}</ul>
     <p class="sum j${r.v}">${r.v>0?'整體偏吉':r.v<0?'整體偏凶':'吉凶參半，須審時度勢'}</p>`}`;
