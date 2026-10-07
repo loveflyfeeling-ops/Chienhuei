@@ -316,6 +316,15 @@ dialog#pDlg .pd{padding:14px 16px}
 .fub .col{align-self:flex-end}
 .shref{border:1px dashed var(--line);border-radius:10px;padding:6px 10px;margin:8px 0}
 .fl{display:inline-block;margin-left:6px;padding:0 7px;border-radius:3px;background:#FFE600;color:#C0141B;font-size:.74rem;font-weight:700;border:1px solid #E0B800;vertical-align:1px}
+.zh li.zhh{list-style:none;font-weight:900;color:#8A3B12;margin:10px 0 2px;padding:0}
+.zh li.zhh::before{content:none}
+.zh table.wk{width:100%;border-collapse:collapse;font-size:.84rem}
+.zh table.wk th{font-weight:700;text-align:left;border-bottom:1px solid var(--line);padding:4px}
+.zh table.wk td{padding:4px;border-bottom:0}.zh table.wk td small{color:var(--muted)}
+.zh table.wk .sr{color:#C98A00;letter-spacing:-1px;white-space:nowrap;font-size:.78rem}
+.zh table.wk tr.wtip td{border-bottom:1px solid var(--line);color:var(--muted);font-size:.8rem;padding-top:0}
+.zh table.wk tr.bst td:first-child{color:var(--jade);font-weight:700}.zh table.wk tr.wst td:first-child{color:var(--lacquer);font-weight:700}
+.zh .lvl{padding-left:20px;line-height:1.7;font-size:.9rem}.zh .lvl li{margin:6px 0}
 .qlun,.qsave{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font-size:.9rem}
 .qlun .ql,.qsave .ql{color:var(--lacquer);font-weight:700}
 .qsave select{max-width:100%;min-width:0;flex:1 1 180px}
@@ -737,6 +746,45 @@ function H(c){
 // 生剋描述：a 對 b
 const RT={生:'生',被生:'被生',剋:'剋',被剋:'被剋',比和:'比和',同宮:'同宮',無:'無從比較'};
 const T={
+感情:{d:'日干為自己；男問看乙奇、女問看庚為對方；六合為這段感情本身；男問以丁、女問以丙為第三者',f(h){
+  const male=(typeof S!=='undefined'&&S.qi&&S.qi.ask==='女')?false:true,a=h.tP(h.c.YC.dE),b=h.tP(male?'乙':'庚'),m=h.godP('六合'),t=h.tP(male?'丁':'丙'),L=[];
+  const Y=[['自己（日干）',a],[male?'對方（乙奇）':'對方（庚）',b],['感情本身（六合）',m],['第三者（'+(male?'丁':'丙')+'）',t]];
+  const by=h.by,DW={休:['對方心情放鬆，願意相處',1],生:['對方對你有好感，關係有生機',1],開:['對方態度開放，願意溝通',1],景:['對方重視表面與面子，熱情但易起伏',0],杜:['對方封閉、不想談，心門暫時關著',-1],傷:['彼此容易爭吵、互相傷害',-1],死:['熱度下降，對方感覺冷淡',-1],驚:['對方不安、容易口角或受驚嚇',-1]};
+  const GW={值符:['對方有主見、自尊心強',0],螣蛇:['對方多疑、反覆，想法變來變去',-1],太陰:['對方心裡有你，但不輕易表達（暗中有情）',1],六合:['對方重感情、好溝通',1],白虎:['對方脾氣衝，相處易起衝突',-1],玄武:['對方有所隱瞞，或關係中有曖昧不明之處',-1],九地:['對方慢熱、保守，需要時間',0],九天:['對方主動、積極，想往前走',1]};
+  const R=h.rel(a,b),bad=p=>p&&(h.kong(p)||h.xg(p)),F=p=>p?QM.pflags(h.c,p):null;
+  // 一、合不合
+  L.push(['【兩人合不合】',0]);
+  if(!a||!b)L.push(['盤上用神不全，相處狀況較難判斷',0]);
+  else{if(R==='同宮')L.push(['你和對方同宮：想法接近、有默契',1]);else if(R==='比和')L.push(['兩宮五行比和：個性相近，相處自在',1]);
+    else if(R==='生')L.push(['你的宮生對方的宮：你付出比較多、比較在乎對方',0]);else if(R==='被生')L.push(['對方的宮生你的宮：對方比較在乎你、願意付出',1]);
+    else if(R==='剋')L.push(['你的宮剋對方的宮：你對對方要求多，對方容易覺得有壓力',-1]);else if(R==='被剋')L.push(['對方的宮剋你的宮：對方讓你感到壓力或委屈',-1]);
+    const d=by[b].door[0];if(DW[d])L.push([`對方落${by[b].door}：${DW[d][0]}`,DW[d][1]]);const g=GW[by[b].god];if(g)L.push([`對方臨${by[b].god}：${g[0]}`,g[1]])}
+  // 二、有沒有未來
+  L.push(['【這段感情有沒有未來】',0]);
+  if(m){const st=h.st(m),Fm=F(m);if(h.strong(m)&&'開休生'.includes(by[m].door[0]))L.push([`感情宮（六合）${st}又得${by[m].door}：感情有基礎，可以往下走`,1]);
+    else if(h.strong(m))L.push([`感情宮（六合）${st}：感情還有力量`,1]);else L.push([`感情宮（六合）${st}：感情動能不足，需要用心經營`,-1]);
+    if(Fm.kong)L.push(['感情宮落空亡：承諾不夠踏實，目前看不清未來，等時機成熟再談',-1]);
+    if(Fm.mu.length)L.push(['感情宮入墓：關係卡住、悶著，需要有人主動打開僵局',-1]);
+    if(h.xg(m))L.push([`感情宮有凶格（${by[m].yx.filter(k=>!/伏吟|反吟/.test(k)).join('、')||'伏反吟'}）：發展過程有阻礙`,-1])}
+  if(a&&b&&(R==='同宮'||R==='比和'||R==='生'||R==='被生')&&!h.kong(a)&&!h.kong(b))L.push(['兩宮相生比和、都不落空：雙方有緣，有走下去的條件',1]);
+  if(b&&h.kong(b))L.push(['對方落空亡：對方心思不在這裡，或給不了承諾',-1]);
+  if(a&&b){const ab=(by[a].t+by[b].t+by[a].d+by[b].d);const yg=[1,2,3,4,6,7,8,9].some(p=>{const x=by[p];return x&&((x.t.includes('乙')&&x.d.includes('庚'))||(x.t.includes('庚')&&x.d.includes('乙')))});if(yg)L.push(['盤中乙庚相合：兩人有天生的緣分',1])}
+  if(h.c.fuFan.門反吟)L.push(['八門反吟：關係起伏大、分分合合',-1]);else if(h.c.fuFan.門伏吟)L.push(['八門伏吟：感情停在原地，短期不會有大變化',0]);
+  // 三、會不會和好
+  L.push(['【會不會和好】',0]);
+  if(b&&a){const rb=h.rel(b,a);if(rb==='生'||rb==='同宮'||rb==='比和')L.push(['對方的宮生（或比和）你的宮：對方心裡還有你，有回頭的可能',1]);else if(rb==='剋')L.push(['對方的宮剋你的宮：對方目前不想回頭，宜先冷靜',-1]);
+    if('開休生'.includes(by[b].door[0]))L.push(['對方得吉門：態度可能軟化，可以試著釋出善意',1]);else if('杜死'.includes(by[b].door[0]))L.push(['對方臨杜、死門：心門關著，短期內較難和好',-1]);
+    if(h.c.horseP===b)L.push(['對方臨馬星：近期對方可能會主動聯繫或有動作',1]);
+    if(h.kong(b)||h.kong(m))L.push(['對方或感情宮落空亡：目前時機未到，等出旬（約十天後）再看',0]);
+    if(h.c.fuFan.星伏吟||h.c.fuFan.門伏吟)L.push(['伏吟主舊事重提：有回到過去的機會，但要先解決原本的問題',0])}
+  // 四、能否重新開始
+  L.push(['【有沒有機會重新開始】',0]);
+  if(a){if(h.strong(a)&&(h.qm(a)||h.jg(a)))L.push(['你自己旺相又得奇門吉格：狀態好，重新開始的機會大',1]);else if(h.strong(a))L.push(['你自己旺相：有能量重新出發',1]);else L.push(['你自己目前能量偏弱：先照顧好自己，再談感情',-1]);
+    if(bad(a))L.push(['你自己的宮有空亡或凶格：心裡還有包袱，宜先放下過去',-1])}
+  if(m&&h.strong(m)&&!h.kong(m))L.push(['感情宮有力：只要雙方願意，有重新開始的空間',1]);
+  if(t&&b&&(t===b||h.rel(t,b)==='生'))L.push(['第三者與對方同宮或相生：對方身邊可能已有其他人，重新開始的阻力較大',-1]);
+  else if(t&&a&&h.rel(t,a)==='剋')L.push(['第三者的宮剋你的宮：要留意外在的干擾',-1]);
+  return {Y,L}}},
 婚姻:{d:'乙奇為女方，庚為男方，六合為媒人',f(h){const a=h.tP('乙'),b=h.tP('庚'),m=h.godP('六合'),L=[],r=h.rel(b,a);
   const Y=[['女方（乙）',a],['男方（庚）',b],['媒人（六合）',m]];
   if(r==='生')L.push(['男方宮生女方宮，男家愛女家',1]);if(r==='被生')L.push(['女方宮生男方宮，女家愛男家',1]);
@@ -1120,7 +1168,7 @@ function renderHours(){markRank();
   const ns=nowSlot();
   $('#hours').innerHTML=S.charts.map((c,hb)=>`<button class="hb ${c.zuiji.length?'has':''} ${ns.date===S.date&&ns.hb===hb?'now':''}" data-hb="${hb}" aria-pressed="${hb===S.hb}" aria-label="${c.hourGZ}時 ${hrTxt(hb)}${c.zuiji.length?'，有最吉方':''}"><div class="z">${QM.ZHI[hb]}</div><div class="t">${hrTxt(hb)}</div><div class="s">${Math.round(c.best.ss)}</div></button>`).join('');
 }
-const ST5={婚姻感情:'婚姻',升遷調動:'升遷',行業選擇:'就職',健康疾病:'疾病',買賣吉凶:'交易',學業考試:'考試',合夥吉凶:'合夥',官司訴訟:'官司'};
+const ST5={感情:'感情',婚姻感情:'婚姻',升遷調動:'升遷',行業選擇:'就職',健康疾病:'疾病',買賣吉凶:'交易',學業考試:'考試',合夥吉凶:'合夥',官司訴訟:'官司'};
 // ===== 佈局（移星換斗找最佳轉宮＋擇時；用神取法依傳統，評分為本程式自訂）=====
 const BUG={催財:{y:['生門','戊','天心'],w:'財'},催官:{y:['開門','值符','天心'],w:'官'},文昌:{y:['天輔','丁','景門'],w:'文昌'},考試:{y:['天輔','丁','景門','開門'],w:'考運'},
  桃花:{y:['六合','乙','丙'],w:'人緣桃花'},結婚:{y:['六合','乙','庚'],w:'婚姻'},討債:{y:['戊','生門','傷門','九天'],w:'收款'},官司:{y:['開門','丁','值符'],w:'官司'},
@@ -1207,16 +1255,53 @@ function renderZJ(){const el=$('#zjp');if(S.mode!=='yin'){el.hidden=true;return}
     <div class="tp" role="group" aria-label="佈局種類">${ZJG.map(g=>`<button data-zjg="${g}" aria-pressed="${g===Z.goal}">${g}局</button>`).join('')}</div>
     <div class="zjc"><label>範圍 <select id="zjDays">${[7,14,30,60,90].map(d=>`<option value="${d}"${d===Z.days?' selected':''}>未來 ${d} 天</option>`).join('')}</select></label>
     <label><input type="checkbox" id="zjDay"${Z.day?' checked':''}> 只看日間（07–21）</label><button class="go2" id="zjGo">開始擇吉</button></div>${out}`}
+// ===== 本週運勢、新感情時機（日盤／月盤逐日逐月評估；評分為本程式自訂）=====
+const ZXD={開:'適合談事情、開展新計畫',休:'宜休養，適合拜訪貴人、修復關係',生:'利求財、談生意',景:'利表現、考試文書與曝光',傷:'容易衝突，行車與運動小心',杜:'宜低調，處理內部事務',死:'宜守不宜攻，避免大決定',驚:'防口舌是非與突發驚嚇'};
+const GOODG=['值符','太陰','六合','九地','九天'];
+function pScore(c,p){if(!p)return 0;const h=ZH.H(c),x=c.pals.find(q=>q.p===p),F=QM.pflags(c,p),st=h.st(p);let v=('開休生'.includes(x.door[0])?3:x.door[0]==='景'?1:-2)+(GOODG.includes(x.god)?1:-1)+(['旺','相'].includes(st)?1:['囚','死'].includes(st)?-1:0)+(x.qi?1:0)+(x.yj.some(k=>k!=='門宮和義')?1:0)-2*((F.kong?1:0)+(F.mu.length?1:0)+(F.xi.length?1:0)+(F.po?1:0))-(x.yx.filter(k=>!/伏吟|反吟/.test(k)).length?1:0);return v}
+const stars=v=>{const n=Math.max(1,Math.min(5,Math.round((v+6)/3)));return '★'.repeat(n)+'☆'.repeat(5-n)};
+function personBranch(){const w=S.people.find(p=>p.id===S.qi.who),b=w&&w.date?w:S.birth;if(!b||!b.date)return null;const [y,m,d]=b.date.split('-').map(Number);const q=QM.pillars(y,m,d,12,0);return {yz:q.yi%12,name:w?w.name:'命主'}}
+const TAOHUA=z=>[9,6,3,0][[0,4,8].includes(z)?0:[2,6,10].includes(z)?1:[5,9,1].includes(z)?2:3]; // 申子辰桃花酉、寅午戌卯、巳酉丑午、亥卯未子
+function weekData(){const [Y,M,D]=S.date.split('-').map(Number),d0=new Date(Y,M-1,D),dow=(d0.getDay()+6)%7,mon=new Date(Y,M-1,D-dow),male=S.qi.ask!=='女',out=[];
+  for(let i=0;i<7;i++){const t=new Date(mon.getFullYear(),mon.getMonth(),mon.getDate()+i);const c=QM.plate('日',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0);if(!c)continue;
+    const fp=QM.palOfT(c,c.YC.P[3][0]),x=c.pals.find(q=>q.p===fp),F=QM.pflags(c,fp),dp=d=>(c.pals.find(q=>q.door===d)||{}).p,gp=g=>(c.pals.find(q=>q.god===g)||{}).p;
+    const all=pScore(c,fp),cai=Math.round((pScore(c,dp('生門'))+pScore(c,QM.palOfT(c,'戊')))/2),shi=pScore(c,dp('開門')),qing=Math.round((pScore(c,gp('六合'))+pScore(c,QM.palOfT(c,male?'乙':'庚')))/2),rp=(c.pals.find(q=>q.star.includes('芮'))||{}).p,jian=all-(rp===fp?3:0)-(F.xi.length?1:0);
+    const warn=[];if(F.kong)warn.push('空亡：說好的事容易變卦');if(F.mu.length)warn.push('入墓：做事卡卡、悶');if(F.xi.length)warn.push('擊刑：防衝突受傷');if(F.po)warn.push('門迫：好事打折');
+    out.push({t,gz:c.YC.P[3],all,cai,shi,qing,jian,tip:ZXD[x.door[0]],door:x.door,god:x.god,dir:x.dir,warn})}
+  return out}
+function loveData(){const male=S.qi.ask!=='女',pb=personBranch(),th=pb?TAOHUA(pb.yz):null,now=new Date(),months=[],days=[];
+  const lv=c=>{const fp=QM.palOfT(c,c.YC.P[3][0]),lp=(c.pals.find(q=>q.god==='六合')||{}).p,op=QM.palOfT(c,male?'乙':'庚'),h=ZH.H(c),r=h.rel(op,fp);let v=pScore(c,lp)+pScore(c,op)/2+(['生','比和','同宮'].includes(r)?2:r==='剋'?-1:0)+('開休生'.includes(c.pals.find(q=>q.p===fp).door[0])?1:0);
+    const why=[];const lx=c.pals.find(q=>q.p===lp);if(lx&&'開休生'.includes(lx.door[0])&&!c.kongP.includes(lp))why.push('六合（緣分）得'+lx.door);if(['生','比和','同宮'].includes(r))why.push((male?'乙奇':'庚')+'（異性）與你相生相合');if(lx&&lx.god==='六合'&&['旺','相'].includes(h.st(lp)))why.push('緣分宮旺相');if(c.horseP===op)why.push('異性臨馬星，容易出現新對象');return {v,why}};
+  for(let i=0;i<12;i++){const t=new Date(now.getFullYear(),now.getMonth()+i,15);const c=QM.plate('月',t.getFullYear(),t.getMonth()+1,15,12,0);if(!c)continue;const r=lv(c);const mz=c.q.mi%12;if(th!=null&&mz===th){r.v+=2;r.why.push('桃花月')}months.push({t,gz:c.YC.P[3],...r})}
+  for(let i=1;i<=90;i++){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);const c=QM.plate('日',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0);if(!c)continue;const r=lv(c);const dz=c.q.di%12;if(th!=null&&dz===th){r.v+=2;r.why.push('桃花日')}days.push({t,gz:c.YC.P[3],...r})}
+  return {months,days,pb,th}}
+const WK='一二三四五六日';
+function zxBody(){
+  if(S.zx==='本週運勢'){const W=weekData();if(!W.length)return '<p class="empty">此週超出可排盤範圍。</p>';const best=W.reduce((a,b)=>b.all>a.all?b:a),worst=W.reduce((a,b)=>b.all<a.all?b:a),avg=W.reduce((a,b)=>a+b.all,0)/W.length;
+    const mx=k=>W.reduce((a,b)=>b[k]>a[k]?b:a);
+    return `<p class="ds">以每日日盤的日干宮為主，看門、神、旺衰、奇儀與四害；財運看生門與戊、事業看開門、感情看六合與${S.qi.ask==='女'?'庚':'乙奇'}。週次依目前選擇的日期（${S.date}）所在週。</p>
+    <div class="msum"><p><b>本週總評</b>　${avg>=2?'整體順勢，可積極安排重要的事。':avg>=0?'平穩中有起伏，挑好日子做重要的事。':'能量偏弱，宜保守，重要決定盡量放在較好的日子。'}</p>
+      <ul><li>最佳日：週${WK[(best.t.getDay()+6)%7]}（${best.t.getMonth()+1}/${best.t.getDate()}，${best.gz}日）</li><li>最需小心：週${WK[(worst.t.getDay()+6)%7]}（${worst.t.getMonth()+1}/${worst.t.getDate()}）</li>
+      <li>求財選週${WK[(mx('cai').t.getDay()+6)%7]}、談工作選週${WK[(mx('shi').t.getDay()+6)%7]}、約會選週${WK[(mx('qing').t.getDay()+6)%7]}</li></ul></div>
+    <table class="wk"><tr><th>日期</th><th>整體</th><th>財</th><th>事業</th><th>感情</th></tr>${W.map(d=>`<tr class="${d===best?'bst':d===worst?'wst':''}"><td>週${WK[(d.t.getDay()+6)%7]} ${d.t.getMonth()+1}/${d.t.getDate()}<br><small>${d.gz}日</small></td><td class="sr">${stars(d.all)}</td><td class="sr">${stars(d.cai)}</td><td class="sr">${stars(d.shi)}</td><td class="sr">${stars(d.qing)}</td></tr>
+      <tr class="wtip"><td colspan="5">${d.door}・${d.god}：${d.tip}${d.warn.length?`；<span class="j-1">${d.warn.join('、')}</span>`:''}${d.jian<-2?'；<span class="j-1">注意身體</span>':''}</td></tr>`).join('')}</table>
+    <p class="empty">星等由本程式依傳統用神評分換算，僅供參考。</p>`}
+  const L=loveData(),ms=[...L.months].sort((a,b)=>b.v-a.v).slice(0,3),ds=[...L.days].sort((a,b)=>b.v-a.v).slice(0,6).sort((a,b)=>a.t-b.t),near=L.days.find(d=>d.v>=Math.max(...L.days.map(x=>x.v))-1);
+  return `<p class="ds">看${S.qi.ask==='女'?'庚（男性）':'乙奇（女性）'}與六合（緣分）在月盤、日盤的狀況，挑出未來 12 個月與 90 天內最容易遇到新感情的時間${L.pb?`；並依${L.pb.name}的生年加入桃花（${QM.ZHI[L.th]}）月、日`:'（選擇有出生資料的問測者，可再加入個人桃花月日）'}。</p>
+    <div class="msum"><p><b>最快的好時機</b>　${near?`${near.t.getMonth()+1}/${near.t.getDate()}（${near.gz}日）前後`:'近期較平淡'}${near&&near.why.length?'：'+near.why.join('、'):''}</p></div>
+    <h3 class="mh">較有機會的月份</h3><ol class="lvl">${ms.map(m=>`<li><b>${m.t.getFullYear()}年${m.t.getMonth()+1}月（${m.gz}月）</b>　${stars(m.v-2)}<br><span class="ds">${m.why.join('、')||'整體條件較佳'}</span></li>`).join('')}</ol>
+    <h3 class="mh">未來 90 天的好日子</h3><ol class="lvl">${ds.map(d=>`<li><b>${d.t.getMonth()+1}/${d.t.getDate()}（週${WK[(d.t.getDay()+6)%7]}，${d.gz}日）</b>　${stars(d.v-2)}<br><span class="ds">${d.why.join('、')||'整體條件較佳'}</span></li>`).join('')}</ol>
+    <p class="ds">建議：在這些日子多參加聚會、主動認識新朋友；也可用「擇吉日吉時佈局」的桃花局挑時辰佈局。</p><p class="empty">評分為本程式依傳統用神整理，僅供參考。</p>`}
 function renderZhan(){
   const el=$('#zhan');if(S.mode!=='yin'){el.hidden=true;S.zy=null;return}
   el.hidden=false;const c=cur();if(!ZH.T[S.topic])S.topic='婚姻';const r=ZH.run(c,S.topic,S.qi.present);
-  S.zy={};r.Y.forEach(y=>{if(y.p){(S.zy[y.p]=S.zy[y.p]||[]).push(y.n.replace(/（.*$/,''))}});
-  el.innerHTML=`<h2>事項占斷</h2><div class="tp st5" role="group" aria-label="常用事項">${Object.entries(ST5).map(([n,k])=>`<button data-s5="${n}" aria-pressed="${k===S.topic}">${n}</button>`).join('')}${['流月運勢','流年運勢','流年財位','終身財位'].map(n=>`<button data-s5="${n}">${n}</button>`).join('')}</div>
+  S.zy={};if(!S.zx)r.Y.forEach(y=>{if(y.p){(S.zy[y.p]=S.zy[y.p]||[]).push(y.n.replace(/（.*$/,''))}});
+  el.innerHTML=`<h2>事項占斷</h2><div class="tp st5" role="group" aria-label="常用事項">${Object.entries(ST5).map(([n,k])=>`<button data-s5="${n}" aria-pressed="${!S.zx&&k===S.topic}">${n}</button>`).join('')}${['本週運勢','新感情時機'].map(n=>`<button data-s5="${n}" aria-pressed="${S.zx===n}">${n}</button>`).join('')}${['流月運勢','流年運勢','流年財位','終身財位'].map(n=>`<button data-s5="${n}">${n}</button>`).join('')}</div>
     <details class="more"><summary>更多事項</summary><div class="tp" role="group" aria-label="選擇事項">${ZH.keys.map(k=>`<button data-k="${k}" aria-pressed="${k===S.topic}">${k}</button>`).join('')}</div></details>
-    <p class="ds">${c.hourGZ}時・求測者${S.qi.present?'在現場，以日干為用神':'不在現場（遠測），以月干為用神'}・${S.qi.ask}問</p><p class="ds">${r.d}</p>
+    ${S.zx?zxBody():`<p class="ds">${c.hourGZ}時・求測者${S.qi.present?'在現場，以日干為用神':'不在現場（遠測），以月干為用神'}・${S.qi.ask}問</p><p class="ds">${r.d}</p>
     ${r.Y.length?`<table>${r.Y.map(y=>`<tr ${y.p?`data-p="${y.p}"`:''}><td>${y.n}</td><td>${y.where}</td><td class="st">${y.st}</td></tr>`).join('')}</table>`:''}
-    <ul>${r.L.map(([t,j])=>`<li class="j${j}">${t}</li>`).join('')}</ul>
-    <p class="sum j${r.v}">${r.v>0?'整體偏吉':r.v<0?'整體偏凶':'吉凶參半，須審時度勢'}</p>`;
+    <ul>${r.L.map(([t,j])=>/^【/.test(t)?`<li class="zhh">${t}</li>`:`<li class="j${j}">${t}</li>`).join('')}</ul>
+    <p class="sum j${r.v}">${r.v>0?'整體偏吉':r.v<0?'整體偏凶':'吉凶參半，須審時度勢'}</p>`}`;
 }
 function birthSlot(b){const [y,m,d]=b.date.split('-').map(Number),[hh,mi]=b.time.split(':').map(Number);const t=new Date(y,m-1,d);let hb=Math.floor((hh+1)/2)%12;if(hh>=23)t.setDate(t.getDate()+1);return {date:iso(t),hb,ms:Date.UTC(y,m-1,d,hh,mi||0)-8*3600000,label:`${b.date} ${b.time}`}}
 // ===== 終身命局：白話解說層 =====
@@ -1609,7 +1694,7 @@ $('#ming').onclick=e=>{const t=e.target;
   if(t.id==='bgo'){const d=$('#bd').value,tm=$('#bt').value||'12:00';if(!d)return;S.birth={date:d,time:tm,sex:S.sx};store.set('qm_birth',JSON.stringify(S.birth));renderMing();return}
   const m=t.closest('[data-m]');if(m){S.mtab=m.dataset.m;renderMing();return}
   const bp=t.closest('[data-bp]');if((bp||t.id==='bshow')&&S.birth){toTime();S.bazi=true;const sl=birthSlot(S.birth);S.date=sl.date;S.hb=sl.hb;S.at={date:sl.date,hb:sl.hb,ms:sl.ms,label:'命盤 '+sl.label};S.p=bp?+bp.dataset.bp:null;render();$('.boardcard').scrollIntoView({behavior:'smooth'})}};
-$('#zhan').onclick=e=>{const b=e.target.closest('button[data-k]');if(b){S.topic=b.dataset.k;store.set('qm_topic',S.topic);renderBoard();return}
+$('#zhan').onclick=e=>{const b=e.target.closest('button[data-k]');if(b){S.zx=null;S.topic=b.dataset.k;store.set('qm_topic',S.topic);renderBoard();return}
   const tr=e.target.closest('tr[data-p]');if(tr){S.p=+tr.dataset.p;renderBoard();if(window.innerWidth<880)$('.boardcard').scrollIntoView({behavior:'smooth'})}};
 $('#modesw').onclick=e=>{const b=e.target.closest('button[data-mode]');if(!b||b.dataset.mode===S.mode)return;toTime();S.mode=b.dataset.mode;store.set('qm_mode',S.mode);S.p=null;render()};
 
@@ -1663,7 +1748,8 @@ $('#zjp').addEventListener('click',e=>{const t=e.target,Z=S.zj;
 $('#bu').addEventListener('click',e=>{const b=e.target.closest('[data-bu]');if(b){S.bu=S.bu===b.dataset.bu?null:b.dataset.bu;renderBu();return}
   const r=e.target.closest('[data-burot]');if(r){S.rot=+r.dataset.burot;S.focus=null;S.focusG=null;S.p=null;renderBoard();$('.boardcard').scrollIntoView({behavior:'smooth'})}});
 $('#zhan').addEventListener('click',e=>{const b=e.target.closest('[data-s5]');if(!b)return;e.stopPropagation();const n=b.dataset.s5;
-  if(ST5[n]){S.topic=ST5[n];store.set('qm_topic',S.topic);renderBoard();return}
+  if(n==='本週運勢'||n==='新感情時機'){S.zx=S.zx===n?null:n;renderBoard();return}
+  if(ST5[n]){S.zx=null;S.topic=ST5[n];store.set('qm_topic',S.topic);renderBoard();return}
   if(n==='流月運勢'){S.fix=null;setWall('月',new Date());return}if(n==='流年運勢'){S.fix=null;setWall('年',new Date());return}
   if(n==='流年財位'){S.fix=null;S.bu='催財';setWall('年',new Date());$('#bu').scrollIntoView({behavior:'smooth'});return}
   if(n==='終身財位'){S.bu='終身盤財位';renderBu();$('#bu').scrollIntoView({behavior:'smooth'})}},true);
