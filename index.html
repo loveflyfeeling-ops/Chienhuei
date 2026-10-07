@@ -1171,7 +1171,7 @@ function renderHours(){markRank();
 const ST5={戀愛發展:'戀愛發展',婚姻感情:'婚姻',升遷調動:'升遷',行業選擇:'就職',健康疾病:'疾病',買賣吉凶:'交易',學業考試:'考試',合夥吉凶:'合夥',官司訴訟:'官司'};
 // ===== 佈局（移星換斗找最佳轉宮＋擇時；用神取法依傳統，評分為本程式自訂）=====
 const BUG={催財:{y:['生門','戊','天心'],w:'財'},催官:{y:['開門','值符','天心'],w:'官'},文昌:{y:['天輔','丁','景門'],w:'文昌'},考試:{y:['天輔','丁','景門','開門'],w:'考運'},
- 桃花:{y:['六合','乙','丙'],w:'人緣桃花'},結婚:{y:['六合','乙','庚'],w:'婚姻'},討債:{y:['戊','生門','傷門','九天'],w:'收款'},官司:{y:['開門','丁','值符'],w:'官司'},
+ 桃花:{y:['六合','乙','丙'],w:'人緣桃花'},結婚:{y:['六合','乙','庚'],w:'婚姻'},感情和合:{y:['六合','乙','庚','休門'],w:'感情和合',hehe:1},討債:{y:['戊','生門','傷門','九天'],w:'收款'},官司:{y:['開門','丁','值符'],w:'官司'},
  催丁:{y:['生門','六合','丙'],w:'添丁'},賣房:{y:['生門','戊','值符','九天'],w:'賣房',house:1},租屋:{y:['生門','己','值符','六合'],w:'租屋',house:1},撤局:{y:[],w:'撤局'},身體健康:{y:['天心','乙','天芮'],w:'健康'},
  斬桃花:{y:['六合','乙','丙'],w:'斬桃花',cut:1},小孩聽話:{y:['時干','休門'],w:'親子'},找好員工:{y:['時干','六合','休門'],w:'用人'},賣車:{y:['傷門','九天'],w:'賣車'},買房:{y:['生門','戊','己','值符','九地'],w:'買房',house:1},
  終身盤財位:{y:['生門','戊','天心'],w:'財',life:1},終身盤文昌:{y:['天輔','丁','景門'],w:'文昌',life:1},終身盤健康調理:{y:['天心','乙','天芮'],w:'健康',life:1}};
@@ -1206,12 +1206,13 @@ function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}e
         const w=starStat(rc,x);if(G.w==='財'&&(w.m||w.p))why.push(w.m&&w.p?'財星得令得地':w.m?'財星得令':'財星得地');
         const SH=DB.SIHAI[p],F=QM.pflags(rc,p),h4=F.kong||F.mu.length||F.xi.length||F.po;
         return `<li><b>佈局${x.gua}宮（${x.dir}方）</b>　符合：${why.join('、')}<br>建議物品：${items.join('；')}${h4&&SH?`<br><span class="j-1">此宮有四害：先移走 ${SH.items}，可貼${x.gua}宮解四害符（${DB.FU[p]?DB.FU[p].c.join(' '):''}）</span>`:''}</li>`}).join('')}</ol>
+      ${G.hehe?heheNotes(rc):''}
       ${G.house?`<div class="msum"><p><b>房屋符號判讀</b></p><ul>${houseNotes(rc).map(t=>`<li>${t}</li>`).join('')}</ul></div>`:''}
       ${r.times.length?`<p class="ds">建議佈局時間（日干宮得吉門、無四害）：${r.times.join(' 或 ')}</p>`:''}
       <p class="empty">佈局評分與物品建議為本程式依傳統用神取法自行整理，僅供參考。</p>`}}
   el.innerHTML=`<h2>佈局</h2><div class="tp" role="group" aria-label="佈局事項">${goals.map(g=>`<button data-bu="${g}" aria-pressed="${g===S.bu}">${g==='撤局'?'撤局':g.endsWith('調理')||g.startsWith('終身')?g:g+'佈局'}</button>`).join('')}</div>${out}`}
 // ===== 擇吉日吉時佈局：年、月、日、時、刻盤逐一檢查，挑無凶格、無四害的時間 =====
-const ZJG=['催財','催官','文昌','考試','桃花','結婚','官司','催丁','身體健康','討債','賣房','買房','租屋','賣車','小孩聽話','找好員工'];
+const ZJG=['催財','催官','文昌','考試','桃花','感情和合','結婚','官司','催丁','身體健康','討債','賣房','買房','租屋','賣車','小孩聽話','找好員工'];
 S.zj=S.zj||{goal:'催財',days:60,day:true,res:null,busy:false};
 function goalPals(c,y){const out=[];for(const k of y){let p=null;if(k.endsWith('門'))p=(c.pals.find(x=>x.door===k)||{}).p;else if(k.startsWith('天'))p=(c.pals.find(x=>x.star.includes(k.slice(1)))||{}).p;else if(k==='時干')p=QM.palOfT(c,c.YC.P[3][0]);else if(k.length===2)p=(c.pals.find(x=>x.god===k)||{}).p;else p=QM.palOfT(c,k);if(p)out.push([k,p])}return out}
 const HARDX=/^(門伏吟|門反吟|星反吟)$/;
@@ -1531,6 +1532,17 @@ function pairItems(x){const o=[];for(const a of x.t)for(const b of x.d){const v=
 function xingFix(x){const o=[];const st=[...x.t,...x.d];const xs=[...new Set(st.filter(g=>XGB_[g]===x.p))];
   for(const g of xs){const dbl=x.t.includes(g)&&x.d.includes(g)&&DB.ITEM.xing[g+g];const v=dbl||DB.ITEM.xing[g];if(v)o.push([dbl?g+g:(v.k||g),v.i,v.f])}return o}
 const XGB_={戊:3,己:2,庚:8,辛:9,壬:4,癸:4};
+function heheNotes(c){const h=ZH.H(c),pa=QM.palOfT(c,'乙'),pg=QM.palOfT(c,'庚'),pm=(c.pals.find(x=>x.god==='六合')||{}).p,L=[];
+  const PE={1:'水',8:'土',3:'木',4:'木',9:'火',2:'土',7:'金',6:'金'},SHG={水:'木',木:'火',火:'土',土:'金',金:'水'},ELI2={水:'一杯清水或流水擺件',木:'綠色植物',火:'暖色燈或紅色擺件',土:'陶瓷或黃色擺件',金:'金屬或白色擺件'};
+  if(pa&&pg){const r=h.rel(pa,pg);L.push(`女方（乙）在${QM.DIR[pa]}方、男方（庚）在${QM.DIR[pg]}方`);
+    if(r==='同宮'||r==='比和')L.push('兩宮同宮或比和：彼此頻率相近，佈局重點放在「維持與加溫」');
+    else if(r==='生'||r==='被生')L.push(`兩宮相生（${r==='生'?'女方生男方：女方付出較多':'男方生女方：男方付出較多'}）：關係有基礎，佈局可讓付出變成雙向`);
+    else{const A=r==='剋'?PE[pa]:PE[pg],B=r==='剋'?PE[pg]:PE[pa],mid=SHG[A];L.push(`兩宮相剋（${r==='剋'?'女方剋男方':'男方剋女方'}）：容易摩擦，宜用「${mid}」通關，在兩方位各放${ELI2[mid]}，讓${A}生${mid}、${mid}生${B}`)}
+    if(c.kongP.includes(pa)||c.kongP.includes(pg))L.push('有一方落空亡：先補「實」，在該方位放一個裝滿的容器，讓心意更踏實')}
+  if(pm){const x=c.pals.find(q=>q.p===pm);L.push(`六合（和合之神）在${x.dir}方：可佈${DB.ITEM.god.六合.i}，或擺一對成雙的擺件${'開休生'.includes(x.door[0])?'，此宮得'+x.door+'，效果較好':''}`)}
+  const yx=[1,2,3,4,6,7,8,9].some(p=>{const x=c.pals.find(q=>q.p===p);return x&&((x.t.includes('乙')&&x.d.includes('庚'))||(x.t.includes('庚')&&x.d.includes('乙')))});if(yx)L.push('盤中乙庚相合：天地盤成合，和合之象明顯');
+  L.push('行為上：在佈局方位兩人一起喝茶、聊天或合照，多說肯定的話，避開在白虎、螣蛇方位討論敏感話題');
+  return `<div class="msum"><p><b>感情和合要點</b></p><ul>${L.map(t=>`<li>${t}</li>`).join('')}</ul></div>`}
 function houseNotes(c){const by=p=>c.pals.find(q=>q.p===p),dp=d=>(c.pals.find(x=>x.door===d)||{}).p,tp=g=>QM.palOfT(c,g),zf=(c.pals.find(x=>x.god==='值符')||{}).p;const L=[];
   const sp=dp('生門'),dd=dp('死門'),w=tp('戊'),j=tp('己');
   if(sp)L.push(`新房子（生門）在${QM.DIR[sp]}方`);if(dd)L.push(`舊屋／二手房（死門）在${QM.DIR[dd]}方`);if(w)L.push(`投資型房子（戊）在${QM.DIR[w]}方`);if(zf)L.push(`房子整體磁場（值符）在${QM.DIR[zf]}方`);
