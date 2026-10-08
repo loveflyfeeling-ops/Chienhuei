@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>奇門擇吉</title>
 <meta name="theme-color" content="#1F2B3D">
@@ -36,6 +37,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Sans TC
 .serif{font-family:"Noto Serif TC","Songti TC","PMingLiU",serif}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
 button{font:inherit;color:inherit}
+:where(.panel,.boardcard,.go,.guide) button:not([class]){background:var(--sheet);color:var(--ink);-webkit-text-fill-color:currentColor;border:1px solid var(--line);border-radius:8px}
 button:focus-visible,input:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
 
 header{padding:18px 0 6px}
@@ -170,7 +172,7 @@ h1{margin:0;font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.5rem;l
 .yd dt.x{color:var(--lacquer)} .yd dt.o{color:var(--jade)}
 .verdict.mid{color:var(--jade)}
 .zh .tp{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
-.zh .tp button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:3px 11px;cursor:pointer;font-size:.84rem}
+.zh .tp button{border:1px solid var(--line);background:var(--sheet);color:var(--ink);-webkit-text-fill-color:currentColor;border-radius:999px;padding:4px 12px;cursor:pointer;font-size:.86rem;font-weight:600}
 .zh .tp button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
 .zh .ds{color:var(--muted);font-size:.82rem;margin:0 0 8px}
 .zh table{width:100%;border-collapse:collapse;font-size:.86rem;margin-bottom:8px}
@@ -350,6 +352,15 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 .side .panel.ga>h2,.side .panel.gb>h2,.side .panel.ga>.yd>h2,.side .panel.gb>.yd>h2{color:var(--ad)}
 .side .colp.collapsed.ga>h2:first-child::after,.side .colp.collapsed.gb>h2:first-child::after,.side .colp.collapsed.ga>.yd>h2:first-child::after,.side .colp.collapsed.gb>.yd>h2:first-child::after{color:var(--ad);border-color:var(--a)}
 #qnav button[class*="gc"]{border-color:color-mix(in srgb,var(--a) 50%,var(--line));color:var(--ad);background:color-mix(in srgb,var(--a) 10%,var(--sheet))}
+html{color-scheme:light}
+@media (prefers-color-scheme: dark){html:not([data-theme="light"]){color-scheme:dark}}
+html[data-theme="dark"]{color-scheme:dark}
+.tp{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.tp button{border:1px solid var(--line);background:var(--sheet);color:var(--ink);-webkit-text-fill-color:currentColor;border-radius:999px;padding:4px 13px;cursor:pointer;font-size:.88rem;font-weight:600;line-height:1.5}
+.tp button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.side .panel.ga .tp button,.side .panel.gb .tp button{background:var(--sheet);color:var(--ad);border:1.5px solid color-mix(in srgb,var(--a) 55%,var(--line))}
+.side .panel.ga .tp button:hover,.side .panel.gb .tp button:hover{background:color-mix(in srgb,var(--a) 15%,var(--sheet))}
+.side .panel.ga .tp button[aria-pressed="true"],.side .panel.gb .tp button[aria-pressed="true"]{background:var(--a);color:var(--sheet);border-color:var(--a)}
 </style>
 </head>
 <body>
