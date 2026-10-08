@@ -337,6 +337,19 @@ dialog#pDlg .pd{padding:14px 16px}
 .flash{animation:fl 1.2s ease}@keyframes fl{0%{box-shadow:0 0 0 3px var(--brass)}100%{box-shadow:0 0 0 0 transparent}}
 footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 @media (prefers-reduced-motion:no-preference){.pal{transition:background .2s}}
+
+/* 分組跳色 */
+.gc1{--a:#C0641F;--ad:#8A3B12}.gc2{--a:#2E8A5C;--ad:#1D5E3E}.gc3{--a:#2D6FAE;--ad:#1C4C7C}.gc4{--a:#7B4FA6;--ad:#56337A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .gc1{--a:#E8955A;--ad:#F2B386}:root:not([data-theme="light"]) .gc2{--a:#5CC08C;--ad:#8AD6AE}:root:not([data-theme="light"]) .gc3{--a:#5EA0E0;--ad:#91C0EE}:root:not([data-theme="light"]) .gc4{--a:#AE86D8;--ad:#C9AEE6}}
+:root[data-theme="dark"] .gc1{--a:#E8955A;--ad:#F2B386}:root[data-theme="dark"] .gc2{--a:#5CC08C;--ad:#8AD6AE}:root[data-theme="dark"] .gc3{--a:#5EA0E0;--ad:#91C0EE}:root[data-theme="dark"] .gc4{--a:#AE86D8;--ad:#C9AEE6}
+.side .grp[class*="gc"]{border-bottom-color:var(--a)}.side .grp[class*="gc"] b{color:var(--ad)}
+.side .grp[class*="gc"]::before{content:"";align-self:center;width:10px;height:10px;border-radius:3px;background:var(--a);flex:none}
+.side .panel.ga{background:color-mix(in srgb,var(--a) 13%,var(--sheet))}
+.side .panel.gb{background:color-mix(in srgb,var(--a) 5%,var(--sheet))}
+.side .panel.ga,.side .panel.gb{border-color:color-mix(in srgb,var(--a) 35%,var(--line));border-left:6px solid var(--a);box-shadow:none}
+.side .panel.ga>h2,.side .panel.gb>h2,.side .panel.ga>.yd>h2,.side .panel.gb>.yd>h2{color:var(--ad)}
+.side .colp.collapsed.ga>h2:first-child::after,.side .colp.collapsed.gb>h2:first-child::after,.side .colp.collapsed.ga>.yd>h2:first-child::after,.side .colp.collapsed.gb>.yd>h2:first-child::after{color:var(--ad);border-color:var(--a)}
+#qnav button[class*="gc"]{border-color:color-mix(in srgb,var(--a) 50%,var(--line));color:var(--ad);background:color-mix(in srgb,var(--a) 10%,var(--sheet))}
 </style>
 </head>
 <body>
@@ -352,7 +365,7 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
   </div>
 </header>
 
-<nav class="qnav wrap" id="qnav" aria-label="快速前往"><button data-go="boardcard">九宮盤</button><button data-go="zhan">事項占斷</button><button data-go="detail">宮位解盤</button><button data-go="bu">佈局</button><button data-go="zjp">智能選局</button><button data-go="jjp">居家開運</button><button data-go="fs">行為風水</button><button data-go="rankp">日盤擇吉</button><button data-go="mjp">月盤擇吉</button><button data-go="php">手機造宮</button><button data-go="guide" class="gq">使用說明</button></nav>
+<nav class="qnav wrap" id="qnav" aria-label="快速前往"><button data-go="boardcard">九宮盤</button><button data-go="zhan" class="gc1">事項占斷</button><button data-go="detail" class="gc1">宮位解盤</button><button data-go="bu" class="gc2">佈局</button><button data-go="zjp" class="gc2">智能選局</button><button data-go="jjp" class="gc2">居家開運</button><button data-go="fs" class="gc2">行為風水</button><button data-go="rankp" class="gc3">日盤擇吉</button><button data-go="mjp" class="gc3">月盤擇吉</button><button data-go="php" class="gc4">手機造宮</button><button data-go="guide" class="gq">使用說明</button></nav>
 <section class="guide wrap" id="guide" hidden><div class="gh"><b>三步驟上手</b><button class="lk" id="guideX">知道了，收起</button></div>
  <ol><li><b>選盤與時間</b>：右上角切換「陽盤／陰盤」，用日期列選日子。陰盤可在「起局」區輸入時間、選問測者後按「時盤排盤」；按「奇門八字盤」看終身命局。</li>
  <li><b>看九宮盤</b>：上方是四柱與時辰；九宮格中<span class="gk y">黃框</span>是用神（日干）、<span class="gk g">綠框</span>是時干。點任一宮位，下方「宮位解盤」會說明這一宮的意思、四害解法、佈局物品。</li>
@@ -407,24 +420,24 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
   </section>
 
   <aside class="side">
-    <div class="grp" id="g1"><b>① 看盤分析</b><span>問事情、看宮位意思</span></div>
-    <div class="panel zh zhan-hl colp" id="zhan" hidden></div>
-    <div class="panel detail colp" id="detail"></div>
-    <div class="grp" id="g2"><b>② 開運佈局</b><span>擺什麼、怎麼擺、何時擺</span></div>
-    <div class="panel zh bu colp" id="bu" hidden></div>
-    <div class="panel zh zjp colp" id="zjp" hidden></div>
-    <div class="panel zh colp" id="jjp"></div>
-    <div class="panel fs colp" id="fs"></div>
-    <div class="grp" id="g3"><b>③ 擇吉方位</b><span>哪天、哪個時辰、往哪走</span></div>
-    <div class="panel colp" id="rankp">
+    <div class="grp gc1" id="g1"><b>① 看盤分析</b><span>問事情、看宮位意思</span></div>
+    <div class="panel zh zhan-hl colp gc1 ga" id="zhan" hidden></div>
+    <div class="panel detail colp gc1 gb" id="detail"></div>
+    <div class="grp gc2" id="g2"><b>② 開運佈局</b><span>擺什麼、怎麼擺、何時擺</span></div>
+    <div class="panel zh bu colp gc2 ga" id="bu" hidden></div>
+    <div class="panel zh zjp colp gc2 gb" id="zjp" hidden></div>
+    <div class="panel zh colp gc2 ga" id="jjp"></div>
+    <div class="panel fs colp gc2 gb" id="fs"></div>
+    <div class="grp gc3" id="g3"><b>③ 擇吉方位</b><span>哪天、哪個時辰、往哪走</span></div>
+    <div class="panel colp gc3 ga" id="rankp">
       <h2>日盤擇吉方</h2>
       <label class="toggle"><input type="checkbox" id="dayOnly"> 前三吉只從日間（07:00–21:00）挑選</label>
       <div class="ranklegend"><span><i style="background:var(--brass)"></i>第一吉</span><span><i style="background:var(--jade)"></i>第二吉</span><span><i style="background:var(--lacquer)"></i>第三吉</span></div>
       <ol class="toprank" id="rank"></ol>
       <div id="rdoor"></div>
     </div>
-    <div class="panel zh colp" id="mjp" hidden></div>
-    <div class="go" id="go">
+    <div class="panel zh colp gc3 gb" id="mjp" hidden></div>
+    <div class="go gc3" id="go">
       <h2>前往吉方</h2>
       <p class="tgt" id="goTgt"></p>
       <p class="sub" id="goSub"></p>
@@ -444,8 +457,8 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       </div>
       <div class="row"><button class="btn map" id="cmpBtn" style="font-weight:500">啟用指南針箭頭</button></div>
     </div>
-    <div class="grp" id="g4"><b>④ 小工具</b><span></span></div>
-    <div class="panel zh colp" id="php"><h2>手機號碼造宮</h2><div class="in"><input id="phN" inputmode="numeric" placeholder="輸入手機號碼" aria-label="手機號碼"><button class="go2" id="phGo">分析</button></div><div id="phOut"><p class="empty">取號碼末 6 碼，依序對應宮位、八神、九星、八門、天盤干、地盤干，看個性與運勢。</p></div></div>
+    <div class="grp gc4" id="g4"><b>④ 小工具</b><span></span></div>
+    <div class="panel zh colp gc4 ga" id="php"><h2>手機號碼造宮</h2><div class="in"><input id="phN" inputmode="numeric" placeholder="輸入手機號碼" aria-label="手機號碼"><button class="go2" id="phGo">分析</button></div><div id="phOut"><p class="empty">取號碼末 6 碼，依序對應宮位、八神、九星、八門、天盤干、地盤干，看個性與運勢。</p></div></div>
   </aside>
 </main>
 <footer class="wrap" id="foot">陽盤時家奇門，轉盤、置閏法排盤。最吉方條件：休、生、開、景門，且無門伏吟、門反吟、擊刑、白虎、空亡、門迫、門制、五不遇。行為風水依門、天盤干、宮位與八神的傳統意象整理。內容為傳統術數參考。</footer>
