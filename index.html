@@ -330,6 +330,11 @@ dialog#pDlg .pd{padding:14px 16px}
 .qlun,.qsave{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font-size:.9rem}
 .qlun .ql,.qsave .ql{color:var(--lacquer);font-weight:700}
 .qsave select{max-width:100%;min-width:0;flex:1 1 180px}
+.grp{display:flex;align-items:baseline;gap:10px;margin:18px 2px 8px;padding-bottom:4px;border-bottom:2px solid var(--brass)}.grp b{font-family:"Noto Serif TC",serif;font-size:1.08rem;color:var(--lacquer);letter-spacing:.06em}.grp span{color:var(--muted);font-size:.85rem}.side>.grp:first-child{margin-top:0}
+.qnav{position:sticky;top:0;z-index:30;display:flex;gap:6px;overflow-x:auto;padding:8px 0;background:var(--paper);border-bottom:1px solid var(--line);scrollbar-width:none}.qnav::-webkit-scrollbar{display:none}
+.qnav button{flex:0 0 auto;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:.88rem;cursor:pointer}.qnav button:hover{border-color:var(--brass)}.qnav button.gq{border-color:var(--lacquer);color:var(--lacquer)}.qnav button[hidden]{display:none}
+.guide{margin-top:10px;padding:12px 16px;background:var(--sheet);border:1px solid var(--brass);border-radius:12px}.guide .gh{display:flex;justify-content:space-between;align-items:center;gap:8px}.guide ol{margin:8px 0 4px;padding-left:1.3em;line-height:1.75}.guide .gk{padding:0 4px;border-radius:4px;font-weight:700}.guide .gk.y{border:2px solid var(--brass)}.guide .gk.g{border:2px solid var(--jade)}
+.flash{animation:fl 1.2s ease}@keyframes fl{0%{box-shadow:0 0 0 3px var(--brass)}100%{box-shadow:0 0 0 0 transparent}}
 footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 @media (prefers-reduced-motion:no-preference){.pal{transition:background .2s}}
 </style>
@@ -347,6 +352,12 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
   </div>
 </header>
 
+<nav class="qnav wrap" id="qnav" aria-label="快速前往"><button data-go="boardcard">九宮盤</button><button data-go="zhan">事項占斷</button><button data-go="detail">宮位解盤</button><button data-go="bu">佈局</button><button data-go="zjp">智能選局</button><button data-go="jjp">居家開運</button><button data-go="fs">行為風水</button><button data-go="rankp">日盤擇吉</button><button data-go="mjp">月盤擇吉</button><button data-go="php">手機造宮</button><button data-go="guide" class="gq">使用說明</button></nav>
+<section class="guide wrap" id="guide" hidden><div class="gh"><b>三步驟上手</b><button class="lk" id="guideX">知道了，收起</button></div>
+ <ol><li><b>選盤與時間</b>：右上角切換「陽盤／陰盤」，用日期列選日子。陰盤可在「起局」區輸入時間、選問測者後按「時盤排盤」；按「奇門八字盤」看終身命局。</li>
+ <li><b>看九宮盤</b>：上方是四柱與時辰；九宮格中<span class="gk y">黃框</span>是用神（日干）、<span class="gk g">綠框</span>是時干。點任一宮位，下方「宮位解盤」會說明這一宮的意思、四害解法、佈局物品。</li>
+ <li><b>依需求往下用</b>：<br>① 想問事情 → <b>事項占斷</b>（點選事項，例如求財、戀愛、股票）<br>② 想改運 → <b>佈局</b>（選目標，會列出擺什麼、放哪裡、何時擺）、<b>奇門智能選局</b>（自動挑出年月日時盤都過關的佈局時辰）、<b>居家開運</b>（床位書桌、四大局、斷捨離）<br>③ 想出門辦事 → <b>日盤擇吉方</b>（今日吉時、指定吉門找日子、出行訣）、<b>月盤擇吉方</b></li></ol>
+ <p class="ds">每個欄位的標題都可以點一下收合或展開；上方按鈕可以快速跳到各欄位。</p></section>
 <main class="wrap main">
   <section class="qcard" id="qcard" hidden aria-label="起局">
     <div class="qrow">
@@ -368,7 +379,7 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
   <dialog id="pDlg"><form method="dialog" class="pd" novalidate><div class="pdh"><h2>問測者資料維護</h2><button type="button" class="pdx" id="pX" aria-label="關閉">✕</button></div><div id="pList"></div>
     <div class="pf"><input id="pName" placeholder="姓名"><select id="pSex"><option>男</option><option>女</option></select><input type="date" id="pDate" min="1900-01-01"><input type="time" id="pTime" value="12:00"><input id="pMemo" placeholder="備註"><button class="go2" type="button" id="pAdd">新增／更新</button></div>
     <p class="qnote">出生時間不詳可留預設 12:00；資料只存在這台裝置的瀏覽器中。</p><button type="button" class="lk" id="pClose">關閉</button></form></dialog>
-  <section class="boardcard" aria-label="時盤">
+  <section class="boardcard" id="boardcard" aria-label="時盤">
     <p class="pillars" id="pillars"></p>
     <div class="boardhead"><div class="hr" id="hrTitle"></div><div class="meta" id="hrMeta"></div></div>
     <div class="fufan" id="fufan" hidden></div>
@@ -396,10 +407,15 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
   </section>
 
   <aside class="side">
+    <div class="grp" id="g1"><b>① 看盤分析</b><span>問事情、看宮位意思</span></div>
     <div class="panel zh zhan-hl colp" id="zhan" hidden></div>
     <div class="panel detail colp" id="detail"></div>
+    <div class="grp" id="g2"><b>② 開運佈局</b><span>擺什麼、怎麼擺、何時擺</span></div>
     <div class="panel zh bu colp" id="bu" hidden></div>
     <div class="panel zh zjp colp" id="zjp" hidden></div>
+    <div class="panel zh colp" id="jjp"></div>
+    <div class="panel fs colp" id="fs"></div>
+    <div class="grp" id="g3"><b>③ 擇吉方位</b><span>哪天、哪個時辰、往哪走</span></div>
     <div class="panel colp" id="rankp">
       <h2>日盤擇吉方</h2>
       <label class="toggle"><input type="checkbox" id="dayOnly"> 前三吉只從日間（07:00–21:00）挑選</label>
@@ -408,7 +424,6 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       <div id="rdoor"></div>
     </div>
     <div class="panel zh colp" id="mjp" hidden></div>
-    <div class="panel fs colp" id="fs"></div>
     <div class="go" id="go">
       <h2>前往吉方</h2>
       <p class="tgt" id="goTgt"></p>
@@ -429,6 +444,8 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       </div>
       <div class="row"><button class="btn map" id="cmpBtn" style="font-weight:500">啟用指南針箭頭</button></div>
     </div>
+    <div class="grp" id="g4"><b>④ 小工具</b><span></span></div>
+    <div class="panel zh colp" id="php"><h2>手機號碼造宮</h2><div class="in"><input id="phN" inputmode="numeric" placeholder="輸入手機號碼" aria-label="手機號碼"><button class="go2" id="phGo">分析</button></div><div id="phOut"><p class="empty">取號碼末 6 碼，依序對應宮位、八神、九星、八門、天盤干、地盤干，看個性與運勢。</p></div></div>
   </aside>
 </main>
 <footer class="wrap" id="foot">陽盤時家奇門，轉盤、置閏法排盤。最吉方條件：休、生、開、景門，且無門伏吟、門反吟、擊刑、白虎、空亡、門迫、門制、五不遇。行為風水依門、天盤干、宮位與八神的傳統意象整理。內容為傳統術數參考。</footer>
@@ -772,11 +789,11 @@ const T={
   if(j){const s=sh(j);if(s.length||h.xg(j))L.push(['景門（報價、合約文書）有凶象：報價單、合約條款、發票要仔細核對',-1])}
   // 三、趨吉避凶
   L.push(['【趨吉避凶建議】',0]);
-  const best=[o,g,m].filter(p=>p&&!sh(p).length&&'開休生'.includes(by[p].door[0])&&!['白虎','玄武','螣蛇'].includes(by[p].god));if(best.length)L.push([`拜訪客戶或約談地點，宜選在${[...new Set(best)].map(p=>h.pl(p)).join('、')}方向`,1]);else L.push(['此時盤上沒有理想的洽談方位，重要會談建議改挑時辰（見擇吉日吉時佈局）',0]);
+  const best=[o,g,m].filter(p=>p&&!sh(p).length&&'開休生'.includes(by[p].door[0])&&!['白虎','玄武','螣蛇'].includes(by[p].god));if(best.length)L.push([`拜訪客戶或約談地點，宜選在${[...new Set(best)].map(p=>h.pl(p)).join('、')}方向`,1]);else L.push(['此時盤上沒有理想的洽談方位，重要會談建議改挑時辰（見奇門智能選局）',0]);
   const bad=[1,8,3,4,9,2,7,6].filter(p=>by[p]&&!best.includes(p)&&(by[p].god==='白虎'||sh(p).length>=2));if(bad.length)L.push([`避免在${bad.map(p=>h.pl(p)).join('、')}方向談重要的事`,0]);
   if(h.kong(k)||h.kong(m)||h.kong(o))L.push(['有空亡：先不要急著逼單，等出旬（約十天後）再跟進成交',0]);
   if(h.c.fuFan.門伏吟)L.push(['八門伏吟：進度慢、原地踏步，宜維持關係、耐心等待',0]);if(h.c.fuFan.門反吟)L.push(['八門反吟：客戶容易反悔或改條件，合約要盡快落實',-1]);
-  L.push(['可用「佈局」的業務績效佈局調理自身運勢，或用「擇吉日吉時佈局」挑選拜訪、簽約的好時辰',0]);
+  L.push(['可用「佈局」的業務績效佈局調理自身運勢，或用「奇門智能選局」挑選拜訪、簽約的好時辰',0]);
   return {Y,L}}},
 戀愛發展:{d:'日干為自己；男問看乙奇、女問看庚為對方；六合為這段感情本身；男問以丁、女問以丙為第三者',f(h){
   const male=(typeof S!=='undefined'&&S.qi&&S.qi.ask==='女')?false:true,a=h.tP(h.c.YC.dE),b=h.tP(male?'乙':'庚'),m=h.godP('六合'),t=h.tP(male?'丁':'丙'),L=[];
@@ -1445,7 +1462,7 @@ function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}e
         return `<div class="msum"><p><b>催${G.w==='財'?'財':G.w==='官'?'官':'婚姻桃花'}目標宮（講義）</b>　${G.w==='財'?'催財找戊、正財、偏財、生門':G.w==='官'?'催官找值符':'催婚姻桃花找日干的天干合干'}的宮位來生用神宮；兩宮都要沒有四害，時間走到目標宮或用神宮的地支就會應驗。</p><ul>${rows}</ul>${rows.includes('✓')?'':'<p class="ds">目前目標宮還沒生到用神宮或有四害，可按上方「在盤上檢視」試其他轉宮，或用移星換斗讓目標宮轉到能生用神的位置。</p>'}</div>`})()}
       ${(()=>{const fp=b.fp,fe=PEL5[fp];if(!fe)return '';const cand=[1,8,3,4,9,2,7,6].filter(p=>p!==fp&&SHE[PEL5[p]]===fe&&no4(rc,p));if(!cand.length)return `<p class="ds">講義：移星換斗要同時佈「用神宮」與「生用神的宮位」，目前沒有無四害又能生用神宮（${fe}）的宮位，先佈用神宮即可。</p>`;
         const dq=p=>{const y=rc.pals.find(q=>q.p===p);return ('開休生'.includes(y.door[0])?3:0)+(['值符','太陰','六合','九地','九天'].includes(y.god)?1:0)+(y.qi?1:0)};const tp=cand.sort((a,b2)=>dq(b2)-dq(a))[0],tx=rc.pals.find(q=>q.p===tp);return `<div class="msum"><p><b>雙宮佈局（講義）</b>　用神宮${rc.pals.find(q=>q.p===fp).gua}宮（${fe}）＋生用神宮<b>${tx.gua}宮（${tx.dir}方，${PEL5[tp]}生${fe}）</b>同時佈局。</p><p class="ds">吉祥物採「複方」：一件物品同時帶有宮內天干、八門、九星的象意。${tx.gua}宮可取：天盤${tx.t}、${tx.door}、${tx.star.replace(/（.*$/,'')}星，例如${[...tx.t].map(g=>LYSTUFF[g]).filter(Boolean)[0]||'吉祥物'}。</p></div>`})()}
-      ${G.w==='財'&&!G.life?caiBox(rc):''}${G.life&&G.w==='財'?lifeBox(rc):''}${G.hehe?heheNotes(rc):''}
+      ${G.w==='財'&&!G.life?caiBox(rc):''}${G.life&&G.w==='財'?lifeBox(rc):''}${G.hehe?heheNotes(rc):''}${/婚姻|桃花|感情/.test(G.w)&&!G.cut?zqPeach():''}
       ${G.house?`<div class="msum"><p><b>房屋符號判讀</b></p><ul>${houseNotes(rc).map(t=>`<li>${t}</li>`).join('')}</ul></div>`:''}
       ${r.times.length?`<p class="ds">建議佈局時間（日干宮得吉門、無四害）：${r.times.join(' 或 ')}</p>`:''}
       <details class="more"><summary>佈局須知（講義）</summary><ul>
@@ -1465,7 +1482,7 @@ function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}e
         <li>到客戶家先喝一杯水、離開前上廁所（納壬去癸）；離開時向月干方位丟銅板，帶走穢氣。</li></ul></details>
       <p class="empty">佈局評分與物品建議為本程式依傳統用神取法自行整理，僅供參考。</p>`}}
   el.innerHTML=`<h2>佈局</h2><div class="tp" role="group" aria-label="佈局事項">${goals.map(g=>`<button data-bu="${g}" aria-pressed="${g===S.bu}">${g==='撤局'?'撤局':g.endsWith('調理')||g.startsWith('終身')?g:g+'佈局'}</button>`).join('')}</div>${out}`}
-// ===== 擇吉日吉時佈局：年、月、日、時、刻盤逐一檢查，挑無凶格、無四害的時間 =====
+// ===== 奇門智能選局：年、月、日、時、刻盤逐一檢查，挑無凶格、無四害的時間 =====
 const ZJG=['催財','業務績效','催官','文昌','考試','桃花','感情和合','結婚','官司','催丁','身體健康','討債','賣房','買房','租屋','賣車','小孩聽話','找好員工'];
 S.zj=S.zj||{goal:'催財',days:60,day:true,res:null,busy:false};
 function goalPals(c,y){const out=[];for(const k of y){let p=null;if(k.endsWith('門'))p=(c.pals.find(x=>x.door===k)||{}).p;else if(k.startsWith('天'))p=(c.pals.find(x=>x.star.includes(k.slice(1)))||{}).p;else if(k==='時干')p=QM.palOfT(c,c.YC.P[3][0]);else if(k.length===2)p=(c.pals.find(x=>x.god===k)||{}).p;else p=QM.palOfT(c,k);if(p)out.push([k,p])}return out}
@@ -1535,7 +1552,137 @@ function renderRD(){const el=$('#rdoor');if(!el)return;const md=S.mode==='yin'?'
   if(RD.door&&(!RD.res||RD.res.door!==RD.door||RD.res.md!==md))RD.res={door:RD.door,md,rows:rdCalc(RD.door,md)};
   const R=RD.door?RD.res.rows:[],WK='日一二三四五六';
   el.innerHTML=`<h3 class="mh">指定吉門找日子</h3><div class="tp" role="group" aria-label="指定吉門">${JDOORS.map(d=>`<button data-rdd="${d}" aria-pressed="${RD.door===d}">${d}</button>`).join('')}</div>
-    ${!RD.door?'<p class="ds">按一個門，找出未來 60 天日盤中，這個門所在的方位沒有四害、可以使用的日子。</p>':R.length?`<p class="ds">${RD.door}可用的日子（${md==='yin'?'無四害、不臨白虎玄武螣蛇':'符合陽盤最吉方條件'}）：</p><ol class="lvl">${R.map(r=>`<li><b>${r.d.getMonth()+1}/${r.d.getDate()}（週${WK[r.d.getDay()]}，${r.gz}日）</b>　${r.x.dir}方（${r.x.gua}宮）・${r.x.god}・天盤${r.x.t}${r.q?'・得奇':''}${md==='yin'?`　<button class="lk" data-rdgo="${r.d.getTime()}">看盤</button>`:''}</li>`).join('')}</ol>`:`<p class="empty">未來 60 天${RD.door}都沒有理想的日子。</p>`}`}
+    ${!RD.door?'<p class="ds">按一個門，找出未來 60 天日盤中，這個門所在的方位沒有四害、可以使用的日子。</p>':R.length?`<p class="ds">${RD.door}可用的日子（${md==='yin'?'無四害、不臨白虎玄武螣蛇':'符合陽盤最吉方條件'}）：</p><ol class="lvl">${R.map(r=>`<li><b>${r.d.getMonth()+1}/${r.d.getDate()}（週${WK[r.d.getDay()]}，${r.gz}日）</b>　${r.x.dir}方（${r.x.gua}宮）・${r.x.god}・天盤${r.x.t}${r.q?'・得奇':''}${md==='yin'?`　<button class="lk" data-rdgo="${r.d.getTime()}">看盤</button>`:''}</li>`).join('')}</ol>`:`<p class="empty">未來 60 天${RD.door}都沒有理想的日子。</p>`}<div id="cxp">${cxHtml()}</div>`}
+// ===== 九宮奇門（子奇老師講義節錄）：鎖單宮評分、生活領域、房份、手機造宮、出行訣、桃花法 =====
+const ZQ={god:{值符:[20,'首領主管、貴人靠山、掌權者'],太陰:[20,'女性貴人、暗中相助、細緻縝密'],六合:[20,'人緣好、合作合夥、婚戀、仲介契約'],九天:[20,'志向高遠、主動出擊、升遷、遠方'],白虎:[-1,'大災禍、凶猛強硬、疾病開刀、意外、官非、攔路阻礙'],螣蛇:[0,'虛詐反覆、三心二意、疑神疑鬼、糾纏拖拉、怪夢'],玄武:[0,'小人、偷盜受騙、迷糊曖昧、玄學神秘'],九地:[0,'保守固執、低調緩慢、停滯、壓抑']},
+ star:{輔:[20,'文昌、老師教學、文化教育、輔佐'],心:[20,'領導核心、策劃管理、醫藥、心胸寬'],任:[20,'勤奮厚道、重責任、土地財產，易固執辛勞'],蓬:[-1,'冒險投機、膽大妄為、貪婪、破財'],芮:[-1,'病星、潛在缺陷、隱藏問題、學生'],沖:[0,'行動快、雷厲風行，易衝動起衝突'],柱:[0,'口才好、破壞力、叛逆唱反調、是非'],英:[0,'外型亮麗、熱情才華、桃花，性急重虛名'],禽:[0,'中正端莊、包容沉穩']},
+ door:{開:[40,'開創發展、通達、創業開公司、工作升官'],休:[40,'休閒和睦、調解、最利婚戀與家庭、見貴人'],生:[40,'生生不息、最利經商求財、置產買房'],死:[-1,'此路不通、受困、死氣沉沉（除弔喪外不宜）'],傷:[0,'追捕討債、競技；主血光、車禍、衝突'],杜:[0,'關閉阻隔、潛伏、專業技術、研發'],景:[0,'文書合約、名聲、宴會；亦主血光、火災、虛幻'],驚:[0,'心神不寧、爭辯演說，易招口舌官非']},
+ gan:{乙:[10,'機會轉機、希望、柔順、妻子'],丙:[10,'光明熱情、資訊通訊、網路、男性情人'],丁:[10,'奇蹟轉機、黑暗明燈、精緻技術、女性情人'],戊:[10,'資金資產、大筆金錢、土地建物'],庚:[-1,'銅牆鐵壁、難以克服的障礙、小人、丈夫'],己:[0,'陷阱私慾、謀略、坑洞、拐彎抹角'],辛:[0,'犯錯過失、改革求變、刀刃、珠寶金屬'],壬:[0,'流動漂泊、迷走困陷、大水阻隔'],癸:[0,'天羅地網、暗中束縛、難以抽身、私密之事']}};
+const ZQL={4:'文昌學業、桃花感情、神經睡眠、財帛利市',9:'名聲名氣、功名學歷（離主分離，不利感情）',2:'婚姻家庭、房產土地、腸胃與婦科',3:'事業開創、奮起動力、肢體衝突與車禍',7:'交際社交、口舌官司、聲音口才、財運利潤',8:'財富累積、不動產置產、生育子嗣',1:'障礙阻撓、危機小人、生殖泌尿、深陷情網',6:'大型財富、資金貸款、官貴升遷、主管領導'};
+const ZQF={6:'父親',2:'母親',3:'長男（獨子）',1:'中男',8:'三男',4:'長女（獨女）',9:'中女',7:'三女'};
+function zqScore(c,x){const veto=[],pts=[],sk=x.star.replace(/[天（）]/g,'')[0];
+  const add=(lab,v)=>{if(v[0]<0)veto.push(lab);else if(v[0]>0)pts.push([lab,v[0]])};
+  if(ZQ.god[x.god])add(x.god,ZQ.god[x.god]);if(ZQ.star[sk])add('天'+sk+'星',ZQ.star[sk]);if(ZQ.door[x.door[0]])add(x.door,ZQ.door[x.door[0]]);
+  [...x.t].forEach(g=>ZQ.gan[g]&&add('天盤'+g,ZQ.gan[g]));[...x.d].forEach(g=>ZQ.gan[g]&&add('地盤'+g,ZQ.gan[g]));
+  if(c.kongP.includes(x.p))veto.push('空亡');const tot=pts.reduce((a,[,v])=>a+v,0);return {veto,pts,tot,ok:!veto.length&&tot>=60,sk}}
+function zqBox(c,x,open){const r=zqScore(c,x),sk=r.sk;
+  const lines=[[x.god,ZQ.god[x.god]],['天'+sk+'星',ZQ.star[sk]],[x.door,ZQ.door[x.door[0]]],...[...x.t].map(g=>['天盤'+g+'（外象）',ZQ.gan[g]]),...[...x.d].map(g=>['地盤'+g+'（本質）',ZQ.gan[g]])].filter(([,v])=>v);
+  const verdict=r.veto.length?`<span class="j-1">見${r.veto.join('、')}：直接否定，事情不成，勿進行</span>`:r.ok?`<span class="j1">${r.tot} 分（≧60）：主吉，成功機率高</span>`:`<span class="j-1">${r.tot} 分（未滿 60）：不及格，難以成事</span>`;
+  return `<details class="more" ${open?'open':''}><summary>九宮奇門鎖單宮評分：${r.veto.length?'否定':r.tot+' 分'}</summary><p class="row">${verdict}</p>
+    ${r.pts.length?`<p class="ds">加分：${r.pts.map(([k,v])=>`${k} +${v}`).join('、')}</p>`:''}
+    <ul class="mlist">${lines.map(([k,v])=>`<li class="${v[0]>0?'j1':v[0]<0?'j-1':''}"><b>${k}</b>：${v[1]}</li>`).join('')}${(x.t.length>1||x.d.length>1)?'<li><b>寄干</b>：牽涉多人多事、合夥合資、關係複雜</li>':''}</ul>
+    <p class="row"><b>生活面向</b>　${x.gua}宮：${ZQL[x.p]}；<b>房份</b>　${ZQF[x.p]}</p>
+    <p class="empty">依子奇老師九宮奇門：吉神吉星 +20、三吉門 +40、乙丙丁戊各 +10；見白虎、天蓬、天芮、死門、庚、空亡直接否定。原法用陽盤（置閏、轉盤）。</p></details>`}
+// 手機號碼造宮
+const PH={pal:{1:1,2:2,3:3,4:4,5:2,6:6,7:7,8:8,9:9},god:{1:'值符',2:'螣蛇',3:'太陰',4:'六合',5:'白虎',6:'玄武',7:'九地',8:'九天',9:'值符'},star:{1:'蓬',2:'芮',3:'沖',4:'輔',5:'禽',6:'心',7:'柱',8:'任',9:'英'},door:{1:'休',2:'死',3:'傷',4:'杜',5:'死',6:'開',7:'驚',8:'生',9:'景'},gan:{1:'戊',2:'乙',3:'丙',4:'丁',5:'戊',6:'己',7:'庚',8:'辛',9:'壬',0:'癸'}};
+const PGUA={1:'坎',2:'坤',3:'震',4:'巽',6:'乾',7:'兌',8:'艮',9:'離'};
+function phoneRead(num){const d=(num||'').replace(/\D/g,'');if(d.length<6)return '<p class="empty">請輸入至少 6 碼的號碼。</p>';const s=d.slice(-6).split('').map(Number);
+  const [a,b,c2,e,f,g]=s,o=[],veto=[],pts=[];const sc=(lab,v)=>{if(!v)return;if(v[0]<0)veto.push(lab);else if(v[0]>0)pts.push([lab,v[0]])};
+  if(a===0){o.push(['宮位 0','宮位空亡：缺乏資源舞台、懷才不遇、付出多回收少',-1]);veto.push('宮空亡')}else{const p=PH.pal[a];o.push([`宮位 ${a}`,`${PGUA[p]}宮${a===5?'（5 寄坤）':''}：${ZQL[p]}`,0])}
+  if(b===0){o.push(['八神 0','神空亡：缺乏主見、沒有貴人靠山、白手起家、直覺靈感強',-1])}else{const n=PH.god[b];o.push([`八神 ${b}`,`${n}：${ZQ.god[n][1]}`,ZQ.god[n][0]]);sc(n,ZQ.god[n])}
+  if(c2===0){o.push(['九星 0','星空亡：性格搖擺、缺乏大格局與方向',-1])}else{const n=PH.star[c2];o.push([`九星 ${c2}`,`天${n}星：${ZQ.star[n][1]}`,ZQ.star[n][0]]);sc('天'+n+'星',ZQ.star[n])}
+  if(e===0){o.push(['八門 0','門空亡：行動消極、缺乏門路、多勞少獲',-1])}else{const n=PH.door[e];o.push([`八門 ${e}`,`${n}門${e===5?'（5 寄死門）':''}：${ZQ.door[n][1]}`,ZQ.door[n][0]]);sc(n+'門',ZQ.door[n])}
+  const t=PH.gan[f],dd=PH.gan[g];o.push([`天盤 ${f}`,`${t}（外在行為表現）：${ZQ.gan[t][1]}`,ZQ.gan[t][0]]);sc('天盤'+t,ZQ.gan[t]);o.push([`地盤 ${g}`,`${dd}（內心本質）：${ZQ.gan[dd][1]}`,ZQ.gan[dd][0]]);sc('地盤'+dd,ZQ.gan[dd]);
+  const tot=pts.reduce((x,[,v])=>x+v,0);
+  return `<p class="ds">末 6 碼 <b>${s.join('')}</b> 依序對應：宮位、八神、九星、八門、天盤干、地盤干。</p><ul class="mlist">${o.map(([k,v,j])=>`<li class="${j>0?'j1':j<0?'j-1':''}"><b>${k}</b>　${v}</li>`).join('')}</ul>
+    <p class="sum ${veto.length||tot<60?'j-1':'j1'}">${veto.length?`見${veto.join('、')}：此號碼運勢受阻`:tot>=60?`${tot} 分：號碼能量佳`:`${tot} 分：能量普通（未滿 60）`}</p><p class="empty">數字 1–9 對應表與 0 的空亡解讀，依子奇老師九宮奇門手機號碼造宮法。</p>`}
+// 出行訣（時家陽盤）：三吉門合格宮位
+const CX={休:{ok:[3,4,7,6],bad:{3:'戊',4:'壬癸'},use:'婚戀約會、見貴人、化解紛爭、請託長官',why:'坎（門伏吟）、坤艮（門制）、離（門迫）不用'},
+ 生:{ok:[6,7,9],bad:{9:'辛'},use:'業務拜訪、銷售、商業談判、簽約交易、求財',why:'艮（門伏吟）、坎（門迫）、震巽（門制）不用'},
+ 開:{ok:[1,7,2,8],bad:{2:'己',8:'庚'},use:'求職面試、創業開店、考公職、工作升遷',why:'乾（門伏吟）、震巽（門迫）、離（門制）不用'},
+ 景:{ok:[3,4,2,8],bad:{},use:'考試答辯、文昌學業、廣告宣傳、展示名聲（小吉門）',why:'離（門伏吟）、乾兌（門迫）、坎（門制、門反吟）不用（依門宮生剋推定）'}};
+const CXS={door:'休',dir:0,mode:'選吉時',t:null,dest:7};
+function cxChk(c,x,door,h){const R=CX[door],w=[];if(!R.ok.includes(x.p))w.push('宮位不合格');const bs=R.bad[x.p];if(bs&&[...(x.t+x.d)].some(g=>bs.includes(g)))w.push('擊刑');
+  if([...(x.t+x.d)].some(g=>XGP[g]===x.p)&&!w.includes('擊刑'))w.push('擊刑');if(x.god==='白虎')w.push('白虎');if(c.kongP.includes(x.p))w.push('空亡');if(c.wbu)w.push('五不遇時');if(h===23||h===0)w.push('子時');return w}
+function cxCalc(door,dir,days,day){const out=[],t0=new Date();t0.setMinutes(0,0,0);
+  for(let i=0;i<days*12&&out.length<10;i++){const t=new Date(t0.getTime()+i*2*3600000),h=t.getHours();if(h===23||h===0)continue;if(day&&(h<7||h>=21))continue;const hb=Math.floor((h+1)/2)%12;
+    const c=QM.chart(t.getFullYear(),t.getMonth()+1,t.getDate(),hb,'yang');if(!c)continue;const x=c.pals.find(q=>q.door===door+'門');if(!x)continue;if(dir&&x.p!==dir)continue;if(cxChk(c,x,door,h).length)continue;
+    const mid=new Date(t);mid.setHours(hb*2,0,0,0);const dc=QM.plate('日',t.getFullYear(),t.getMonth()+1,t.getDate(),12,0,null,'yang'),dx=dc&&dc.pals.find(q=>q.door===door+'門');
+    out.push({t:mid,hb,x,c,same:dx&&dx.p===x.p&&!cxChk(dc,dx,door,12).filter(k=>k!=='子時').length})}
+  return out}
+function cxAt(t){let d=new Date(t),h=d.getHours();const hb=Math.floor((h+1)/2)%12;if(h===23)d.setDate(d.getDate()+1);return {c:QM.chart(d.getFullYear(),d.getMonth()+1,d.getDate(),hb,'yang'),hb,h,d}}
+function cxHtml(){const R=CX[CXS.door],WK='日一二三四五六',fmtT=t=>`${t.getMonth()+1}/${t.getDate()}（週${WK[t.getDay()]}）`;
+  const tv=CXS.t||(()=>{const n=new Date();n.setMinutes(0,0,0);n.setHours(n.getHours()+1);return n})(),tvs=`${tv.getFullYear()}-${pad(tv.getMonth()+1)}-${pad(tv.getDate())}T${pad(tv.getHours())}:${pad(tv.getMinutes())}`;
+  let body='';
+  if(CXS.mode==='選吉時'){const L=cxCalc(CXS.door,CXS.dir,CXS.dir?7:3);
+    body=`<p class="ds"><b>情境一：地點已定，選吉時。</b>先用地圖確認目的地在出發地的哪個方位（45 度範圍內），再找那個方位出現${CXS.door}門的吉時。</p>
+     <label class="ds">目的地方位：<select id="cxDir"><option value="0">不限</option>${R.ok.map(p=>`<option value="${p}" ${CXS.dir===p?'selected':''}>${QM.DIR[p]}方（${PGUA[p]}宮）</option>`).join('')}</select></label>
+     ${L.length?`<ol class="lvl">${L.map(r=>`<li><b>${fmtT(r.t)}${r.c.hourGZ}時 ${hrTxt(r.hb)}</b>　往<b>${r.x.dir}方</b>・${r.x.god}・${r.x.star}・天盤${r.x.t}${r.same?'　<span class="j1">★ 日盤同方位吉，力量加倍</span>':''}<br><small>時辰內出發即可（正點 ${pad(r.hb*2)}:00 最佳），會議超過時辰也無妨</small></li>`).join('')}</ol>`:`<p class="empty">${CXS.dir?'未來 7 天':'未來 3 天'}沒有合格的時辰。</p>`}`}
+  else if(CXS.mode==='選方位'){const {c,hb,h}=cxAt(tv);
+    body=`<p class="ds"><b>情境二：時間已定，選方位。</b>輸入約定的時間，看這個時辰各吉門落在哪個方位，再在該方向挑地點（車程或步程 15–30 分鐘）。</p>
+     <label class="ds">約定時間：<input type="datetime-local" id="cxT" value="${tvs}"></label>
+     ${c?`<p class="ds">${c.hourGZ}時（${hrTxt(hb)}）${c.wbu?'<span class="j-1">：五不遇時，整個時辰不宜出行</span>':''}</p><ul class="mlist">${Object.keys(CX).map(k=>{const x=c.pals.find(q=>q.door===k+'門');if(!x)return '';const w=cxChk(c,x,k,h);
+       return `<li class="${w.length?'j-1':'j1'}"><b>${k}門</b>（${CX[k].use.split('、')[0]}等）：${x.dir}方（${x.gua}宮）・${x.god}・天盤${x.t}　${w.length?'✗ '+w.join('、'):'✓ 可往此方向挑地點'}</li>`}).join('')}</ul>`:'<p class="empty">此時間超出可排盤範圍。</p>'}`}
+  else if(CXS.mode==='死盤變活盤'){const {c,hb,h,d}=cxAt(tv),dest=CXS.dest;
+    let adv='';if(c){const xs=Object.keys(CX).map(k=>{const x=c.pals.find(q=>q.door===k+'門');return x&&!cxChk(c,x,k,h).length?{k,x}:null}).filter(Boolean),me=xs.find(o=>o.k===CXS.door)||xs[0],hit=xs.find(o=>o.x.p===dest);
+      if(hit)adv=`<p class="j1">目的地（${QM.DIR[dest]}方）在這個時辰剛好是${hit.k}門吉方，直接吉時出發即可。</p>`;
+      else if(me){const op=OPPP[me.x.p];adv=`<p class="j-1">目的地（${QM.DIR[dest]}方）在這個時辰不是吉方。</p><ul class="mlist"><li><b>時盤做法</b>：提前 30–60 分鐘出發，先到<b>會場的${QM.DIR[op]}方</b>找咖啡廳停留 15–30 分鐘（建立新出發點），${c.hourGZ}時一到，再往<b>${me.x.dir}方</b>（${me.k}門）前進會場。</li>`;
+        const dc=QM.plate('日',d.getFullYear(),d.getMonth()+1,d.getDate(),12,0,null,'yang'),dx=dc&&Object.keys(CX).map(k=>{const x=dc.pals.find(q=>q.door===k+'門');return x&&!cxChk(dc,x,k,12).filter(z=>z!=='子時').length?{k,x}:null}).filter(Boolean)[0];
+        adv+=dx?`<li><b>日盤做法（整天的考試或會議）</b>：前一晚住在<b>會場${QM.DIR[OPPP[dx.x.p]]}方</b>的飯店（停留 6 小時以上），隔天由飯店往<b>${dx.x.dir}方</b>（日盤${dx.k}門）前往會場，凶方就轉成吉方。</li></ul>`:'<li>當天日盤沒有合格的吉門方位，可只用時盤做法。</li></ul>'}
+      else adv='<p class="j-1">這個時辰沒有合格的吉門方位，建議改時間，或往前後一個時辰找。</p>'}
+    body=`<p class="ds"><b>情境三：時間、地點都被定死，且目的地在凶方。</b>人是活的：先移到別處建立新的太極點，再從吉方進場。</p>
+     <label class="ds">開始時間：<input type="datetime-local" id="cxT" value="${tvs}"></label> <label class="ds">目的地在出發地的：<select id="cxDest">${[1,8,3,4,9,2,7,6].map(p=>`<option value="${p}" ${dest===p?'selected':''}>${QM.DIR[p]}方</option>`).join('')}</select></label>${c?`<p class="ds">${c.hourGZ}時（${hrTxt(hb)}）</p>`+adv:'<p class="empty">此時間超出可排盤範圍。</p>'}`}
+  else{const L=cxCalc(CXS.door,0,2,true);
+    body=`<p class="ds"><b>日常增運</b>：沒有特定任務時，每天在吉時往吉方散步或慢跑 15–30 分鐘補氣。連續一個月走同一種門：感情走休門、財運走生門、工作走開門、考試走景門。</p>
+     ${L.length?`<ol class="lvl">${L.map(r=>`<li><b>${fmtT(r.t)}${r.c.hourGZ}時 ${hrTxt(r.hb)}</b>　往${r.x.dir}方</li>`).join('')}</ol>`:'<p class="empty">今明兩天白天沒有合格的時辰。</p>'}
+     <p class="ds"><b>喝水納吉炁（懶人法）</b>：下雨或不便出門時，吉時在家中或辦公室吉方的桌上放一杯開水（杯口打開），靜置 30 分鐘後喝下。</p>`}
+  return `<h3 class="mh">奇門出行訣</h3>
+   <div class="tp" role="group" aria-label="出行吉門">${Object.keys(CX).map(k=>`<button data-cxd="${k}" aria-pressed="${CXS.door===k}" title="${CX[k].use}">${k}門</button>`).join('')}</div>
+   <p class="ds"><b>${CXS.door}門</b>：${R.use}。合格宮位：${R.ok.map(p=>QM.DIR[p]+'方').join('、')}；${R.why}${Object.keys(R.bad).length?'；'+Object.entries(R.bad).map(([p,g])=>`${PGUA[p]}宮忌見${g}`).join('、'):''}。宮內不可見白虎、空亡，避開五不遇時。</p>
+   <div class="tp" role="group" aria-label="情境">${['選吉時','選方位','死盤變活盤','日常增運'].map(k=>`<button data-cxm="${k}" aria-pressed="${CXS.mode===k}">${k}</button>`).join('')}</div>${body}
+   <details class="more"><summary>行進要點與四盤分工</summary><ul class="mlist">
+    <li><b>方向要準</b>：目的地要穩定落在出發地的 45 度扇形內，路線不要先繞到別的方位再折回。</li>
+    <li><b>時間要夠</b>：吉時出發後持續行走或行車 15–30 分鐘以上，越久越飽滿；目的地太近（幾分鐘就到）效果不足。出發時間與正式開始都在吉時內即可。</li>
+    <li><b>時盤</b>：2–4 小時內的事（面試、拜訪、簽約、約會、祈福），也可每天散步納氣。</li>
+    <li><b>日盤</b>：整天的會議、考試、比賽、發表會；整天有效、容錯率高，吉日與吉時指向同一方位力量倍增。</li>
+    <li><b>月盤</b>：出差數日、外派；新年初可依月盤吉方全家去該方位度假數天（求財找生門、感情求子找休門）。</li>
+    <li><b>年盤</b>：留學、移民、海外置產、設廠開公司等長遠計畫。</li></ul></details>`}
+// 桃花法（休門）
+function zqPeach(){const L=cxCalc('休',0,7).slice(0,6);
+  return `<div class="msum"><p><b>九宮奇門催桃花法（休門）</b></p>
+   <p class="ds">休門只取震、巽、兌、乾四宮；震宮忌見戊，巽宮忌見壬、癸；不可有白虎、空亡；避開五不遇時與子時。以下為未來 7 天合格的時辰：</p>
+   ${L.length?`<ol>${L.map(r=>`<li>${r.t.getMonth()+1}/${r.t.getDate()} ${r.c.hourGZ}時（${String(r.hb*2).padStart(2,'0')}:00 正點施作）→ ${r.x.dir}方</li>`).join('')}</ol>`:'<p class="empty">未來 7 天沒有合格時辰。</p>'}
+   <p class="ds"><b>物品</b>：新鮮盛開的花（不用乾燥花、假花）、本人與心儀對象合照或理想伴侶圖、一對天鵝（不用鴛鴦）、粉晶球或粉晶七星陣。</p>
+   <p class="ds"><b>做法</b>：在客廳或臥室中心點用羅盤找出休門方位的 45 度範圍，物品放在離中心最遠、靠牆的櫃子或茶几上（膝蓋以上，不放地上）；時辰中間正點擺放，點一炷香在物品上方順時針繞「∞」三圈，默誦六字大明咒「嗡嘛呢唄咪吽」九遍並許願，通常三個月內有感應。</p></div>`}
+// ===== 居家開運（六次元改運：調座位、擺物品、拆東西）=====
+const XGP={戊:3,己:2,庚:8,辛:9,壬:4,癸:4};
+function jjBase(c,x){return x.god!=='白虎'&&!c.kongP.includes(x.p)&&![...(x.t+x.d)].some(g=>XGP[g]===x.p)}
+function jjFind(pred,days,max){const out=[],t0=new Date();t0.setMinutes(0,0,0);
+  for(let i=0;i<days*12&&out.length<(max||8);i++){const t=new Date(t0.getTime()+i*2*3600000),h=t.getHours();if(h===23||h===0)continue;const hb=Math.floor((h+1)/2)%12;
+    const c=QM.chart(t.getFullYear(),t.getMonth()+1,t.getDate(),hb,'yang');if(!c||c.wbu)continue;const x=c.pals.find(q=>pred(c,q)&&jjBase(c,q));if(!x)continue;
+    const m=new Date(t);m.setHours(hb*2,0,0,0);if(out.length&&out[out.length-1].t.getTime()===m.getTime())continue;out.push({t:m,hb,c,x})}
+  return out}
+const WKJ='日一二三四五六';
+const jjList=(L,extra)=>L.length?`<ol class="lvl">${L.map(r=>`<li><b>${r.t.getMonth()+1}/${r.t.getDate()}（週${WKJ[r.t.getDay()]}）${r.c.hourGZ}時 ${hrTxt(r.hb)}</b>　${r.x.dir}方（${r.x.gua}宮）・${r.x.door}・${r.x.god}・${r.x.star}・天盤${r.x.t}${extra?extra(r):''}</li>`).join('')}</ol>`:'<p class="empty">這段期間沒有符合條件的時辰。</p>';
+const SEAT={床位:{door:'休門',use:'感情和睦、精神好',r:['男睡左（龍邊）、女睡右（虎邊）；龍邊靠實牆，門開在床的右前方（龍過堂）','床頭要有實牆靠，不靠窗（封窗或加厚窗簾）、不背門，後方不是走道或樓梯','床頭不背靠廁所或廚房','橫樑不壓床（移床、天花板包覆或加床頭櫃避開）','廁所門、壁刀不沖床（移位或加屏風）','鏡子不正照或側照床；床頭上方不裝冷氣；臥室不擺電視音響']},
+ 書桌:{door:'景門',use:'學業考試、思考專注',r:['左邊（龍邊）靠高櫃實牆，左強右弱，門在右前方（龍過堂）','背後有實牆靠山（得貴人提拔）','前方留開闊明堂，不直接面壁','不門沖、不背門、上方無樑柱（可加書櫃拉開距離）、不背對或朝向廚廁']},
+ 辦公桌:{door:'開門',use:'事業升遷、得力服眾',r:['員工選「龍長虎短」（左側空間多於右側）的位置','主管、老闆要「後有靠、左有靠、龍過堂」','明堂開闊；電腦桌布放綠意盎然的美景，不放蕭瑟枯樹','桌上放發財樹或開運竹，不放仙人掌等帶刺植物','座位壓樑可擺白水晶柱或黃水晶柱化解']},
+ 收銀台:{door:'生門',use:'招財聚寶、防止漏財',r:['設在進門斜對角的聚氣財位，形成龍長虎短與龍過堂','背後必須靠實牆','不正對大門（門沖散氣、財庫外露）','高度約 110–120 公分','不正對鏡子、四周不堆雜物、上方無橫樑']}};
+const jjGood=x=>!/[蓬芮]/.test(x.star)&&!x.t.includes('庚');
+const JU4={感情和合:{need:'休門＋六合（巽宮最佳）',pred:(c,x)=>x.door==='休門'&&x.god==='六合'&&jjGood(x),item:'一對天鵝飾品＋粉紅色水晶球，擺在臥室財位（通常三個月內見效）'},
+ 學習考試:{need:'景門或開門＋值符或九天',pred:(c,x)=>(x.door==='景門'||x.door==='開門')&&(x.god==='值符'||x.god==='九天')&&jjGood(x),item:'紅紙吉祥字畫＋龍造型飾品放高處＋文昌筆、文昌塔或開運竹'},
+ 事業官祿:{need:'開門＋值符或九天（逢馬星更好）',pred:(c,x)=>x.door==='開門'&&(x.god==='值符'||x.god==='九天')&&jjGood(x),item:'龍造型飾品（權貴威望）；逢馬星可再加一匹馬飾品',ex:r=>r.c.horseP===r.x.p?'・<b>逢馬星</b>':''},
+ 天星催財:{need:'生門落離、兌、乾宮，且九星得地（離：天英、天沖、天輔；兌、乾：天柱、天心、天芮、天任）',pred:(c,x)=>x.door==='生門'&&!x.t.includes('庚')&&({9:'英沖輔',7:'柱心芮任',6:'柱心芮任'}[x.p]||'').includes(x.star.replace(/[天（）禽]/g,'')[0]||'禽'),item:'依財星五行顏色的水晶球，放在裝滿五色碎水晶（紫黃白黑綠）與錢幣元寶的聚寶盆內',ex:r=>{const e=STEL[r.x.star.replace(/[天（）]/g,'')[0]];return `・水晶球選<b>${LYCOL[e]}色</b>`}}};
+const NOPUT={1:'廚房調料、浴室用品、醫療器材、遺照遺物、玩偶、人物雕像、繩索刀劍',2:'金銀珠寶貴重物、水茶油、電線圈、垃圾髒亂、破損剪刀、內衣、口罩、書報',3:'古董舊物、陶瓷碗盤、音響電視、樂器、發聲物、錢包、時鐘、球類',4:'貴重金屬、刀具、水晶、飲水機、洗衣機、水的圖畫、茶酒、音響電視、時鐘',6:'木雕葫蘆、爐灶、紅色物品、古董舊物、手機電腦電器、魚缸飲水機、廁所',7:'手機電腦電視、照片證件、爐灶火爐、紅色物品',8:'刀劍燈具、手機首飾、花朵、電線圈、垃圾髒亂、大型金屬與健身器材、內衣書報',9:'貴重金屬刀具、水與液體、鐘錶馬達風扇、休憩床椅等鬆軟物'};
+function chuDays(n){const out=[],t=new Date();t.setHours(12,0,0,0);for(let i=0;i<90&&out.length<n;i++){const d=new Date(t.getTime()+i*86400000),q=QM.pillars(d.getFullYear(),d.getMonth()+1,d.getDate(),12,0);if(((q.di%12)-(q.mi%12)+12)%12===1)out.push(d)}return out}
+const JJ={tab:'調座位',seat:'床位',ju:'感情和合'};
+function renderJJ(){const el=$('#jjp');if(!el)return;let body='';
+  if(JJ.tab==='調座位'){const S1=SEAT[JJ.seat],dn=S1.door;
+    body=`<div class="tp" role="group">${Object.keys(SEAT).map(k=>`<button data-jjs="${k}" aria-pressed="${JJ.seat===k}">${k}</button>`).join('')}</div>
+     <p class="ds"><b>${JJ.seat}</b>選<b>${dn}</b>方位（${S1.use}）。在空間中心點用羅盤量方位（每宮 45 度），找出以下時辰${dn}所在的方位，在該時辰安放或調整。</p>
+     ${jjList(jjFind((c,x)=>x.door===dn,7,8))}<h3 class="mh">形家擺設要點</h3><ul class="mlist">${S1.r.map(t=>`<li>${t}</li>`).join('')}</ul>
+     <p class="empty">條件：時家陽盤（置閏轉盤），門所在宮位不見白虎、空亡、六儀擊刑，非五不遇時，避開子時。</p>`}
+  else if(JJ.tab==='擺物品'){const J=JU4[JJ.ju];
+    body=`<div class="tp" role="group">${Object.keys(JU4).map(k=>`<button data-jju="${k}" aria-pressed="${JJ.ju===k}">${k}</button>`).join('')}</div>
+     <p class="ds"><b>核心符號</b>：${J.need}；並排除白虎、空亡、擊刑、天盤庚${JJ.ju==='天星催財'?'':'、天蓬、天芮'}、五不遇時<br><b>風水物</b>：${J.item}</p>${jjList(jjFind(J.pred,14,8),J.ex)}
+     <h3 class="mh">七步驟</h3><ol class="mlist"><li>選房間的聚氣位（財位）</li><li>用羅盤測方位</li><li>選對應吉門</li><li>挑吉時（上方清單）</li><li>確認宮內吉神吉星</li><li>淨化：流動清水沖洗 3、6 或 9 遍，或用沉香、檀香、鼠尾草熏；加持：默念六字大明咒 3、6 或 9 遍</li><li>吉時擺放（膝蓋以上的桌几，不落地），雙手捧物或點香在上方畫「∞」三圈，用「感謝已經達成」的肯定句許願</li></ol>
+     ${JJ.ju==='天星催財'?'<p class="ds">催財催的是生意機會，人會變忙、訂單變多，要積極把握。</p>':''}`}
+  else{const C=chuDays(5);
+    body=`<p class="ds">清除家中特定方位擺錯的物品（斷捨離、有中化無）。以「現在的自己是否需要」為準；辛屬金為刀剪、革新，丟舊換新可置換新能量。</p>
+     <ul class="mlist">${[1,8,3,4,9,2,7,6].map(p=>`<li><b>${QM.DIR[p]}方（${PGUA[p]}宮）不宜放</b>：${NOPUT[p]}</li>`).join('')}</ul>
+     <p class="ds"><b>清運擇日</b>：用建除十二神的「除日」打掃清運（除舊佈新）。近期除日：${C.map(d=>`${d.getMonth()+1}/${d.getDate()}（週${WKJ[d.getDay()]}）`).join('、')}</p>
+     <p class="empty">物品要擺 3 個月到 1 年以上才會產生作用，若無異狀不必過慮。</p>`}
+  el.innerHTML=`<h2>居家開運</h2><div class="tp" role="group" aria-label="類別">${['調座位','擺物品','拆東西'].map(k=>`<button data-jjt="${k}" aria-pressed="${JJ.tab===k}">${k}</button>`).join('')}</div>${body}`}
 function renderZJ(){const el=$('#zjp');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;const Z=S.zj;
   let out='';if(Z.busy)out='<p class="empty">擇吉計算中…</p>';
   else if(Z.res){const L=Z.res.list;out=L.length?`<p class="ds">共 ${Z.res.total} 個時辰通過檢查，列出分數最高的 ${L.length} 個（依時間排序，★ 為前三名）：</p><ol class="zjl">${L.map((r,i)=>{const x=r.hc.pals.find(q=>q.p===r.fp);
@@ -1547,7 +1694,7 @@ function renderZJ(){const el=$('#zjp');if(S.mode!=='yin'){el.hidden=true;return}
       <button class="lk" data-zjgo="${r.t.getTime()}">排出此盤看佈局</button></div></li>`}).join('')}</ol>
       <p class="empty">檢查條件：時盤日干宮或主用神宮至少一處得開、休、生門，日干宮與主用神（粗體）皆無空亡、入墓、擊刑、門迫及凶格（其他用神 ✓ 通過、△ 有瑕疵僅扣分），避五不遇、門反吟與星反吟（門伏吟不淘汰，只扣 8 分）；日盤日干宮須無四害凶格；月盤、年盤、刻盤通過者加分（綠色）。</p>`
       :'<p class="empty">這段期間找不到同時通過所有檢查的時辰，可以拉長天數或取消「只看日間」。</p>'}
-  el.innerHTML=`<h2>擇吉日吉時佈局</h2>
+  el.innerHTML=`<h2>奇門智能選局</h2>
     <div class="tp" role="group" aria-label="佈局種類">${ZJG.map(g=>`<button data-zjg="${g}" aria-pressed="${g===Z.goal}">${g}局</button>`).join('')}</div>
     <div class="zjc"><label>範圍 <select id="zjDays">${[7,14,30,60,90].map(d=>`<option value="${d}"${d===Z.days?' selected':''}>未來 ${d} 天</option>`).join('')}</select></label>
     <label><input type="checkbox" id="zjDay"${Z.day?' checked':''}> 只看日間（07–21）</label><button class="go2" id="zjGo">開始擇吉</button></div>${out}`}
@@ -1640,7 +1787,7 @@ function lyBody(){const c=cur(),D=QM.DIR,P=c.YC.P,raw=P[2][0],hs=P[3][0],dp=QM.p
     ${tg?`<li><b>再佈通關${gx(tg)}</b>：擺放 ${lyItem(c,tg,'通')}</li>`:''}</ol>
    <p class="ds">三宮要依序相生（${tg?`${PEL5[tp]}生${PEL5[tg]}、${PEL5[tg]}生${PEL5[dp]}`:'時干宮、日干宮'}），而且都要沒有奇門四害；有四害的宮位，要先解四害再佈局。${[dp,tp,tg].filter(Boolean).filter(p=>!lyNo4(c,p)).length?`<span class="j-1">目前${[...new Set([dp,tp,tg].filter(Boolean).filter(p=>!lyNo4(c,p)))].map(gx).join('、')}有四害，請先處理。</span>`:''}</p>
    <p class="ds">放吉祥物的程序：先把該宮盤面上的文字唸四遍或七遍，再唸崑崙咒，然後把吉祥物放上去。每一宮都照這個程序。</p>
-   <div class="msum"><p><b>六、擇日</b>　${times.length?'接下來適合佈局的時辰：'+times.join('、'):'近期找不到日干宮得吉門又無四害的時辰，可到「擇吉日吉時佈局」再挑。'}</p></div>
+   <div class="msum"><p><b>六、擇日</b>　${times.length?'接下來適合佈局的時辰：'+times.join('、'):'近期找不到日干宮得吉門又無四害的時辰，可到「奇門智能選局」再挑。'}</p></div>
    <div class="msum"><p><b>七、佈局後</b>：畫四張催動磁場的符（事先畫好），用盤子裝水，把四張符燒化在水中，就完成今年流年盤的佈局。</p></div>
    <p class="empty">解說文字依書中案例的方法整理，物品與化解建議由程式依盤面組合，僅供參考。</p>`}
 // ===== 流年運勢／流月運勢（年盤、月盤總覽）=====
@@ -1688,7 +1835,7 @@ function zxBody(){
     <div class="msum"><p><b>最快的好時機</b>　${near?`${near.t.getMonth()+1}/${near.t.getDate()}（${near.gz}日）前後`:'近期較平淡'}${near&&near.why.length?'：'+near.why.join('、'):''}</p></div>
     <h3 class="mh">較有機會的月份</h3><ol class="lvl">${ms.map(m=>`<li><b>${m.t.getFullYear()}年${m.t.getMonth()+1}月（${m.gz}月）</b>　${stars(m.v-2)}<br><span class="ds">${m.why.join('、')||'整體條件較佳'}</span></li>`).join('')}</ol>
     <h3 class="mh">未來 90 天的好日子</h3><ol class="lvl">${ds.map(d=>`<li><b>${d.t.getMonth()+1}/${d.t.getDate()}（週${WK[(d.t.getDay()+6)%7]}，${d.gz}日）</b>　${stars(d.v-2)}<br><span class="ds">${d.why.join('、')||'整體條件較佳'}</span></li>`).join('')}</ol>
-    <p class="ds">建議：在這些日子多參加聚會、主動認識新朋友；也可用「擇吉日吉時佈局」的桃花局挑時辰佈局。</p><p class="empty">評分為本程式依傳統用神整理，僅供參考。</p>`}
+    <p class="ds">建議：在這些日子多參加聚會、主動認識新朋友；也可用「奇門智能選局」的桃花局挑時辰佈局。</p><p class="empty">評分為本程式依傳統用神整理，僅供參考。</p>`}
 function renderZhan(){
   const el=$('#zhan');if(S.mode!=='yin'){el.hidden=true;S.zy=null;return}
   el.hidden=false;const c=cur();if(S.topic==='感情')S.topic='戀愛發展';if(S.topic==='經營')S.topic='求財';if(!ZH.T[S.topic]&&S.topic!=='無')S.topic='婚姻';const none=S.topic==='無'&&!S.zx,r=none?{Y:[],L:[],d:'',v:0}:ZH.run(c,S.zx?'婚姻':S.topic,S.qi.present);
@@ -1818,7 +1965,10 @@ function renderMing(){
       <p class="mintro">${MX.INTRO[S.mtab]||''}</p>${mingSummary(r,S.mtab)}
       ${r.yong.map(([n,p])=>palPlain(c,n,p)).join('')}
       <h3 class="mh">古訣與白話</h3><ul class="mlist">${r.L.map(([t,j])=>{const g=minggloss(t);return `<li class="j${j}">${t}${g?`<span class="bh">白話：${g}</span>`:''}</li>`}).join('')}</ul>
-      <p class="empty">古訣依張志春〈人生命運預測古文〉整理，白話解說為本程式補充，僅供參考。</p>`}}
+      <h3 class="mh">八大生活領域（九宮奇門終身盤）</h3><ul class="mlist">${c.pals.map(x=>{const g=[],b=[];if(x.god==='值符')g.push('值符');if(x.god==='九天')g.push('九天（升遷）');if(x.door==='生門')g.push('生門（求財）');if(x.door==='開門')g.push('開門（事業）');if(x.door==='休門')g.push('休門（貴人）');if(/[乙丙丁]/.test(x.t))g.push('三奇');
+          if(x.god==='白虎')b.push('白虎（血光）');if(x.star.includes('蓬'))b.push('天蓬（破財）');if(x.star.includes('芮'))b.push('天芮（疾病）');if(x.door==='死門')b.push('死門（低潮）');if(x.door==='傷門')b.push('傷門（衝突意外）');if(x.t.includes('庚'))b.push('庚（受阻）');if(c.kongP.includes(x.p))b.push('空亡（努力成空）');
+          return `<li class="${b.length?'j-1':g.length?'j1':''}"><b>${x.gua}宮・${ZQL[x.p]}</b>　${g.length?'吉處：'+g.join('、')+'，宜大力發揮':''}${g.length&&b.length?'；':''}${b.length?'病處：'+b.join('、')+'，一生要修正防範':''}${!g.length&&!b.length?'平穩':''}<br><small>房份：${ZQF[x.p]}</small></li>`}).join('')}</ul>
+      <p class="empty">古訣依張志春〈人生命運預測古文〉整理，白話解說為本程式補充；八大生活領域依子奇老師九宮奇門，僅供參考。</p>`}}
   el.innerHTML=`<h2>終身命局</h2><div class="in"><input type="date" id="bd" min="1900-01-01" max="2100-12-31" value="${b.date}" aria-label="出生日期"><input type="time" id="bt" value="${b.time}" aria-label="出生時間">
     <span class="sx" role="group" aria-label="性別">${['男','女'].map(x=>`<button data-sx="${x}" aria-pressed="${b.sex===x}">${x}</button>`).join('')}</span>
     <button class="go2" id="bgo">分析命局</button>${S.birth?'<button class="lk" id="bshow">盤面顯示命盤</button>':''}</div>${body}`;
@@ -1846,7 +1996,7 @@ function plateTitle(c){const k=c.kind||'時',P=c.YC?c.YC.P:[];
   return `${P[3]}${UNIT[k]}　${QM.KIND[k]}`}
 function renderBoard(){
   renderQ();if(S.mode==='yin')yinPillars();
-  renderZhan();renderBu();renderZJ();renderMJ();renderRD();renderMing();
+  renderZhan();renderBu();renderZJ();renderMJ();renderRD();renderMing();if(typeof updNav==='function')updNav();
   const c=cur(),byP={};c.pals.forEach(x=>byP[x.p]=x);
   const topZ=c.zuiji[0],yin=S.mode==='yin',plate=yin&&S.pc;
   if(S.p==null||!byP[S.p])S.p=(topZ||c.best).p;
@@ -2050,7 +2200,7 @@ function renderYinDetail(){
     const fu=fk.map(k=>{const [t,d]=YM.FU[k].split('：');return row(t,d,0)}).join('');
     const en=palEnergy(c,x.p),isF=x.p===QM.focusOf(c);
     const psy=isF?sec('用神宮特質　<small>問測者本身的思維模式與適合方向</small>',row(x.god,PSY.god[x.god]||'',0)+row(x.star.replace(/（.*$/,'')+'星',PSY.star[st]||'',0)+row(x.door,PSY.door[dr]||'',0)+(F.mu.length?row('用神入墓','有力使不出',-1):'')+(F.kong?row('用神空亡','此人不在家或有變動',-1):'')+(F.xi.length?row('用神擊刑','留意疾病或意外傷災',-1):'')):'';
-    body=`<p class="ds">就用神宮的象意來解說所問之事、目前遇到的狀況。</p>${en.o.length?row('宮位能量',`約剩 ${en.e}%（${en.o.join('、')}）：要比平常多付出心力才能完成`,-1):''}${psy}${fu}${F.kong?row(x.gua+'宮空亡',YM.SH.空亡[0],-1):''}
+    body=`<p class="ds">就用神宮的象意來解說所問之事、目前遇到的狀況。</p>${row('生活面向',`${x.gua}宮：${ZQL[x.p]}；房份：${ZQF[x.p]}`,0)}${zqBox(c,x,false)}${en.o.length?row('宮位能量',`約剩 ${en.e}%（${en.o.join('、')}）：要比平常多付出心力才能完成`,-1):''}${psy}${fu}${F.kong?row(x.gua+'宮空亡',YM.SH.空亡[0],-1):''}
     ${sec('八卦方位　<small>地利、所處的環境與空間</small>',row(x.gua,YM.GUA[x.gua],0))}
     ${sec('八神涵義　<small>想法與思想活動</small>',four(x.god,YM.GOD[x.god],KJ.god[x.god]))}
     ${sec('九星涵義　<small>天時、性格，也看財星</small>',four('天'+st+'星',YM.STAR[st],KJ.star[st])+(()=>{const w=starStat(c,x),se=SEL_[w.stn],me=w.mz!=null?ZEL[w.mz]:'',pe=PEL5[x.p],nm='天'+w.stn+'星';
@@ -2121,7 +2271,8 @@ function renderDetail(){if(S.mode==='yin')return renderYinDetail();
   $('#detail').innerHTML=`<h2>${c.hourGZ}時・${x.dir}方（${x.gua}宮）</h2>${verdict}
     <div class="chk">${CHECKS.map(([k,t])=>`<span class="${f[k]?'x':''}" title="${t}">${f[k]?'有':'無'}${k}</span>`).join('')}<span class="${c.wbu?'x':''}">${c.wbu?'是':'非'}五不遇</span></div>
     ${ge.length?`<dl>${ge.map(g=>`<dt>${g}</dt><dd>${QM.GEDESC[g]||''}</dd>`).join('')}</dl>`:'<p class="empty" style="margin-top:10px">此宮沒有成格。</p>'}
-    <p class="empty" style="margin-top:10px">吉度 ${Math.round(x.ss)} 分・${x.star}・${x.god}・天盤${x.t}／地盤${x.d}</p>`;
+    <p class="empty" style="margin-top:10px">吉度 ${Math.round(x.ss)} 分・${x.star}・${x.god}・天盤${x.t}／地盤${x.d}</p>
+    <div class="tp" role="group" aria-label="報數鎖宮"><small>報數鎖宮（1–9，報 5 看坤宮）：</small>${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-bao="${n}" aria-pressed="${(n===5?2:n)===x.p}">${n}</button>`).join('')}</div>${zqBox(c,x,true)}`;
   if(typeof renderGo==='function')renderGo();
 }
 function setDate(s){toTime();S.date=s;S.hb=null;S.p=null;render()}
@@ -2130,10 +2281,21 @@ $('#prev').onclick=()=>shift(-1);$('#next').onclick=()=>shift(1);
 $('#today').onclick=()=>{toTime();const ns=nowSlot();S.date=ns.date;S.hb=ns.hb;S.p=null;render()};
 $('#date').onchange=e=>{if(e.target.value)setDate(e.target.value)};
 $('#hours').onclick=e=>{const b=e.target.closest('.hb');if(!b)return;const was=S.pc;toTime();S.hb=+b.dataset.hb;S.p=null;if(was)render();else{renderHours();renderBoard()}};
+$('#detail').addEventListener('click',e=>{const b=e.target.closest('[data-bao]');if(!b)return;const n=+b.dataset.bao;S.p=n===5?2:n;renderBoard()});
 $('#board').onclick=e=>{const b=e.target.closest('.pal[data-p]');if(!b)return;S.p=+b.dataset.p;renderBoard()};
 const pick=li=>{const was=S.pc;toTime();S.hb=+li.dataset.hb;S.p=+li.dataset.p;if(was)render();else{renderHours();renderBoard()}if(window.innerWidth<880)$('.boardcard').scrollIntoView({behavior:'smooth'})};
-$('#rdoor').addEventListener('click',e=>{const d=e.target.closest('[data-rdd]');if(d){RD.door=RD.door===d.dataset.rdd?null:d.dataset.rdd;renderRD();return}
+$('#rdoor').addEventListener('change',e=>{const id=e.target.id;if(id==='cxDir')CXS.dir=+e.target.value;else if(id==='cxT'){if(e.target.value)CXS.t=new Date(e.target.value)}else if(id==='cxDest')CXS.dest=+e.target.value;else return;$('#cxp').innerHTML=cxHtml()});
+$('#rdoor').addEventListener('click',e=>{const cx=e.target.closest('[data-cxd]');if(cx){CXS.door=cx.dataset.cxd;CXS.dir=0;$('#cxp').innerHTML=cxHtml();return}const cm=e.target.closest('[data-cxm]');if(cm){CXS.mode=cm.dataset.cxm;$('#cxp').innerHTML=cxHtml();return}const d=e.target.closest('[data-rdd]');if(d){RD.door=RD.door===d.dataset.rdd?null:d.dataset.rdd;renderRD();return}
   const go=e.target.closest('[data-rdgo]');if(go){S.fix=null;setWall('日',new Date(+go.dataset.rdgo));$('.boardcard').scrollIntoView({behavior:'smooth'})}});
+$('#jjp').addEventListener('click',e=>{const t=e.target.closest('[data-jjt],[data-jjs],[data-jju]');if(!t)return;if(t.dataset.jjt)JJ.tab=t.dataset.jjt;if(t.dataset.jjs)JJ.seat=t.dataset.jjs;if(t.dataset.jju)JJ.ju=t.dataset.jju;renderJJ()});
+renderJJ();
+$('#qnav').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const id=b.dataset.go;
+  if(id==='guide'){const g=$('#guide');g.hidden=!g.hidden;if(!g.hidden)g.scrollIntoView({behavior:'smooth',block:'start'});return}
+  const el=id==='boardcard'?$('.boardcard'):$('#'+id);if(!el)return;if(el.classList.contains('collapsed')){el.classList.remove('collapsed');store.set('qm_col_'+id,'0')}
+  const y=el.getBoundingClientRect().top+window.scrollY-56;window.scrollTo({top:y,behavior:'smooth'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')});
+function updNav(){document.querySelectorAll('#qnav [data-go]').forEach(b=>{const id=b.dataset.go;if(id==='guide'||id==='boardcard')return;const el=$('#'+id);b.hidden=!el||el.hidden})}
+$('#guideX').onclick=()=>{$('#guide').hidden=true;store.set('qm_guide','0')};if(store.get('qm_guide')!=='0')$('#guide').hidden=false;
+$('#phGo').onclick=()=>{$('#phOut').innerHTML=phoneRead($('#phN').value)};$('#phN').onkeydown=e=>{if(e.key==='Enter')$('#phGo').click()};
 $('#rank').onclick=e=>{const li=e.target.closest('li[data-hb]');if(li)pick(li)};
 $('#rank').onkeydown=e=>{if(e.key==='Enter'){const li=e.target.closest('li[data-hb]');if(li)pick(li)}};
 const pad=n=>String(n).padStart(2,'0');
@@ -2219,9 +2381,9 @@ fillL();renderSaves();
 $('#ytop').addEventListener('click',e=>{const t=e.target;
   const r=t.closest('[data-rel]');if(r){const c=cur();if(S.rel===r.dataset.rel){S.rel=null;S.focus=null;S.focusG=null}else{S.rel=r.dataset.rel;const o=QM.relOf(c,S.rel);if(o&&o.p){S.focus=o.p;S.focusG=o.g;S.p=o.p}}renderBoard();return}});
 // ===== 事項占斷、宮位解盤可收合（狀態記在本機）=====
-['zhan','detail','ming','rankp','zjp','mjp','bu','fs'].forEach(id=>{const el=$('#'+id),key='qm_col_'+id;
+['zhan','detail','ming','rankp','zjp','mjp','jjp','php','bu','fs'].forEach(id=>{const el=$('#'+id),key='qm_col_'+id;
   const sync=()=>{const h=el.querySelector(':scope>h2, :scope>.yd>h2');if(!h)return;const c=el.classList.contains('collapsed');h.setAttribute('role','button');h.tabIndex=0;h.setAttribute('aria-expanded',String(!c));h.title=c?'點一下展開':'點一下收合'};
-  if(store.get(key)==='1')el.classList.add('collapsed');
+  const kv=store.get(key);if(kv==='1'||(kv==null&&['zjp','mjp','jjp','php'].includes(id)))el.classList.add('collapsed');
   new MutationObserver(sync).observe(el,{childList:true});
   const tog=()=>{el.classList.toggle('collapsed');store.set(key,el.classList.contains('collapsed')?'1':'0');sync()};
   el.addEventListener('click',e=>{const h=e.target.closest('h2');if(h&&(h.parentElement===el||h.parentElement.parentElement===el)&&h===el.querySelector(':scope>h2, :scope>.yd>h2')){e.stopPropagation();tog()}},true);
@@ -2263,6 +2425,13 @@ const FS_STEM={乙:'拿著綠色植物或綠色物品，雙手合十默念心願
 const FS_ITEM={坎:'一杯清水',艮:'一個陶瓷杯或一顆小石頭',震:'一小盆綠色植物',巽:'打開窗讓風吹進來，或擺上香氛',離:'一盞點亮的燈',坤:'一件黃色或陶土材質的器物',兌:'一個金屬小物或風鈴',乾:'一枚圓形金屬物，例如硬幣'};
 const FS_GOD={值符:'有貴人相助，適合拜訪長輩、主管或客戶',九天:'利於積極行動、對外發展',九地:'利於穩守、儲蓄、低調行事',太陰:'利於私下規劃、暗中進行',
  六合:'利於合作、聯絡、談和',螣蛇:'容易多疑多變，行事前先確認細節',玄武:'留意財物與訊息的真偽',白虎:'注意安全，避免衝突'};
+const BA={god:{值符:'配戴名貴飾品、說話有威嚴',螣蛇:'穿鮮豔條紋衣物或絲巾、說話靈活',太陰:'穿著精緻典雅、低調行事',六合:'開懷大笑、闔上箱盒、東西成對擺',白虎:'穿白衣、態度堅定',玄武:'輕步慢走、低調進行',九地:'坐在矮凳或低處、動作放慢',九天:'站到高處、動作放大、語調高昂'},
+ star:{蓬:'打傘或穿蓬鬆的衣服',沖:'走動、跳躍、唱歌或敲擊',柱:'開口直言、敲擊發聲',任:'彎腰拜拜、背負物品',英:'開燈、展示物品、穿亮麗衣服'},
+ door:{開:'打開抽屜、門窗、瓶蓋或水龍頭',休:'悠閒躺下放鬆、喝水或飲料',生:'吃東西、種植物',景:'點香或開燈，觀想未來的畫面'},
+ gan:{乙:'雙手合十、握手、柔軟伸展',丙:'用圓杯喝溫熱的水',丁:'按打火機、點香或打電話',戊:'吃肉包、數鈔票',己:'細嚼慢嚥、盤腿或摺疊物品',辛:'吃點辛辣的、念心經、反省改過',壬:'倒水喝水、邁步走動',癸:'倒水喝水、邁步走動'}};
+function bodyAct(x){const sk=x.star.replace(/[天（）]/g,'')[0],main=[...new Set([...x.t].map(g=>BA.gan[g]).filter(Boolean))],aux=[BA.god[x.god],BA.star[sk],BA.door[x.door[0]]].filter(Boolean);
+  return `<details class="more" open><summary>以身為吉祥物（做動作）</summary><p class="st">吉時在${x.dir}方（${x.gua}宮）：${main.length?`主動作──<b>${main.join('；')}</b>，重複 ${x.p} 次（${x.gua}宮數 ${x.p}）`:'依下列姿態進行'}${aux.length?`；輔助姿態──${aux.join('；')}`:''}。做的時候帶著愉快、篤定的心情，觀想事情已經順利達成。</p>
+   <p class="empty">以天干為主要動作，神、星、門為輔助的姿態、物品或情緒；演得越投入、感受越真，共振越強。</p></details>`}
 function renderFS(){
   const t=curTarget&&curTarget();if(!t){$('#fs').innerHTML='';return}
   const {c,x}=t,dr=x.door[0],T=x.t[0],good='休生開景'.includes(dr);
@@ -2279,7 +2448,13 @@ function renderFS(){
     <li>${FS_DOOR[dr].act}。</li>
     ${stemAct?`<li>${stemAct}。</li>`:''}
     <li>完成後往${x.dir}方行進約 15～20 分鐘，再前往真正的目的地。可用下方「前往吉方」規劃路線。</li>
-   </ol>
+   </ol>${bodyAct(x)}
+   <details class="more"><summary>陽宅風水：化解四法與陽宅三要</summary><ul class="mlist">
+    <li><b>找病處</b>：盤上有白虎、天蓬、死門、庚的宮位，就是住宅要處理的方位；對照房份與生活面向，看影響到誰、哪方面。</li>
+    <li><b>查原因</b>：站在屋子中心朝該方位往外看，找出與宮內符號對應的凶砂（尖角、壁刀、路衝、反弓、電線桿、破舊髒亂）。</li>
+    <li><b>化解四法</b>：移（把干擾物移走或丟掉）、遮（加窗簾、百葉窗、雨遮）、擋（窗台擺厚重常綠盆栽）、避（門窗改向，避開路衝）。</li>
+    <li><b>陽宅三要</b>：大門最重要，忌見白虎與壁刀；主臥宜臨吉神吉門；廚房代表財庫與女主人健康，忌空亡與螣蛇。</li>
+    <li><b>選房</b>：首選開、休、生門所在的物件或方位；見白虎、空亡一律不選。</li></ul></details>
    <h3>此時此方</h3>
    <p class="st">${FS_GOD[x.god]||''}。</p>
    ${yi.length?`<div class="yi">${yi.map(v=>`<span>宜${v}</span>`).join('')}</div>`:''}`;
