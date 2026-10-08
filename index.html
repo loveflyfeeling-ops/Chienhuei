@@ -44,7 +44,8 @@ h1{margin:0;font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.5rem;l
 .datenav{display:flex;align-items:center;gap:6px}
 .datenav button{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:6px 12px;cursor:pointer}
 .datenav input{font:inherit;color:var(--ink);background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:5px 8px}
-.pillars{margin:10px 0 0;color:var(--muted);font-size:.92rem}
+.pillars{margin:0 0 10px;color:var(--ink);font-size:1.08rem;line-height:1.9;padding:6px 12px;background:var(--sheet);border:1px solid var(--line);border-radius:10px}
+.pillars .gz{font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.38rem;letter-spacing:.04em;margin:0 2px}.pillars .gs{color:var(--lacquer)}.pillars .gb{color:var(--jade)}.pillars .lun{color:var(--brass);font-weight:800}.pillars{display:flex;flex-wrap:wrap;column-gap:16px;row-gap:0;align-items:baseline}.pillars .pc{white-space:nowrap}
 .pillars b{color:var(--ink);font-weight:700}
 
 /* the board: hero */
@@ -344,7 +345,6 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       <button id="today">今天</button>
     </div>
   </div>
-  <p class="pillars" id="pillars"></p>
 </header>
 
 <main class="wrap main">
@@ -369,6 +369,7 @@ footer{color:var(--muted);font-size:.8rem;padding:6px 0 30px}
     <div class="pf"><input id="pName" placeholder="姓名"><select id="pSex"><option>男</option><option>女</option></select><input type="date" id="pDate" min="1900-01-01"><input type="time" id="pTime" value="12:00"><input id="pMemo" placeholder="備註"><button class="go2" type="button" id="pAdd">新增／更新</button></div>
     <p class="qnote">出生時間不詳可留預設 12:00；資料只存在這台裝置的瀏覽器中。</p><button type="button" class="lk" id="pClose">關閉</button></form></dialog>
   <section class="boardcard" aria-label="時盤">
+    <p class="pillars" id="pillars"></p>
     <div class="boardhead"><div class="hr" id="hrTitle"></div><div class="meta" id="hrMeta"></div></div>
     <div class="fufan" id="fufan" hidden></div>
     <div class="ytop" id="ytop" hidden>
@@ -1334,7 +1335,7 @@ function render(){
   if(!S.charts[0]){$('#pillars').textContent='這個日期超出可排盤範圍（約 1996–2050 年）。';$('#board').innerHTML='';$('#hours').innerHTML='';$('#rank').innerHTML='';$('#detail').innerHTML='';return}
   $('#date').value=S.date;
   const c0=S.charts[6],dow=new Date(S.date+'T12:00').getDay();
-  $('#pillars').innerHTML=S.mode==='yin'?'':`${S.date}（${WKD[dow]}）　日柱 <b>${c0.dayGZ}</b>　${c0.term}${c0.yang?'陽':'陰'}遁 ${c0.ju} 局（${c0.yuan}元）`;
+  $('#pillars').innerHTML=S.mode==='yin'?'':`<span class="pc">${S.date}（${WKD[dow]}）</span><span class="pc">日柱 ${gzc(c0.dayGZ)}</span><span class="pc">${c0.term}${c0.yang?'陽':'陰'}遁 ${c0.ju} 局（${c0.yuan}元）</span>`;
   // 今日時辰吉方（子→亥）
   const ns0=nowSlot();
   const hrs=S.charts.map((c,hb)=>({hb,c,top:c.zuiji[0]||null,inScope:!S.dayOnly||DAYH.has(hb)}));
@@ -1822,11 +1823,12 @@ function renderMing(){
     <span class="sx" role="group" aria-label="性別">${['男','女'].map(x=>`<button data-sx="${x}" aria-pressed="${b.sex===x}">${x}</button>`).join('')}</span>
     <button class="go2" id="bgo">分析命局</button>${S.birth?'<button class="lk" id="bshow">盤面顯示命盤</button>':''}</div>${body}`;
 }
+const gzc=g=>`<b class="gz"><span class="gs">${g[0]}</span><span class="gb">${g[1]}</span></b>`;
 function yinPillars(){
   const c=cur();if(!c||!c.YC)return;const [y,m,d]=S.date.split('-').map(Number),w=WKD[new Date(y,m-1,d).getDay()];
   const k=c.kind||'時',P=c.YC.P,L={時:['年','月','日','時'],刻:['月','日','時','刻'],日:[null,'年','月','日'],月:[null,null,'年','月'],年:[null,null,null,'年']}[k];
   const wl=c.wall?`${c.wall.Y}-${pad(c.wall.M)}-${pad(c.wall.D)} ${pad(c.wall.h)}:${pad(c.wall.n)}`:S.date;
-  $('#pillars').innerHTML=`${k==='時'?S.date+'（'+w+'）':QM.KIND[k]+'・'+wl}　${L.map((l,i)=>l?`${l}柱 <b>${P[i]}</b>`:'').filter(Boolean).join('　')}　農曆 <b>${c.lunar.leap?'閏':''}${c.lunar.m}月${c.lunar.d}日</b>${k==='時'?'':'　'+(c.yang?'陽':'陰')+'遁'+c.ju+'局'}`}
+  $('#pillars').innerHTML=`<span class="pc">${k==='時'?S.date+'（'+w+'）':QM.KIND[k]+'・'+wl}</span>${L.map((l,i)=>l?`<span class="pc">${l}柱 ${gzc(P[i])}</span>`:'').filter(Boolean).join('')}<span class="pc">農曆 <b class="lun">${c.lunar.leap?'閏':''}${c.lunar.m}月${c.lunar.d}日</b></span>${k==='時'?'':`<span class="pc">${c.yang?'陽':'陰'}遁${c.ju}局</span>`}`}
 function wallOf(){const [Y,M,D]=S.date.split('-').map(Number);if(S.at&&S.at.date===S.date&&S.at.hb===S.hb&&S.at.wall)return S.at.wall;return {Y,M,D,h:S.hb*2,n:0}}
 function setWall(kind,t){S.bazi=false;const Y=t.getFullYear(),M=t.getMonth()+1,D=t.getDate(),h=t.getHours(),n=t.getMinutes(),d=new Date(t);if(h>=23)d.setDate(d.getDate()+1);
   const hb=Math.floor((h+1)/2)%12;S.kind=kind;S.wall={Y,M,D,h,n};S.date=iso(d);S.hb=hb;S.p=null;
