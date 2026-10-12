@@ -1712,13 +1712,12 @@ function wcBody(){
    <p class="ds">${WC.goal==='文昌'?'文昌佈局：重在長期讀書運，看長生位、天輔星、九天、景門、太陰、丁奇。':'考試佈局：重在考場發揮，看長生位、天心星、九天、值符（知名學府）、太陰、景門、丁奇。'}</p>${body}
    <p class="empty">分數算法：基本 50 分，宮位符合條件就加分。九星、八神、丁奇要落在用神宮，或落在五行生用神宮的宮位；換局的盤要另外調整局數，較不自然，扣 20 分；景門與用神宮不相生時只列出、不加分。有空亡、入墓、擊刑、門迫的宮位不計分；長生位逢玄武、螣蛇也不計分。</p>`}
 function renderWC(){}
-function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;
-  const goals=Object.keys(BUG);let out='<p class="empty">選擇想催旺的事項，程式會用移星換斗找出最佳轉宮、列出佈局宮位與物品，並挑出接下來 30 天適合佈局的時辰。</p>';
-  if(S.bu){const G=BUG[S.bu];let c=cur();
+function buHtml(goal){let out='<p class="empty">選擇想催旺的事項，程式會用移星換斗找出最佳轉宮、列出佈局宮位與物品，並挑出接下來 30 天適合佈局的時辰。</p>';
+  if(goal){const G=BUG[goal];let c=cur();
     if(G.life){if(!S.birth){out='<p class="empty">請先在上方選擇有出生資料的問測者，按「奇門八字盤」排出命盤。</p>'}else{const sl=birthSlot(S.birth),[y,m,d]=sl.date.split('-').map(Number);c=QM.chart(y,m,d,sl.hb,'yin',sl.ms)}}
-    if(S.bu==='文昌'||S.bu==='考試'){if(WC.goal!==S.bu){WC.goal=S.bu;WC.key=''}out=wcBody()}
-    else if(S.bu==='撤局')out=`<p class="ds">撤局：把先前佈下的物品收回、清潔擺放處，並在吉時（用神宮得開、休、生門的時辰）進行，收回後默念感謝，讓氣場歸位。</p>`;
-    else if(c&&(!G.life||S.birth)){const r=buPlan(c,S.bu),b=r.best,rc=b.rc;
+    if(goal==='文昌'||goal==='考試'){if(WC.goal!==goal){WC.goal=goal;WC.key=''}out=wcBody()}
+    else if(goal==='撤局')out=`<p class="ds">撤局：把先前佈下的物品收回、清潔擺放處，並在吉時（用神宮得開、休、生門的時辰）進行，收回後默念感謝，讓氣場歸位。</p>`;
+    else if(c&&(!G.life||S.birth)){const r=buPlan(c,goal),b=r.best,rc=b.rc;
       out=`<p class="ds"><b>${b.k?'移星換斗：順轉'+b.k+'宮':S.buK0&&!G.life?'原盤佈局（不移星）':'原盤即為最佳'}</b>（${G.w}評分 ${r.pct} 分）${G.life?'・依終身命盤':''}　<button class="lk" data-burot="${b.k}">在盤上檢視</button>${G.life?'':` <button class="lk" data-buk0="1">${S.buK0?'改回自動移星換斗':'改用原盤佈局（不移星）'}</button>`}</p>
       ${rotNote(c,rc,b,r,G)}
       <ol class="bul plan">${b.pals.map((p,i)=>{const x=rc.pals.find(q=>q.p===p),why=[];if(p===b.fp)why.push(`用神宮（日干${rc.YC.P[2][0]}${b.k?`，原在${QM.DIR[QM.focusOf(c)]}方${GUAN[QM.focusOf(c)]}宮`:''}）`);b.where.filter(w=>w[1]===p).forEach(w=>why.push(w[0]));
@@ -1758,6 +1757,9 @@ function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}e
         <li>預測師宮位有四害，事前可畫一張解四害的 28 星宿符帶在身上；要向客戶收紅包（壓驚錢），代表彼此是生意關係。</li>
         <li>到客戶家先喝一杯水、離開前上廁所（納壬去癸）；離開時向月干方位丟銅板，帶走穢氣。</li></ul></details>
       <p class="empty">佈局評分與物品建議為本程式依傳統用神取法自行整理，僅供參考。</p>`}}
+  return out}
+function renderBu(){const el=$('#bu');if(S.mode!=='yin'){el.hidden=true;return}el.hidden=false;
+  const goals=Object.keys(BUG);const out=buHtml(S.bu);
   el.innerHTML=`<h2>佈局</h2><div class="tp" role="group" aria-label="佈局事項">${goals.map(g=>`<button data-bu="${g}" aria-pressed="${g===S.bu}">${g==='撤局'?'撤局':g.endsWith('調理')||g.startsWith('終身')?g:g+'佈局'}</button>`).join('')}</div>${out}`}
 // ===== 奇門智能選局：年、月、日、時、刻盤逐一檢查，挑無凶格、無四害的時間 =====
 const ZJG=['催財','業務績效','催官','文昌','考試','桃花','感情和合','結婚','官司','催丁','身體健康','討債','賣房','買房','租屋','賣車','小孩聽話','找好員工'];
@@ -2216,6 +2218,8 @@ function ysBody(){const yr=S.zx==='流年運勢',need=yr?'年':'月',c=cur(),D=Q
      <p class="ds">${yr?'想催財可按「流年財位」；想做全年佈局，可用「流年盤解析」以立春時盤佈局。':'月份有四害時，要在前一個月先解掉。'}</p></div>
    <p class="empty">評斷依盤面四害、門、神整理，僅供參考。</p>`}
 function zxBody(){
+  if(S.zx==='流年財位'){const c=cur(),y=(S.wall||wallOf()).Y;if(!c||c.kind!=='年')return `<p class="empty">流年財位要用年盤來看。<button class="lk" data-ysgo="年">排出今年年盤</button></p>`;return `<div class="msum"><p><b>流年財位佈局（${y} 年・年盤${c?c.hourGZ:''}）</b>　用今年的年盤找財位：以日干為用神，找戊、生門、正財、偏財與財星得地的宮位，用移星換斗挑出最好的佈法。佈好後一整年有效，每月挑子時或午時整理一次。</p><p class="ds">盤面已切到年盤；想回到時盤，按上方「時盤排盤」即可。</p></div>${buHtml('催財')}`}
+  if(S.zx==='終身財位')return `<div class="msum"><p><b>終身財位佈局</b>　依問測者的出生時間（奇門八字盤）找一輩子的財位，適合長期擺設、不用常換。</p></div>${buHtml('終身盤財位')}`;
   if(S.zx==='流年盤解析')return lyBody();
   if(S.zx==='流年運勢'||S.zx==='流月運勢')return ysBody();
   if(S.zx==='本週運勢'){const W=weekData();if(!W.length)return '<p class="empty">此週超出可排盤範圍。</p>';const best=W.reduce((a,b)=>b.all>a.all?b:a),worst=W.reduce((a,b)=>b.all<a.all?b:a),avg=W.reduce((a,b)=>a+b.all,0)/W.length;
@@ -2998,15 +3002,15 @@ $('#zjp').addEventListener('click',e=>{const t=e.target,Z=S.zj;
 $('#bu').addEventListener('click',e=>{const s=e.target.closest('[data-wcs]');if(s){e.stopPropagation();WC.sel=+s.dataset.wcs;renderBu()}},true);
 $('#bu').addEventListener('click',e=>{const b=e.target.closest('[data-bu]');if(b){S.bu=S.bu===b.dataset.bu?null:b.dataset.bu;renderBu();return}
   const k0=e.target.closest('[data-buk0]');if(k0){S.buK0=!S.buK0;renderBu();return}const r=e.target.closest('[data-burot]');if(r){S.rot=+r.dataset.burot;S.focus=null;S.focusG=null;S.p=null;renderBoard();$('.boardcard').scrollIntoView({behavior:'smooth'})}});
-$('#zhan').addEventListener('click',e=>{const yg=e.target.closest('[data-ysgo]');if(yg){e.stopPropagation();S.fix=null;setWall(yg.dataset.ysgo,new Date());return}
+$('#zhan').addEventListener('click',e=>{const k0=e.target.closest('[data-buk0]');if(k0){e.stopPropagation();S.buK0=!S.buK0;renderBoard();return}const rr=e.target.closest('[data-burot]');if(rr){e.stopPropagation();S.rot=+rr.dataset.burot;S.focus=null;S.focusG=null;S.p=null;renderBoard();$('.boardcard').scrollIntoView({behavior:'smooth'});return}const yg=e.target.closest('[data-ysgo]');if(yg){e.stopPropagation();S.fix=null;setWall(yg.dataset.ysgo,new Date());return}
   const nv=e.target.closest('[data-ysnav]');if(nv){e.stopPropagation();const w=S.wall||wallOf(),dv=+nv.dataset.ysnav;let t=new Date(w.Y,w.M-1,w.D,12,0);if(S.kind==='年')t=new Date(w.Y+dv,5,15,12,0);else{const g=x=>QM.plate('月',x.getFullYear(),x.getMonth()+1,x.getDate(),12,0).YC.P[3],g0=g(t);let i=0;while(g(t)===g0&&i<40){t.setDate(t.getDate()+dv);i++}if(dv<0){const g1=g(t);while(g(t)===g1&&i<80){t.setDate(t.getDate()-1);i++}t.setDate(t.getDate()+1)}t.setDate(t.getDate()+10)}S.fix=null;setWall(S.kind,t);return}},true);
 $('#zhan').addEventListener('click',e=>{const lo=e.target.closest('[data-lyopen]');if(lo){e.stopPropagation();const Y=new Date().getFullYear(),tl=QM.termAfter(Date.UTC(Y,0,15)-8*3600000,21)+8*3600000,d=new Date(tl);let o=new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),6,30);if(d.getUTCHours()*60+d.getUTCMinutes()>390)o.setDate(o.getDate()+1);S.fix=null;S.kind='時';setWall('時',o);S.zx='流年盤解析';renderBoard();return}},true);
 $('#zhan').addEventListener('click',e=>{const cf=e.target.closest('[data-cf]');if(cf){const f=CAIF.find(z=>z[0]===cf.dataset.cf);S.zx=null;S.topic=f[1];store.set('qm_topic',S.topic);if(f[2]){S.caiMode=f[2];store.set('qm_caimode',S.caiMode)}renderBoard();return}const cm=e.target.closest('[data-cm]');if(cm){S.caiMode=cm.dataset.cm;store.set('qm_caimode',S.caiMode);renderBoard();return}const b=e.target.closest('[data-s5]');if(!b)return;e.stopPropagation();const n=b.dataset.s5;
   if(n==='本週運勢'||n==='感情緣分'||n==='流年盤解析'){S.zx=S.zx===n?null:n;renderBoard();return}
   if(ST5[n]){S.zx=null;S.topic=ST5[n];store.set('qm_topic',S.topic);renderBoard();return}
   if(n==='流月運勢'||n==='流年運勢'){if(S.zx===n){S.zx=null;renderBoard();return}S.zx=n;S.fix=null;setWall(n==='流年運勢'?'年':'月',new Date());$('#zhan').scrollIntoView({behavior:'smooth'});return}
-  if(n==='流年財位'){S.fix=null;S.bu='催財';setWall('年',new Date());$('#bu').scrollIntoView({behavior:'smooth'});return}
-  if(n==='終身財位'){S.bu='終身盤財位';renderBu();$('#bu').scrollIntoView({behavior:'smooth'})}},true);
+  if(n==='流年財位'){if(S.zx===n){S.zx=null;renderBoard();return}S.zx=n;S.fix=null;setWall('年',new Date());$('#zhan').scrollIntoView({behavior:'smooth'});return}
+  if(n==='終身財位'){S.zx=S.zx===n?null:n;renderBoard();$('#zhan').scrollIntoView({behavior:'smooth'})}},true);
 $('#detail').addEventListener('click',e=>{const b=e.target.closest('[data-dt]');if(!b)return;S.dtab=b.dataset.dt;renderYinDetail()});
 $('#dayOnly').checked=S.dayOnly;
 $('#dayOnly').onchange=e=>{S.dayOnly=e.target.checked;store.set('qm_dayOnly',S.dayOnly?'1':'0');render()};
